@@ -84,7 +84,7 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id=5]
 resource_name = "FadeScene"
-length = 9.0
+length = 7.0
 tracks/0/type = "value"
 tracks/0/path = NodePath("Fader:color")
 tracks/0/interp = 1
@@ -92,10 +92,10 @@ tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
 tracks/0/keys = {
-"times": PoolRealArray( 0, 9 ),
+"times": PoolRealArray( 0, 7 ),
 "transitions": PoolRealArray( 1, 1 ),
 "update": 0,
-"values": [ Color( 0, 0, 0, 0 ), Color( 0, 0, 0, 1 ) ]
+"values": [ Color( 0, 0, 0, 0 ), Color( 0, 0, 0, 0.815686 ) ]
 }
 
 [node name="StartBlizzard" type="Node"]
@@ -123,10 +123,10 @@ __meta__ = {
 }
 
 [node name="StartPosition" type="Position2D" parent="SceneCanvas"]
-position = Vector2( -12, 152 )
+position = Vector2( -34, 153 )
 
 [node name="Player" parent="SceneCanvas" instance=ExtResource( 1 )]
-position = Vector2( -20, 152 )
+position = Vector2( -34, 152 )
 
 [node name="Sprite" parent="SceneCanvas/Player" index="0"]
 offset = Vector2( -1, 0 )
@@ -162,7 +162,13 @@ anims/FadeScene = SubResource( 5 )
 [node name="UICanvas" type="CanvasLayer" parent="."]
 layer = 2
 
+[node name="WaitStartTimer" type="Timer" parent="."]
+wait_time = 4.5
+one_shot = true
+autostart = true
+
 [connection signal="animation_finished" from="SceneCanvas/AnimationPlayer" to="." method="OnAnimationFinished"]
 [connection signal="animation_started" from="SceneCanvas/AnimationPlayer" to="." method="OnAnimationStarted"]
+[connection signal="timeout" from="WaitStartTimer" to="." method="WaitStartTimerTimeout"]
 
 [editable path="SceneCanvas/Player"]

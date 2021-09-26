@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://fonts/Xolonium-Regular.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://Title.cs" type="Script" id=2]
@@ -10,13 +10,31 @@ emission_shape = 2
 emission_box_extents = Vector3( 1, 100, 1 )
 flag_disable_z = true
 direction = Vector3( -1, 0, 0 )
-spread = 4.59
+spread = 8.0
 gravity = Vector3( 0, 2, 0 )
-initial_velocity = 89.18
+initial_velocity = 90.0
 initial_velocity_random = 0.2
+angular_velocity = 10.0
 orbit_velocity = 0.0
 orbit_velocity_random = 0.0
 linear_accel = 0.17
+
+[sub_resource type="ParticlesMaterial" id=7]
+emission_shape = 2
+emission_box_extents = Vector3( 1, 100, 1 )
+flag_disable_z = true
+direction = Vector3( -1, 0, 0 )
+spread = 8.0
+gravity = Vector3( -40, 5, 0 )
+initial_velocity = 340.0
+initial_velocity_random = 0.4
+angular_velocity = 10.0
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+linear_accel = -24.0
+linear_accel_random = 1.0
+scale = 1.25
+scale_random = 1.0
 
 [sub_resource type="DynamicFont" id=2]
 size = 24
@@ -56,7 +74,7 @@ tracks/0/keys = {
 resource_name = "Fade Out Screen"
 length = 2.5
 tracks/0/type = "value"
-tracks/0/path = NodePath("FadeRect:color")
+tracks/0/path = NodePath("MenuVBox:modulate")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -65,7 +83,107 @@ tracks/0/keys = {
 "times": PoolRealArray( 0, 2.5 ),
 "transitions": PoolRealArray( 1, 1 ),
 "update": 0,
-"values": [ Color( 0, 0, 0, 0 ), Color( 0, 0, 0, 1 ) ]
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("TitleLabel:self_modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 2.5 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+
+[sub_resource type="Animation" id=8]
+resource_name = "Speed Up Snow"
+length = 3.0
+tracks/0/type = "value"
+tracks/0/path = NodePath("MainParticles:process_material:gravity")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 3 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Vector3( 0, 2, 0 ), Vector3( -40, 5, 0 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("MainParticles:process_material:initial_velocity")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 3 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 90.0, 340.0 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("MainParticles:process_material:initial_velocity_random")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 3 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0.2, 0.4 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("MainParticles:process_material:linear_accel")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 3 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0.17, -24.0 ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("MainParticles:process_material:linear_accel_random")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0, 3 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0.0, 1.0 ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("MainParticles:process_material:angular_velocity")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 3 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ 10.0 ]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath("SecondaryParticles:emitting")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PoolRealArray( 0, 2 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ false, true ]
 }
 
 [node name="Title" type="Node"]
@@ -79,13 +197,21 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Particles2D" type="Particles2D" parent="."]
+[node name="MainParticles" type="Particles2D" parent="."]
 position = Vector2( 386, 108 )
 amount = 500
 lifetime = 5.5
 preprocess = 5.0
 visibility_rect = Rect2( -386, -108, 384, 216 )
 process_material = SubResource( 5 )
+
+[node name="SecondaryParticles" type="Particles2D" parent="."]
+position = Vector2( 386, 108 )
+emitting = false
+amount = 300
+lifetime = 2.0
+visibility_rect = Rect2( -386, -108, 384, 216 )
+process_material = SubResource( 7 )
 
 [node name="TitleLabel" type="Label" parent="."]
 anchor_right = 1.0
@@ -143,14 +269,7 @@ autostart = true
 "anims/Fade In Menu" = SubResource( 3 )
 "anims/Fade In Title" = SubResource( 4 )
 "anims/Fade Out Screen" = SubResource( 6 )
-
-[node name="FadeRect" type="ColorRect" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color( 0, 0, 0, 0 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
+"anims/Speed Up Snow" = SubResource( 8 )
 
 [connection signal="pressed" from="MenuVBox/StartGame" to="." method="OnStartGamePressed"]
 [connection signal="pressed" from="MenuVBox/QuitGame" to="." method="OnQuitGamePressed"]

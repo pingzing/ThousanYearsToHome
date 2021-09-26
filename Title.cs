@@ -1,4 +1,5 @@
 using Godot;
+using System.Threading.Tasks;
 
 namespace ThousandYearsHome
 {
@@ -10,6 +11,8 @@ namespace ThousandYearsHome
         private AnimationPlayer _fadeAnimator;
         private Button _startButton;
         private Button _quitButton;
+        private Particles2D _mainParticles;
+        private Particles2D _secondaryParticles;
 
         private ResourceInteractiveLoader _newGameLoader;
 
@@ -19,6 +22,8 @@ namespace ThousandYearsHome
             _fadeAnimator = GetNode<AnimationPlayer>("FadeAnimator");
             _startButton = GetNode<Button>("MenuVBox/StartGame");
             _quitButton = GetNode<Button>("MenuVBox/QuitGame");
+            _mainParticles = GetNode<Particles2D>("MainParticles");
+            _secondaryParticles = GetNode<Particles2D>("SecondaryParticles");
             _titleLabel = GetNode<Label>("TitleLabel");
             _titleLabel.SelfModulate = new Color(_titleLabel.SelfModulate, a: 0);
             _menuVBox = GetNode<VBoxContainer>("MenuVBox");
@@ -38,17 +43,37 @@ namespace ThousandYearsHome
             _fadeAnimator.Play("Fade In Menu");
         }
 
-        public void FadeAnimationFinished(string animationName)
+        public async void FadeAnimationFinished(string animationName)
         {
-            if (animationName != "Fade In Menu")
+            if (animationName == "Fade In Menu")
             {
-                return;
+                _startButton.GrabFocus();
             }
 
-            _startButton.GrabFocus();
+            if (animationName == "Fade Out Screen")
+            {
+                _fadeAnimator.Play("Speed Up Snow");
+            }
+
+            if (animationName == "Speed Up Snow")
+            {
+                await Task.Delay(4000); // Linger on the snowy black screen for drama
+                LoadNewGame();
+            }
         }
 
         public void OnStartGamePressed()
+        {
+            _menuVBox.SetProcessInput(false);
+            _fadeAnimator.Play("Fade Out Screen");
+        }
+
+        public void OnQuitGamePressed()
+        {
+            GetTree().Notification(MainLoop.NotificationWmQuitRequest);
+        }
+
+        private void LoadNewGame()
         {
             // Force completion of _newGameLoader
             _newGameLoader.Wait();
@@ -65,11 +90,6 @@ namespace ThousandYearsHome
 
             // Add the new scene
             root.AddChild(newGameScene);
-        }
-
-        public void OnQuitGamePressed()
-        {
-            GetTree().Notification(MainLoop.NotificationWmQuitRequest);
         }
     }
 

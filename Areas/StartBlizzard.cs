@@ -23,6 +23,10 @@ namespace ThousandYearsHome.Areas
             _player.InputLocked = true;
             _animator = GetNode<AnimationPlayer>("SceneCanvas/AnimationPlayer");
             _fadeAnimator = GetNode<AnimationPlayer>("SceneCanvas/FadePlayer");
+        }
+
+        public void WaitStartTimerTimeout()
+        {
             _animator.Play("StaggerForward");
         }
 
