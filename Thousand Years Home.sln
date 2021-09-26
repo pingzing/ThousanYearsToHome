@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Thousand Years Home", "Thousand Years Home.csproj", "{A1F4B02C-B5FE-4862-99FB-4E3A88AFD2CA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		ExportDebug|Any CPU = ExportDebug|Any CPU
+		ExportRelease|Any CPU = ExportRelease|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A1F4B02C-B5FE-4862-99FB-4E3A88AFD2CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1F4B02C-B5FE-4862-99FB-4E3A88AFD2CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1F4B02C-B5FE-4862-99FB-4E3A88AFD2CA}.ExportDebug|Any CPU.ActiveCfg = ExportDebug|Any CPU
+		{A1F4B02C-B5FE-4862-99FB-4E3A88AFD2CA}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
+		{A1F4B02C-B5FE-4862-99FB-4E3A88AFD2CA}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
+		{A1F4B02C-B5FE-4862-99FB-4E3A88AFD2CA}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A2074B14-5E20-40ED-A20A-709DD0B631F5}
+	EndGlobalSection
+EndGlobal

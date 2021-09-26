@@ -1,0 +1,159 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://fonts/Xolonium-Regular.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://Title.cs" type="Script" id=2]
+[ext_resource path="res://art/BaseTheme.tres" type="Theme" id=3]
+[ext_resource path="res://fonts/Equipment-base.tres" type="DynamicFont" id=4]
+
+[sub_resource type="ParticlesMaterial" id=5]
+emission_shape = 2
+emission_box_extents = Vector3( 1, 100, 1 )
+flag_disable_z = true
+direction = Vector3( -1, 0, 0 )
+spread = 4.59
+gravity = Vector3( 0, 2, 0 )
+initial_velocity = 89.18
+initial_velocity_random = 0.2
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+linear_accel = 0.17
+
+[sub_resource type="DynamicFont" id=2]
+size = 24
+font_data = ExtResource( 1 )
+
+[sub_resource type="Animation" id=3]
+length = 0.5
+tracks/0/type = "value"
+tracks/0/path = NodePath("MenuVBox:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.5 ),
+"transitions": PoolRealArray( 0.297302, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=4]
+length = 0.5
+tracks/0/type = "value"
+tracks/0/path = NodePath("TitleLabel:self_modulate")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.5 ),
+"transitions": PoolRealArray( 0.297302, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=6]
+resource_name = "Fade Out Screen"
+length = 2.5
+tracks/0/type = "value"
+tracks/0/path = NodePath("FadeRect:color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 2.5 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 0, 0, 0, 0 ), Color( 0, 0, 0, 1 ) ]
+}
+
+[node name="Title" type="Node"]
+script = ExtResource( 2 )
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Particles2D" type="Particles2D" parent="."]
+position = Vector2( 386, 108 )
+amount = 500
+lifetime = 5.5
+preprocess = 5.0
+visibility_rect = Rect2( -386, -108, 384, 216 )
+process_material = SubResource( 5 )
+
+[node name="TitleLabel" type="Label" parent="."]
+anchor_right = 1.0
+margin_top = 24.0
+margin_bottom = 54.0
+custom_fonts/font = SubResource( 2 )
+custom_colors/font_color = Color( 0, 0.0196078, 1, 1 )
+text = "Thousand Years To Home"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MenuVBox" type="VBoxContainer" parent="."]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -32.0
+margin_bottom = -40.0
+grow_vertical = 0
+theme = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="StartGame" type="Button" parent="MenuVBox"]
+margin_right = 384.0
+margin_bottom = 16.0
+mouse_filter = 2
+custom_fonts/font = ExtResource( 4 )
+text = "Start"
+
+[node name="QuitGame" type="Button" parent="MenuVBox"]
+margin_top = 20.0
+margin_right = 384.0
+margin_bottom = 36.0
+mouse_filter = 2
+custom_fonts/font = ExtResource( 4 )
+text = "Quit"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ShowTitleTimer" type="Timer" parent="."]
+wait_time = 0.5
+one_shot = true
+autostart = true
+
+[node name="ShowMenuTimer" type="Timer" parent="."]
+wait_time = 1.5
+one_shot = true
+autostart = true
+
+[node name="FadeAnimator" type="AnimationPlayer" parent="."]
+"anims/Fade In Menu" = SubResource( 3 )
+"anims/Fade In Title" = SubResource( 4 )
+"anims/Fade Out Screen" = SubResource( 6 )
+
+[node name="FadeRect" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="pressed" from="MenuVBox/StartGame" to="." method="OnStartGamePressed"]
+[connection signal="pressed" from="MenuVBox/QuitGame" to="." method="OnQuitGamePressed"]
+[connection signal="timeout" from="ShowTitleTimer" to="." method="ShowTitleTimerTimeout"]
+[connection signal="timeout" from="ShowMenuTimer" to="." method="ShowMenuTimerTimeout"]
+[connection signal="animation_finished" from="FadeAnimator" to="." method="FadeAnimationFinished"]
