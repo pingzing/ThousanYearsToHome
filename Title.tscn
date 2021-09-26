@@ -5,7 +5,7 @@
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=3]
 [ext_resource path="res://fonts/Equipment-base.tres" type="DynamicFont" id=4]
 
-[sub_resource type="ParticlesMaterial" id=5]
+[sub_resource type="ParticlesMaterial" id=1]
 emission_shape = 2
 emission_box_extents = Vector3( 1, 100, 1 )
 flag_disable_z = true
@@ -19,7 +19,7 @@ orbit_velocity = 0.0
 orbit_velocity_random = 0.0
 linear_accel = 0.17
 
-[sub_resource type="ParticlesMaterial" id=7]
+[sub_resource type="ParticlesMaterial" id=2]
 emission_shape = 2
 emission_box_extents = Vector3( 1, 100, 1 )
 flag_disable_z = true
@@ -36,11 +36,11 @@ linear_accel_random = 1.0
 scale = 1.25
 scale_random = 1.0
 
-[sub_resource type="DynamicFont" id=2]
+[sub_resource type="DynamicFont" id=3]
 size = 24
 font_data = ExtResource( 1 )
 
-[sub_resource type="Animation" id=3]
+[sub_resource type="Animation" id=4]
 length = 0.5
 tracks/0/type = "value"
 tracks/0/path = NodePath("MenuVBox:modulate")
@@ -55,7 +55,7 @@ tracks/0/keys = {
 "values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 1 ) ]
 }
 
-[sub_resource type="Animation" id=4]
+[sub_resource type="Animation" id=5]
 length = 0.5
 tracks/0/type = "value"
 tracks/0/path = NodePath("TitleLabel:self_modulate")
@@ -98,7 +98,7 @@ tracks/1/keys = {
 "values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
 }
 
-[sub_resource type="Animation" id=8]
+[sub_resource type="Animation" id=7]
 resource_name = "Speed Up Snow"
 length = 3.0
 tracks/0/type = "value"
@@ -203,7 +203,7 @@ amount = 500
 lifetime = 5.5
 preprocess = 5.0
 visibility_rect = Rect2( -386, -108, 384, 216 )
-process_material = SubResource( 5 )
+process_material = SubResource( 1 )
 
 [node name="SecondaryParticles" type="Particles2D" parent="."]
 position = Vector2( 386, 108 )
@@ -211,13 +211,13 @@ emitting = false
 amount = 300
 lifetime = 2.0
 visibility_rect = Rect2( -386, -108, 384, 216 )
-process_material = SubResource( 7 )
+process_material = SubResource( 2 )
 
 [node name="TitleLabel" type="Label" parent="."]
 anchor_right = 1.0
 margin_top = 24.0
 margin_bottom = 54.0
-custom_fonts/font = SubResource( 2 )
+custom_fonts/font = SubResource( 3 )
 custom_colors/font_color = Color( 0, 0.0196078, 1, 1 )
 text = "Thousand Years To Home"
 align = 1
@@ -266,10 +266,10 @@ one_shot = true
 autostart = true
 
 [node name="FadeAnimator" type="AnimationPlayer" parent="."]
-"anims/Fade In Menu" = SubResource( 3 )
-"anims/Fade In Title" = SubResource( 4 )
+"anims/Fade In Menu" = SubResource( 4 )
+"anims/Fade In Title" = SubResource( 5 )
 "anims/Fade Out Screen" = SubResource( 6 )
-"anims/Speed Up Snow" = SubResource( 8 )
+"anims/Speed Up Snow" = SubResource( 7 )
 
 [connection signal="pressed" from="MenuVBox/StartGame" to="." method="OnStartGamePressed"]
 [connection signal="pressed" from="MenuVBox/QuitGame" to="." method="OnQuitGamePressed"]

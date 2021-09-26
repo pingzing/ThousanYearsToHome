@@ -13,9 +13,6 @@ namespace ThousandYearsHome.Entities
         private AnimationPlayer _animationPlayer = null!;
         private Sprite _sprite = null!;
 
-        private string? _externalAnimation = null;
-        private float? _externalAnimationSpeed = null;
-
         [Export] private float MaxSpeed = 200;
         [Export] public bool InputLocked = false;
 
@@ -41,11 +38,7 @@ namespace ThousandYearsHome.Entities
         {
             if (InputLocked)
             {
-                if (_externalAnimation != null)
-                {
-                    _animationPlayer.PlaybackSpeed = _externalAnimationSpeed ?? 1.0f;
-                    _animationPlayer.Play(_externalAnimation);
-                }
+
             }
             else
             {
@@ -107,14 +100,7 @@ namespace ThousandYearsHome.Entities
 
         public void PlayAnimation(string animationName, float animationSpeed = 1.0f)
         {
-            _externalAnimation = animationName;
-            _externalAnimationSpeed = animationSpeed;
-        }
-
-        public void StopAnimating()
-        {
-            _externalAnimation = null;
-            _externalAnimationSpeed = null;
+            _animationPlayer.Play(animationName, animationSpeed);
         }
 
         public void SetSprite(int frameIndex)

@@ -24,6 +24,10 @@ window/dpi/allow_hidpi=true
 window/stretch/mode="viewport"
 window/stretch/aspect="keep_height"
 
+[editor_plugins]
+
+enabled=PoolStringArray( "res://addons/GodotTIE/plugin.cfg" )
+
 [importer_defaults]
 
 texture={

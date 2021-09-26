@@ -6,15 +6,15 @@ namespace ThousandYearsHome
     public class Title : Node
     {
 
-        private Label _titleLabel;
-        private VBoxContainer _menuVBox;
-        private AnimationPlayer _fadeAnimator;
-        private Button _startButton;
-        private Button _quitButton;
-        private Particles2D _mainParticles;
-        private Particles2D _secondaryParticles;
+        private Label _titleLabel = null!;
+        private VBoxContainer _menuVBox = null!;
+        private AnimationPlayer _fadeAnimator = null!;
+        private Button _startButton = null!;
+        private Button _quitButton = null!;
+        private Particles2D _mainParticles = null!;
+        private Particles2D _secondaryParticles = null!;
 
-        private ResourceInteractiveLoader _newGameLoader;
+        private ResourceInteractiveLoader _newGameLoader = null!;
 
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
@@ -81,7 +81,7 @@ namespace ThousandYearsHome
             // Get and instance the loaded scene
             var newGameLevel = _newGameLoader.GetResource();
             var root = GetTree().Root;
-            var newGameScene = (newGameLevel as PackedScene).Instance();
+            Node? newGameScene = (newGameLevel as PackedScene)?.Instance();
 
             // Remove the current scene
             var currentSceneRoot = root.GetNode("Title");

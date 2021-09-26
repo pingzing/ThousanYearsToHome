@@ -1,3 +1,6 @@
+# Visual Studio
+.vs/
+
 # Godot-specific ignores
 .import/
 export.cfg
