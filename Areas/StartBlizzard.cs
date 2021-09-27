@@ -2,7 +2,7 @@ using Godot;
 using System;
 using System.Threading.Tasks;
 using ThousandYearsHome.Controls;
-using ThousandYearsHome.Entities;
+using ThousandYearsHome.Entities.Player;
 using ThousandYearsHome.Extensions;
 
 namespace ThousandYearsHome.Areas
@@ -61,14 +61,13 @@ namespace ThousandYearsHome.Areas
 
         public void OnDialogueBoxClosed()
         {
-
         }
 
         public async void OnFadePlayerAnimationFinished(string name)
         {
             if (name == "FadeScene")
             {
-                _player.PlayAnimation("FlashWhite");
+                _player.AnimateColor("FlashWhite");
                 _fader.Color = new Color(_fader.Color, .3f); // Un-dim MOST of the way. Rest of the way after dialogue.
                 _snowParticles.SpeedScale = 0f;
                 _player.SetSprite(4);

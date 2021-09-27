@@ -17,6 +17,7 @@ namespace ThousandYearsHome.Controls
         private AnimationPlayer _animator = null!;
         private AnimationPlayer _nextArrowAnimator = null!;
 
+        private bool _isOpen = false;
         private const string EndSinglePage = "endsinglepage";
         private bool _bufferEmptied = false;
 
@@ -78,6 +79,7 @@ namespace ThousandYearsHome.Controls
 
         public Task Open()
         {
+            _isOpen = true;
             _showCompletionSource = new TaskCompletionSource<string>();
             _animator.Play("Show");
             return _showCompletionSource.Task;
@@ -85,6 +87,7 @@ namespace ThousandYearsHome.Controls
 
         public Task Close()
         {
+            _isOpen = false;
             _hideCompletionSource = new TaskCompletionSource<string>();
             _animator.Play("Hide");
             return _hideCompletionSource.Task;
@@ -93,6 +96,11 @@ namespace ThousandYearsHome.Controls
         // Called every frame. 'delta' is the elapsed time since the previous frame.
         public override void _Process(float delta)
         {
+            if (!_isOpen)
+            {
+                return;
+            }
+
             if (_bufferEmptied)
             {
                 if (Input.IsActionPressed("ui_accept"))
