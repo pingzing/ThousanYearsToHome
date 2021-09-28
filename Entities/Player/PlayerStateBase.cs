@@ -1,4 +1,5 @@
 ﻿using Godot;
+using System.Threading.Tasks;
 
 namespace ThousandYearsHome.Entities.Player
 {
@@ -7,16 +8,19 @@ namespace ThousandYearsHome.Entities.Player
         public abstract PlayerStateKind StateKind { get; }
         public abstract string DefaultAnimation { get; }
 
-        public virtual void Enter(Player player)
+        public virtual Task Enter(Player player)
         {
             player.AnimatePose(DefaultAnimation);
+            return Task.CompletedTask;
         }
 
         public abstract PlayerStateKind? Run(Player player);
 
-        public virtual void Exit(Player player)
+        public virtual Task Exit(Player player)
         {
-            player.ClearPoseAnimationQueue();
+            player.ResetPoseAnimation();
+            return Task.CompletedTask;
+
         }
     }
 }

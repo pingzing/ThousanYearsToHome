@@ -7,7 +7,7 @@ namespace ThousandYearsHome.Entities.Player
         [Export] private PlayerStateKind _stateKind = PlayerStateKind.Idle;
         public override PlayerStateKind StateKind => _stateKind;
 
-        [Export] private string _defaultAnimation = "Stand";
+        [Export] private string _defaultAnimation = "Idle";
         public override string DefaultAnimation => _defaultAnimation;
 
         public override PlayerStateKind? Run(Player player)

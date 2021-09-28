@@ -8,16 +8,11 @@
 [ext_resource path="res://Entities/Player/StateInAir.cs" type="Script" id=6]
 [ext_resource path="res://Entities/Player/StateJumping.cs" type="Script" id=7]
 
-[sub_resource type="Animation" id=1]
-resource_name = "InAir"
-
-[sub_resource type="Animation" id=2]
-resource_name = "Jump"
-
 [sub_resource type="Animation" id=3]
+resource_name = "Idle"
 length = 0.1
 tracks/0/type = "value"
-tracks/0/path = NodePath("../Sprite:frame")
+tracks/0/path = NodePath(".:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -29,11 +24,31 @@ tracks/0/keys = {
 "values": [ 0 ]
 }
 
+[sub_resource type="Animation" id=1]
+resource_name = "InAir"
+length = 0.6
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.2, 0.5 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 1,
+"values": [ 4, 5, 6 ]
+}
+
+[sub_resource type="Animation" id=2]
+resource_name = "Jump"
+
 [sub_resource type="Animation" id=4]
 length = 0.7
 loop = true
 tracks/0/type = "value"
-tracks/0/path = NodePath("../Sprite:frame")
+tracks/0/path = NodePath(".:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -90,9 +105,9 @@ texture = ExtResource( 2 )
 hframes = 7
 
 [node name="PoseAnimator" type="AnimationPlayer" parent="Sprite"]
+anims/Idle = SubResource( 3 )
 anims/InAir = SubResource( 1 )
 anims/Jump = SubResource( 2 )
-anims/Stand = SubResource( 3 )
 anims/Walk = SubResource( 4 )
 
 [node name="ColorAnimator" type="AnimationPlayer" parent="Sprite"]
@@ -124,6 +139,3 @@ one_shot = true
 [node name="FloorTimer" type="Timer" parent="."]
 wait_time = 0.1
 one_shot = true
-
-[connection signal="animation_finished" from="Sprite/PoseAnimator" to="." method="PoseAnimatorAnimationFinished"]
-[connection signal="animation_started" from="Sprite/PoseAnimator" to="." method="PoseAnimatorAnimationStarted"]

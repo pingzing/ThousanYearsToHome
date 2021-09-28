@@ -1,4 +1,5 @@
 using Godot;
+using System.Threading.Tasks;
 
 namespace ThousandYearsHome.Entities.Player
 {
@@ -141,6 +142,11 @@ namespace ThousandYearsHome.Entities.Player
             _poseAnimator.Play(animationName, animationSpeed);
         }
 
+        public SignalAwaiter WaitForCurrentPoseAnimationAsync()
+        {
+            return ToSignal(_poseAnimator, "animation_finished");
+        }
+
         public void AnimateColor(string animationName, float animationSpeed = 1.0f)
         {
             if (_colorAnimator.CurrentAnimation == animationName)
@@ -150,29 +156,21 @@ namespace ThousandYearsHome.Entities.Player
             _colorAnimator.Play(animationName, animationSpeed);
         }
 
-        public void ClearPoseAnimationQueue()
+        public void ResetPoseAnimation()
         {
+            _poseAnimator.Stop(true);
             _poseAnimator.ClearQueue();
         }
 
-        public void ClearColorAnimationQueue()
+        public void ResetColorAnimation()
         {
+            _colorAnimator.Stop(true);
             _colorAnimator.ClearQueue();
         }
 
         public void SetSprite(int frameIndex)
         {
             _sprite.Frame = frameIndex;
-        }
-
-        public void PoseAnimatorAnimationStarted(string name)
-        {
-            GD.Print($"PoseAnimator started: {name}");
-        }
-
-        public void PoseAnimatorAnimationFinished(string name)
-        {
-            GD.Print($"PoseAnimator finished: {name}");
         }
     }
 }

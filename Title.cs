@@ -31,9 +31,6 @@ namespace ThousandYearsHome
             _menuVBox = GetNode<VBoxContainer>("MenuVBox");
             _menuVBox.Modulate = new Color(_menuVBox.Modulate, a: 0);
 
-            GetNode<Player>("Player").Show();
-            GetNode<Player>("Player").AnimatePose("Walk");
-
             // Begin loading the "new game" scene immediately on boot
             _newGameLoader = ResourceLoader.LoadInteractive("res://Areas/StartBlizzard.tscn");
         }

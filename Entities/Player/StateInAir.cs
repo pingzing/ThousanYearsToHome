@@ -1,5 +1,6 @@
 ﻿using Godot;
 using System;
+using System.Threading.Tasks;
 
 namespace ThousandYearsHome.Entities.Player
 {
@@ -14,15 +15,16 @@ namespace ThousandYearsHome.Entities.Player
 
         [Export] private float _inAirSpeed = 300f;
 
-        public override void Enter(Player player)
+        public override async Task Enter(Player player)
         {
             if (player.CurrentAnimationName == "Jump")
             {
+                await player.WaitForCurrentPoseAnimationAsync();
                 // TODO: wait for animation to finish then call base.Enter()
             }
             else
             {
-                base.Enter(player);
+                await base.Enter(player);
             }
         }
 

@@ -23,14 +23,14 @@ namespace ThousandYearsHome.Areas
         public override void _Ready()
         {
             _sceneRoot = GetTree().Root.GetNode<Node>("StartBlizzard");
-            _snowParticles = GetNode<Particles2D>("SceneCanvas/Particles2D");
-            _fader = GetNode<ColorRect>("SceneCanvas/Fader");
+            _snowParticles = GetNode<Particles2D>("UICanvas/Particles2D");
+            _fader = GetNode<ColorRect>("UICanvas/Fader");
             _dialogueBox = GetNode<DialogueBox>("UICanvas/DialogueBox");
-            _player = GetNode<Player>("SceneCanvas/Player");
-            _animator = GetNode<AnimationPlayer>("SceneCanvas/AnimationPlayer");
-            _fadeAnimator = GetNode<AnimationPlayer>("SceneCanvas/FadePlayer");
+            _player = GetNode<Player>("Player");
+            _animator = GetNode<AnimationPlayer>("AnimationPlayer");
+            _fadeAnimator = GetNode<AnimationPlayer>("UICanvas/FadePlayer");
 
-            Vector2 startPos = GetNode<Position2D>("SceneCanvas/StartPosition").Position;
+            Vector2 startPos = GetNode<Position2D>("StartPosition").Position;
             _player.Spawn(startPos);
             // Lock player's input, because we're gonna animate them cutscene style
             if (!SkipIntro)
@@ -46,6 +46,7 @@ namespace ThousandYearsHome.Areas
 
         public void DebugPlayWalkPressed()
         {
+            _player.ResetPoseAnimation();
             _player.AnimatePose("Walk");
         }
 
