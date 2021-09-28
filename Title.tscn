@@ -1,9 +1,10 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://fonts/Xolonium-Regular.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://Title.cs" type="Script" id=2]
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=3]
 [ext_resource path="res://fonts/Equipment-base.tres" type="DynamicFont" id=4]
+[ext_resource path="res://Entities/Player/Player.tscn" type="PackedScene" id=5]
 
 [sub_resource type="ParticlesMaterial" id=1]
 emission_shape = 2
@@ -242,14 +243,24 @@ margin_right = 384.0
 margin_bottom = 16.0
 mouse_filter = 2
 custom_fonts/font = ExtResource( 4 )
+shortcut_in_tooltip = false
 text = "Start"
 
-[node name="QuitGame" type="Button" parent="MenuVBox"]
+[node name="ContinueGame" type="Button" parent="MenuVBox"]
 margin_top = 20.0
 margin_right = 384.0
 margin_bottom = 36.0
 mouse_filter = 2
 custom_fonts/font = ExtResource( 4 )
+text = "Continue"
+
+[node name="QuitGame" type="Button" parent="MenuVBox"]
+margin_top = 40.0
+margin_right = 384.0
+margin_bottom = 56.0
+mouse_filter = 2
+custom_fonts/font = ExtResource( 4 )
+shortcut_in_tooltip = false
 text = "Quit"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -271,7 +282,11 @@ autostart = true
 "anims/Fade Out Screen" = SubResource( 6 )
 "anims/Speed Up Snow" = SubResource( 7 )
 
+[node name="Player" parent="." instance=ExtResource( 5 )]
+position = Vector2( 70, 148 )
+
 [connection signal="pressed" from="MenuVBox/StartGame" to="." method="OnStartGamePressed"]
+[connection signal="pressed" from="MenuVBox/ContinueGame" to="." method="OnContinuePressed"]
 [connection signal="pressed" from="MenuVBox/QuitGame" to="." method="OnQuitGamePressed"]
 [connection signal="timeout" from="ShowTitleTimer" to="." method="ShowTitleTimerTimeout"]
 [connection signal="timeout" from="ShowMenuTimer" to="." method="ShowMenuTimerTimeout"]

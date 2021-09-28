@@ -4,28 +4,28 @@ namespace ThousandYearsHome.Entities.Player
 {
     public class StateRunning : PlayerStateBase
     {
-        [Export] private PlayerState _stateVariant = PlayerState.Running;
-        public override PlayerState StateVariant => _stateVariant;
+        [Export] private PlayerStateKind _stateKind = PlayerStateKind.Running;
+        public override PlayerStateKind StateKind => _stateKind;
 
         [Export] private string _defaultAnimation = "Walk";
         public override string DefaultAnimation => _defaultAnimation;
 
         [Export] private float RunSpeed = 200;
 
-        public override PlayerState? Run(Player player)
+        public override PlayerStateKind? Run(Player player)
         {
             if (player.VerticalUnit > 0)
             {
                 // example does some layer shenanigans for 1-way platforms
             }
 
-            player.VelX = player.HoriztaonlUnit * RunSpeed;
+            player.VelX = player.HorizontalUnit * RunSpeed;
             player.ApplyGravity(player.Gravity);
             player.Move();
 
             if (!player.IsOnFloor())
             {
-                return PlayerState.InAir;
+                return PlayerStateKind.InAir;
             }
             if (player.VelY > 0)
             {
@@ -33,11 +33,11 @@ namespace ThousandYearsHome.Entities.Player
             }
             if (player.Jumping)
             {
-                return PlayerState.Jumping;
+                return PlayerStateKind.Jumping;
             }
-            if (player.HoriztaonlUnit == 0)
+            if (player.HorizontalUnit == 0)
             {
-                return PlayerState.Idle;
+                return PlayerStateKind.Idle;
             }
 
             return null;

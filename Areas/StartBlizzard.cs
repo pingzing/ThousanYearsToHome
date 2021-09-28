@@ -17,6 +17,8 @@ namespace ThousandYearsHome.Areas
         private ColorRect _fader = null!;
         private DialogueBox _dialogueBox = null!;
 
+        public bool SkipIntro { get; set; }
+
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
         {
@@ -24,19 +26,35 @@ namespace ThousandYearsHome.Areas
             _snowParticles = GetNode<Particles2D>("SceneCanvas/Particles2D");
             _fader = GetNode<ColorRect>("SceneCanvas/Fader");
             _dialogueBox = GetNode<DialogueBox>("UICanvas/DialogueBox");
-            var startPos = GetNode<Position2D>("SceneCanvas/StartPosition").Position;
             _player = GetNode<Player>("SceneCanvas/Player");
-            _player.Spawn(startPos);
-
-            // Lock player's input, because we're gonna animate them cutscene style
-            _player.InputLocked = true;
             _animator = GetNode<AnimationPlayer>("SceneCanvas/AnimationPlayer");
             _fadeAnimator = GetNode<AnimationPlayer>("SceneCanvas/FadePlayer");
+
+            Vector2 startPos = GetNode<Position2D>("SceneCanvas/StartPosition").Position;
+            _player.Spawn(startPos);
+            // Lock player's input, because we're gonna animate them cutscene style
+            if (!SkipIntro)
+            {
+                _player.InputLocked = true;
+            }
+        }
+
+        public void OnPlayerDebugUpdateState(PlayerStateKind newState)
+        {
+            GetNode<Label>("UICanvas/DebugStateLabel").Text = newState.ToString();
+        }
+
+        public void DebugPlayWalkPressed()
+        {
+            _player.AnimatePose("Walk");
         }
 
         public void WaitStartTimerTimeout()
         {
-            _animator.Play("StaggerForward");
+            if (!SkipIntro)
+            {
+                _animator.Play("StaggerForward");
+            }
         }
 
         public void OnAnimationStarted(string name)

@@ -6,8 +6,8 @@ namespace ThousandYearsHome.Entities.Player
     public class StateInAir : PlayerStateBase
     {
 
-        [Export] private PlayerState _stateVariant = PlayerState.InAir;
-        public override PlayerState StateVariant => _stateVariant;
+        [Export] private PlayerStateKind _stateKind = PlayerStateKind.InAir;
+        public override PlayerStateKind StateKind => _stateKind;
 
         [Export] private string _defaultAnimation = "InAir";
         public override string DefaultAnimation => _defaultAnimation;
@@ -26,22 +26,22 @@ namespace ThousandYearsHome.Entities.Player
             }
         }
 
-        public override PlayerState? Run(Player player)
+        public override PlayerStateKind? Run(Player player)
         {
-            player.VelX = player.HoriztaonlUnit * _inAirSpeed;
+            player.VelX = player.HorizontalUnit * _inAirSpeed;
             player.ApplyGravity(player.Gravity);
             player.Move();
 
             if (player.IsOnFloor())
             {
-                return player.HoriztaonlUnit == 0
-                    ? PlayerState.Idle
-                    : PlayerState.Running;
+                return player.HorizontalUnit == 0
+                    ? PlayerStateKind.Idle
+                    : PlayerStateKind.Running;
             }
 
-            if (player.Grounded && player.Jumping) // TODO: ??? how's this possible? some weird edge state just after leaving the ground?
+            if (player.Grounded && player.Jumping) // Allows jumping for a split second after beginning to fall
             {
-                return PlayerState.Jumping;
+                return PlayerStateKind.Jumping;
             }
 
             return null;

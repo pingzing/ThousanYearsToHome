@@ -137,6 +137,7 @@ position = Vector2( -34, 152 )
 
 [node name="Sprite" parent="SceneCanvas/Player" index="0"]
 offset = Vector2( -1, 0 )
+frame = 0
 
 [node name="Particles2D" type="Particles2D" parent="SceneCanvas"]
 position = Vector2( 387, 105 )
@@ -172,6 +173,10 @@ shape = SubResource( 6 )
 position = Vector2( 389, 81 )
 shape = SubResource( 7 )
 
+[node name="LeftEdge" type="CollisionShape2D" parent="SceneCanvas/Terrain"]
+position = Vector2( -72, 89 )
+shape = SubResource( 7 )
+
 [node name="UICanvas" type="CanvasLayer" parent="."]
 layer = 2
 
@@ -181,15 +186,36 @@ margin_top = 39.0
 margin_right = 375.0
 margin_bottom = 84.0
 
+[node name="DebugStateLabel" type="Label" parent="UICanvas"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -73.0
+margin_right = 73.0
+margin_bottom = 14.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button" type="Button" parent="UICanvas"]
+margin_left = 289.0
+margin_right = 365.0
+margin_bottom = 20.0
+text = "Play Walk"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="WaitStartTimer" type="Timer" parent="."]
 wait_time = 4.5
 one_shot = true
 autostart = true
 
+[connection signal="DebugUpdateState" from="SceneCanvas/Player" to="." method="OnPlayerDebugUpdateState"]
 [connection signal="animation_finished" from="SceneCanvas/AnimationPlayer" to="." method="OnAnimationFinished"]
 [connection signal="animation_started" from="SceneCanvas/AnimationPlayer" to="." method="OnAnimationStarted"]
 [connection signal="animation_finished" from="SceneCanvas/FadePlayer" to="." method="OnFadePlayerAnimationFinished"]
 [connection signal="DialogueBoxClosed" from="UICanvas/DialogueBox" to="." method="OnDialogueBoxClosed"]
+[connection signal="pressed" from="UICanvas/Button" to="." method="DebugPlayWalkPressed"]
 [connection signal="timeout" from="WaitStartTimer" to="." method="WaitStartTimerTimeout"]
 
 [editable path="SceneCanvas/Player"]

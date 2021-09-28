@@ -1,6 +1,6 @@
 ﻿namespace ThousandYearsHome.Entities.Player
 {
-    public enum PlayerState
+    public enum PlayerStateKind
     {
         Idle,
         Running,

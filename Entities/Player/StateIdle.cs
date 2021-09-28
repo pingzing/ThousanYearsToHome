@@ -4,20 +4,20 @@ namespace ThousandYearsHome.Entities.Player
 {
     public class StateIdle : PlayerStateBase
     {
-        [Export] private PlayerState _stateVariant = PlayerState.Idle;
-        public override PlayerState StateVariant => _stateVariant;
+        [Export] private PlayerStateKind _stateKind = PlayerStateKind.Idle;
+        public override PlayerStateKind StateKind => _stateKind;
 
         [Export] private string _defaultAnimation = "Stand";
         public override string DefaultAnimation => _defaultAnimation;
 
-        public override PlayerState? Run(Player player)
+        public override PlayerStateKind? Run(Player player)
         {
             if (player.VelY > 0)
             {
                 player.VelY = 0f;
             }
 
-            if (player.HoriztaonlUnit == 0 && player.VerticalUnit > 0)
+            if (player.HorizontalUnit == 0 && player.VerticalUnit > 0)
             {
                 player.ApplyGravity(player.Gravity);
                 player.Move();
@@ -25,17 +25,17 @@ namespace ThousandYearsHome.Entities.Player
 
             if (player.Grounded != true)
             {
-                return PlayerState.InAir; // May need to have a separate state for just being in the air, but not rising
+                return PlayerStateKind.InAir;
             }
 
             if (player.Jumping)
             {
-                return PlayerState.Jumping;
+                return PlayerStateKind.Jumping;
             }
 
-            if (player.HoriztaonlUnit != 0)
+            if (player.HorizontalUnit != 0)
             {
-                return PlayerState.Running;
+                return PlayerStateKind.Running;
             }
 
             return null;

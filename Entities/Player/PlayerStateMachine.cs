@@ -6,10 +6,11 @@ namespace ThousandYearsHome.Entities.Player
 {
     public class PlayerStateMachine : Node2D
     {
-        private Dictionary<PlayerState, PlayerStateBase> _states = new Dictionary<PlayerState, PlayerStateBase>();
+        private Dictionary<PlayerStateKind, PlayerStateBase> _states = new Dictionary<PlayerStateKind, PlayerStateBase>();
 
         private Player _player = null!;
         private PlayerStateBase _currentState = null!;
+        public PlayerStateBase CurrentState => _currentState;
 
         public void Init(Player player)
         {
@@ -19,27 +20,22 @@ namespace ThousandYearsHome.Entities.Player
                                                 .Where(x => x is PlayerStateBase)
                                                 .Cast<PlayerStateBase>())
             {
-                _states[state.StateVariant] = state;
+                _states[state.StateKind] = state;
             }
-            _currentState = _states[PlayerState.Idle];
+            _currentState = _states[PlayerStateKind.Idle];
             _currentState.Enter(_player);
         }
 
         public void Run()
         {
-            PlayerState? nextState = _currentState?.Run(_player);
-            if (nextState != null)
+            PlayerStateKind? nextStateKind = _currentState?.Run(_player);
+            if (nextStateKind != null)
             {
-                ChangeState(nextState.Value);
+                PlayerStateBase? nextState = _states[nextStateKind.Value];
+                _currentState!.Exit(_player);
+                _currentState = nextState;
+                _currentState.Enter(_player);
             }
-        }
-
-        public void ChangeState(PlayerState newState)
-        {
-            PlayerStateBase? nextState = _states[newState];
-            _currentState.Exit(_player);
-            _currentState = nextState;
-            _currentState.Enter(_player);
         }
     }
 }

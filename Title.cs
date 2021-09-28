@@ -1,5 +1,7 @@
 using Godot;
 using System.Threading.Tasks;
+using ThousandYearsHome.Areas;
+using ThousandYearsHome.Entities.Player;
 
 namespace ThousandYearsHome
 {
@@ -28,6 +30,9 @@ namespace ThousandYearsHome
             _titleLabel.SelfModulate = new Color(_titleLabel.SelfModulate, a: 0);
             _menuVBox = GetNode<VBoxContainer>("MenuVBox");
             _menuVBox.Modulate = new Color(_menuVBox.Modulate, a: 0);
+
+            GetNode<Player>("Player").Show();
+            GetNode<Player>("Player").AnimatePose("Walk");
 
             // Begin loading the "new game" scene immediately on boot
             _newGameLoader = ResourceLoader.LoadInteractive("res://Areas/StartBlizzard.tscn");
@@ -58,7 +63,7 @@ namespace ThousandYearsHome
             if (animationName == "Speed Up Snow")
             {
                 await Task.Delay(4000); // Linger on the snowy black screen for drama
-                LoadNewGame();
+                LoadNewGame(false);
             }
         }
 
@@ -68,12 +73,18 @@ namespace ThousandYearsHome
             _fadeAnimator.Play("Fade Out Screen");
         }
 
+        public void OnContinuePressed()
+        {
+            // TODO: Load player's save, load level/checkpoint/whatever
+            LoadNewGame(true);
+        }
+
         public void OnQuitGamePressed()
         {
             GetTree().Notification(MainLoop.NotificationWmQuitRequest);
         }
 
-        private void LoadNewGame()
+        private void LoadNewGame(bool skipIntro)
         {
             // Force completion of _newGameLoader
             _newGameLoader.Wait();
@@ -81,7 +92,8 @@ namespace ThousandYearsHome
             // Get and instance the loaded scene
             var newGameLevel = _newGameLoader.GetResource();
             var root = GetTree().Root;
-            Node? newGameScene = (newGameLevel as PackedScene)?.Instance();
+            StartBlizzard? newGameScene = (newGameLevel as PackedScene)?.Instance() as StartBlizzard;
+            newGameScene.SkipIntro = skipIntro;
 
             // Remove the current scene
             var currentSceneRoot = root.GetNode("Title");

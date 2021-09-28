@@ -1,5 +1,4 @@
 using Godot;
-using System.Security.Policy;
 
 namespace ThousandYearsHome.Entities.Player
 {
@@ -25,7 +24,7 @@ namespace ThousandYearsHome.Entities.Player
         public bool Jumping => !_jumpTimer.IsStopped();
 
         private int _horizontalUnit = 0;
-        public int HoriztaonlUnit => _horizontalUnit;
+        public int HorizontalUnit => _horizontalUnit;
 
         private int _verticalUnit = 0;
         public int VerticalUnit => _verticalUnit;
@@ -49,9 +48,9 @@ namespace ThousandYearsHome.Entities.Player
                             _poseAnimator.Advance(0);
                         }
                     }
-                    _velocity.x = value;
-                    _velX = value;
                 }
+                _velocity.x = value;
+                _velX = value;
             }
         }
 
@@ -61,22 +60,20 @@ namespace ThousandYearsHome.Entities.Player
             get => _velY;
             set
             {
-                if (value != 0)
-                {
-                    _velocity.y = value;
-                    _velY = value;
-                }
+                _velocity.y = value;
+                _velY = value;
             }
         }
 
         [Export] public bool InputLocked = false;
         [Export] public float Gravity = 60f;
+        [Signal] public delegate void DebugUpdateState(PlayerStateKind newState);
 
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
         {
-            _poseAnimator = GetNode<AnimationPlayer>("PoseAnimator");
-            _colorAnimator = GetNode<AnimationPlayer>("ColorAnimator");
+            _poseAnimator = GetNode<AnimationPlayer>("Sprite/PoseAnimator");
+            _colorAnimator = GetNode<AnimationPlayer>("Sprite/ColorAnimator");
             _sprite = GetNode<Sprite>("Sprite");
             _stateMachine = GetNode<PlayerStateMachine>("PlayerStateMachine");
             _jumpTimer = GetNode<Timer>("JumpTimer");
@@ -103,19 +100,26 @@ namespace ThousandYearsHome.Entities.Player
             {
                 UpdateFromInput(delta);
                 _stateMachine.Run();
+                EmitSignal(nameof(DebugUpdateState), _stateMachine.CurrentState.StateKind);
             }
         }
 
         private void UpdateFromInput(float delta)
         {
+            // TODO: Refactor these into three-state enums
             _horizontalUnit = (Input.IsActionPressed("ui_right") ? 1 : 0) - (Input.IsActionPressed("ui_left") ? 1 : 0);
             _verticalUnit = (Input.IsActionPressed("ui_down") ? 1 : 0) - (Input.IsActionPressed("ui_up") ? 1 : 0);
             if (Input.IsActionJustPressed("ui_accept"))
             {
-                _jumpTimer.Start();
+                _jumpTimer.Start(); // Has us be in the "jumping" state for .06 seconds (which gets picked up the state machine, which makes us go up)
+            }
+            if (IsOnFloor())
+            {
+                _floorTimer.Start(); // Makes us be "on the floor" for 0.1s after leaving the ground. Refreshes every frame we're on the ground.
             }
         }
 
+        // Called by the state machine.
         public void Move()
         {
             var oldVel = _velocity;
@@ -130,11 +134,19 @@ namespace ThousandYearsHome.Entities.Player
 
         public void AnimatePose(string animationName, float animationSpeed = 1.0f)
         {
+            if (_poseAnimator.CurrentAnimation == animationName)
+            {
+                return;
+            }
             _poseAnimator.Play(animationName, animationSpeed);
         }
 
         public void AnimateColor(string animationName, float animationSpeed = 1.0f)
         {
+            if (_colorAnimator.CurrentAnimation == animationName)
+            {
+                return;
+            }
             _colorAnimator.Play(animationName, animationSpeed);
         }
 
@@ -151,6 +163,16 @@ namespace ThousandYearsHome.Entities.Player
         public void SetSprite(int frameIndex)
         {
             _sprite.Frame = frameIndex;
+        }
+
+        public void PoseAnimatorAnimationStarted(string name)
+        {
+            GD.Print($"PoseAnimator started: {name}");
+        }
+
+        public void PoseAnimatorAnimationFinished(string name)
+        {
+            GD.Print($"PoseAnimator finished: {name}");
         }
     }
 }
