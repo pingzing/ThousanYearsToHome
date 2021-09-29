@@ -1,6 +1,6 @@
 ﻿using Godot;
 
-namespace ThousandYearsHome.Entities.Player
+namespace ThousandYearsHome.Entities.PlayerEntity
 {
     public class StateIdle : PlayerStateBase
     {

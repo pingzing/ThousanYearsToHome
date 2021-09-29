@@ -1,6 +1,4 @@
 using Godot;
-using System;
-using System.Security.Policy;
 using System.Threading.Tasks;
 using ThousandYearsHome.Extensions;
 
@@ -35,6 +33,22 @@ namespace ThousandYearsHome.Controls
             _dialgoueBoxWrapper.SetBreakKeyScancode(KeyList.Z); // Unconditonally set the break key to "Z", because that's our confirm button.
             _animator = GetNode<AnimationPlayer>("DialogueBoxAnimator");
             _nextArrowAnimator = GetNode<AnimationPlayer>("NextArrowAnimator");
+        }
+
+        public override void _Process(float delta)
+        {
+            if (!_isOpen)
+            {
+                return;
+            }
+
+            if (_bufferEmptied)
+            {
+                if (Input.IsActionPressed("ui_accept"))
+                {
+                    _ = Close();
+                }
+            }
         }
 
         public void OnAnimationFinished(string name)
@@ -91,23 +105,6 @@ namespace ThousandYearsHome.Controls
             _hideCompletionSource = new TaskCompletionSource<string>();
             _animator.Play("Hide");
             return _hideCompletionSource.Task;
-        }
-
-        // Called every frame. 'delta' is the elapsed time since the previous frame.
-        public override void _Process(float delta)
-        {
-            if (!_isOpen)
-            {
-                return;
-            }
-
-            if (_bufferEmptied)
-            {
-                if (Input.IsActionPressed("ui_accept"))
-                {
-                    _ = Close();
-                }
-            }
         }
 
         /// <summary>

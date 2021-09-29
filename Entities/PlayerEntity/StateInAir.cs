@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace ThousandYearsHome.Entities.Player
+namespace ThousandYearsHome.Entities.PlayerEntity
 {
     public class StateInAir : PlayerStateBase
     {
@@ -13,7 +13,7 @@ namespace ThousandYearsHome.Entities.Player
         [Export] private string _defaultAnimation = "InAir";
         public override string DefaultAnimation => _defaultAnimation;
 
-        [Export] private float _inAirSpeed = 300f;
+        [Export] private float _inAirSpeed = 200f;
 
         public override async Task Enter(Player player)
         {

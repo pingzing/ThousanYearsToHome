@@ -1,13 +1,98 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=14 format=2]
 
-[ext_resource path="res://Entities/Player/Player.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Entities/PlayerEntity/Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Areas/StartBlizzard.cs" type="Script" id=2]
-[ext_resource path="res://art/Snow background.png" type="Texture" id=3]
-[ext_resource path="res://art/snowypath.png" type="Texture" id=4]
+[ext_resource path="res://art/BlizzardBackgrounds.png" type="Texture" id=3]
+[ext_resource path="res://art/BlizzardTileset.png" type="Texture" id=4]
 [ext_resource path="res://Controls/DialogueBox.tscn" type="PackedScene" id=5]
 
+[sub_resource type="TileSet" id=1]
+0/name = "BlizzardTileset.png 0"
+0/texture = ExtResource( 4 )
+0/tex_offset = Vector2( 0, 0 )
+0/modulate = Color( 1, 1, 1, 1 )
+0/region = Rect2( 64, 0, 16, 16 )
+0/tile_mode = 0
+0/occluder_offset = Vector2( 0, 0 )
+0/navigation_offset = Vector2( 0, 0 )
+0/shape_offset = Vector2( 0, 0 )
+0/shape_transform = Transform2D( 1, 0, 0, 1, 0, 0 )
+0/shape_one_way = false
+0/shape_one_way_margin = 0.0
+0/shapes = [  ]
+0/z_index = 0
+1/name = "BlizzardTileset.png 1"
+1/texture = ExtResource( 4 )
+1/tex_offset = Vector2( 0, 0 )
+1/modulate = Color( 1, 1, 1, 1 )
+1/region = Rect2( 48, 0, 16, 16 )
+1/tile_mode = 0
+1/occluder_offset = Vector2( 0, 0 )
+1/navigation_offset = Vector2( 0, 0 )
+1/shape_offset = Vector2( 0, 0 )
+1/shape_transform = Transform2D( 1, 0, 0, 1, 0, 0 )
+1/shape_one_way = false
+1/shape_one_way_margin = 0.0
+1/shapes = [  ]
+1/z_index = 0
+2/name = "BlizzardTileset.png 2"
+2/texture = ExtResource( 4 )
+2/tex_offset = Vector2( 0, 0 )
+2/modulate = Color( 1, 1, 1, 1 )
+2/region = Rect2( 0, 0, 16, 16 )
+2/tile_mode = 0
+2/occluder_offset = Vector2( 0, 0 )
+2/navigation_offset = Vector2( 0, 0 )
+2/shape_offset = Vector2( 0, 0 )
+2/shape_transform = Transform2D( 1, 0, 0, 1, 0, 0 )
+2/shape_one_way = false
+2/shape_one_way_margin = 0.0
+2/shapes = [  ]
+2/z_index = 0
+3/name = "BlizzardTileset.png 3"
+3/texture = ExtResource( 4 )
+3/tex_offset = Vector2( 0, 0 )
+3/modulate = Color( 1, 1, 1, 1 )
+3/region = Rect2( 16, 0, 16, 16 )
+3/tile_mode = 0
+3/occluder_offset = Vector2( 0, 0 )
+3/navigation_offset = Vector2( 0, 0 )
+3/shape_offset = Vector2( 0, 0 )
+3/shape_transform = Transform2D( 1, 0, 0, 1, 0, 0 )
+3/shape_one_way = false
+3/shape_one_way_margin = 0.0
+3/shapes = [  ]
+3/z_index = 0
+4/name = "BlizzardTileset.png 4"
+4/texture = ExtResource( 4 )
+4/tex_offset = Vector2( 0, 0 )
+4/modulate = Color( 1, 1, 1, 1 )
+4/region = Rect2( 32, 0, 16, 16 )
+4/tile_mode = 0
+4/occluder_offset = Vector2( 0, 0 )
+4/navigation_offset = Vector2( 0, 0 )
+4/shape_offset = Vector2( 0, 0 )
+4/shape_transform = Transform2D( 1, 0, 0, 1, 0, 0 )
+4/shape_one_way = false
+4/shape_one_way_margin = 0.0
+4/shapes = [  ]
+4/z_index = 0
+5/name = "BlizzardTileset.png 5"
+5/texture = ExtResource( 4 )
+5/tex_offset = Vector2( 0, 0 )
+5/modulate = Color( 1, 1, 1, 1 )
+5/region = Rect2( 80, 0, 16, 16 )
+5/tile_mode = 0
+5/occluder_offset = Vector2( 0, 0 )
+5/navigation_offset = Vector2( 0, 0 )
+5/shape_offset = Vector2( 0, 0 )
+5/shape_transform = Transform2D( 1, 0, 0, 1, 0, 0 )
+5/shape_one_way = false
+5/shape_one_way_margin = 0.0
+5/shapes = [  ]
+5/z_index = 0
+
 [sub_resource type="Animation" id=2]
-resource_name = "PassOut"
 length = 4.0
 tracks/0/type = "value"
 tracks/0/path = NodePath("Player/Sprite:frame")
@@ -66,13 +151,13 @@ tracks/1/keys = {
 "values": [ 1, 0, 2, 0, 3, 0, 4 ]
 }
 
-[sub_resource type="RectangleShape2D" id=6]
+[sub_resource type="RectangleShape2D" id=5]
 extents = Vector2( 512, 4 )
 
-[sub_resource type="RectangleShape2D" id=7]
+[sub_resource type="RectangleShape2D" id=6]
 extents = Vector2( 5, 97 )
 
-[sub_resource type="ParticlesMaterial" id=1]
+[sub_resource type="ParticlesMaterial" id=7]
 emission_shape = 2
 emission_box_extents = Vector3( 1, 100, 1 )
 flag_disable_z = true
@@ -89,8 +174,7 @@ linear_accel_random = 1.0
 scale = 1.25
 scale_random = 1.0
 
-[sub_resource type="Animation" id=5]
-resource_name = "FadeScene"
+[sub_resource type="Animation" id=8]
 length = 7.0
 tracks/0/type = "value"
 tracks/0/path = NodePath("Fader:color")
@@ -108,49 +192,26 @@ tracks/0/keys = {
 [node name="StartBlizzard" type="Node"]
 script = ExtResource( 2 )
 
-[node name="Background" type="TextureRect" parent="."]
-margin_left = -43.0
-margin_top = -22.0
-margin_right = 1792.0
-margin_bottom = 712.0
-rect_scale = Vector2( 0.25, 0.25 )
+[node name="ParallaxBackground" type="ParallaxBackground" parent="."]
+
+[node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground"]
+position = Vector2( 0, -22 )
+motion_scale = Vector2( 0.5, 1 )
+motion_mirroring = Vector2( 384, 0 )
+
+[node name="TextureRect" type="TextureRect" parent="ParallaxBackground/ParallaxLayer"]
+margin_right = 40.0
+margin_bottom = 40.0
 texture = ExtResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Background2" type="TextureRect" parent="."]
-margin_left = 414.0
-margin_top = -22.0
-margin_right = 2249.0
-margin_bottom = 712.0
-rect_scale = Vector2( 0.25, 0.25 )
-texture = ExtResource( 3 )
-flip_h = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Foregound" type="TextureRect" parent="."]
-margin_top = 144.0
-margin_right = 444.0
-margin_bottom = 216.0
-rect_pivot_offset = Vector2( 531, 51 )
-texture = ExtResource( 4 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Foregound2" type="TextureRect" parent="."]
-margin_left = 444.0
-margin_top = 144.0
-margin_right = 888.0
-margin_bottom = 216.0
-rect_pivot_offset = Vector2( 531, 51 )
-texture = ExtResource( 4 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = SubResource( 1 )
+cell_size = Vector2( 16, 16 )
+format = 1
+tile_data = PoolIntArray( 720893, 3, 0, 720894, 3, 0, 720895, 3, 0, 655360, 3, 0, 655361, 3, 0, 655362, 3, 0, 655363, 3, 0, 655364, 3, 0, 655365, 3, 0, 655366, 3, 0, 655367, 3, 0, 655368, 3, 0, 655369, 3, 0, 655370, 3, 0, 655371, 3, 0, 655372, 3, 0, 655373, 3, 0, 655374, 3, 0, 655375, 3, 0, 655376, 3, 0, 655377, 3, 0, 655378, 3, 0, 655379, 3, 0, 655380, 3, 0, 655381, 3, 0, 655382, 3, 0, 655383, 3, 0, 655384, 3, 0, 655385, 3, 0, 655386, 3, 0, 655387, 3, 0, 655388, 3, 0, 655389, 3, 0, 655390, 3, 0, 655391, 3, 0, 655392, 3, 0, 655393, 3, 0, 655394, 3, 0, 655395, 3, 0, 655396, 3, 0, 655397, 3, 0, 655398, 3, 0, 655399, 3, 0, 655400, 3, 0, 655401, 3, 0, 655402, 3, 0, 655403, 3, 0, 655404, 3, 0, 655405, 3, 0, 655406, 3, 0, 655407, 3, 0, 655408, 3, 0, 655409, 3, 0, 655410, 3, 0, 655411, 3, 0, 655412, 3, 0, 655413, 3, 0, 655414, 3, 0, 655415, 3, 0, 655416, 3, 0, 655417, 3, 0, 655418, 3, 0, 655419, 3, 0, 786429, 2, 0, 786430, 2, 0, 786431, 2, 0, 720896, 2, 0, 720897, 2, 0, 720898, 2, 0, 720899, 2, 0, 720900, 2, 0, 720901, 2, 0, 720902, 2, 0, 720903, 2, 0, 720904, 2, 0, 720905, 2, 0, 720906, 2, 0, 720907, 2, 0, 720908, 2, 0, 720909, 2, 0, 720910, 2, 0, 720911, 2, 0, 720912, 2, 0, 720913, 2, 0, 720914, 2, 0, 720915, 2, 0, 720916, 2, 0, 720917, 2, 0, 720918, 2, 0, 720919, 2, 0, 720920, 2, 0, 720921, 2, 0, 720922, 2, 0, 720923, 2, 0, 720924, 2, 0, 720925, 2, 0, 720926, 2, 0, 720927, 2, 0, 720928, 2, 0, 720929, 2, 0, 720930, 2, 0, 720931, 2, 0, 720932, 2, 0, 720933, 2, 0, 720934, 2, 0, 720935, 2, 0, 720936, 2, 0, 720937, 2, 0, 720938, 2, 0, 720939, 2, 0, 720940, 2, 0, 720941, 2, 0, 720942, 2, 0, 720943, 2, 0, 720944, 2, 0, 720945, 2, 0, 720946, 2, 0, 720947, 2, 0, 720948, 2, 0, 720949, 2, 0, 720950, 2, 0, 720951, 2, 0, 720952, 2, 0, 720953, 2, 0, 720954, 2, 0, 720955, 2, 0, 851965, 4, 0, 851966, 4, 0, 851967, 4, 0, 786432, 4, 0, 786433, 4, 0, 786434, 4, 0, 786435, 4, 0, 786436, 4, 0, 786437, 4, 0, 786438, 4, 0, 786439, 4, 0, 786440, 4, 0, 786441, 4, 0, 786442, 4, 0, 786443, 4, 0, 786444, 4, 0, 786445, 4, 0, 786446, 4, 0, 786447, 4, 0, 786448, 4, 0, 786449, 4, 0, 786450, 4, 0, 786451, 4, 0, 786452, 4, 0, 786453, 4, 0, 786454, 4, 0, 786455, 4, 0, 786456, 4, 0, 786457, 4, 0, 786458, 4, 0, 786459, 4, 0, 786460, 4, 0, 786461, 4, 0, 786462, 4, 0, 786463, 4, 0, 786464, 4, 0, 786465, 4, 0, 786466, 4, 0, 786467, 4, 0, 786468, 4, 0, 786469, 4, 0, 786470, 4, 0, 786471, 4, 0, 786472, 4, 0, 786473, 4, 0, 786474, 4, 0, 786475, 4, 0, 786476, 4, 0, 786477, 4, 0, 786478, 4, 0, 786479, 4, 0, 786480, 4, 0, 786481, 4, 0, 786482, 4, 0, 786483, 4, 0, 786484, 4, 0, 786485, 4, 0, 786486, 4, 0, 786487, 4, 0, 786488, 4, 0, 786489, 4, 0, 786490, 4, 0, 917501, 1, 0, 917502, 1, 0, 917503, 1, 0, 851968, 1, 0, 851969, 1, 0, 851970, 1, 0, 851971, 1, 0, 851972, 1, 0, 851973, 1, 0, 851974, 1, 0, 851975, 1, 0, 851976, 1, 0, 851977, 1, 0, 851978, 1, 0, 851979, 1, 0, 851980, 1, 0, 851981, 1, 0, 851982, 1, 0, 851983, 1, 0, 851984, 1, 0, 851985, 1, 0, 851986, 1, 0, 851987, 1, 0, 851988, 1, 0, 851989, 1, 0, 851990, 1, 0, 851991, 1, 0, 851992, 1, 0, 851993, 1, 0, 851994, 1, 0, 851995, 1, 0, 851996, 1, 0, 851997, 1, 0, 851998, 1, 0, 851999, 1, 0, 852000, 1, 0, 852001, 1, 0, 852002, 1, 0, 852003, 1, 0, 852004, 1, 0, 852005, 1, 0, 852006, 1, 0, 852007, 1, 0, 852008, 1, 0, 852009, 1, 0, 852010, 1, 0, 852011, 1, 0, 852012, 1, 0, 852013, 1, 0, 852014, 1, 0, 852015, 1, 0, 852016, 1, 0, 852017, 1, 0, 852018, 1, 0, 852019, 1, 0, 852020, 1, 0, 852021, 1, 0, 852022, 1, 0, 852023, 1, 0, 852024, 1, 0, 852025, 1, 0, 852026, 1, 0, 983037, 0, 0, 983038, 0, 0, 983039, 0, 0, 917504, 0, 0, 917505, 0, 0, 917506, 0, 0, 917507, 0, 0, 917508, 0, 0, 917509, 0, 0, 917510, 0, 0, 917511, 0, 0, 917512, 0, 0, 917513, 0, 0, 917514, 0, 0, 917515, 0, 0, 917516, 0, 0, 917517, 0, 0, 917518, 0, 0, 917519, 0, 0, 917520, 0, 0, 917521, 0, 0, 917522, 0, 0, 917523, 0, 0, 917524, 0, 0, 917525, 0, 0, 917526, 0, 0, 917527, 0, 0, 917528, 0, 0, 917529, 0, 0, 917530, 0, 0, 917531, 0, 0, 917532, 0, 0, 917533, 0, 0, 917534, 0, 0, 917535, 0, 0, 917536, 0, 0, 917537, 0, 0, 917538, 0, 0, 917539, 0, 0, 917540, 0, 0, 917541, 0, 0, 917542, 0, 0, 917543, 0, 0, 917544, 0, 0, 917545, 0, 0, 917546, 0, 0, 917547, 0, 0, 917548, 0, 0, 917549, 0, 0, 917550, 0, 0, 917551, 0, 0, 917552, 0, 0, 917553, 0, 0, 917554, 0, 0, 917555, 0, 0, 917556, 0, 0, 917557, 0, 0, 917558, 0, 0, 917559, 0, 0, 917560, 0, 0, 917561, 0, 0, 917562, 0, 0, 1048573, 5, 0, 1048574, 5, 0, 1048575, 5, 0, 983040, 5, 0, 983041, 5, 0, 983042, 5, 0, 983043, 5, 0, 983044, 5, 0, 983045, 5, 0, 983046, 5, 0, 983047, 5, 0, 983048, 5, 0, 983049, 5, 0, 983050, 5, 0, 983051, 5, 0, 983052, 5, 0, 983053, 5, 0, 983054, 5, 0, 983055, 5, 0, 983056, 5, 0, 983057, 5, 0, 983058, 5, 0, 983059, 5, 0, 983060, 5, 0, 983061, 5, 0, 983062, 5, 0, 983063, 5, 0, 983064, 5, 0, 983065, 5, 0, 983066, 5, 0, 983067, 5, 0, 983068, 5, 0, 983069, 5, 0, 983070, 5, 0, 983071, 5, 0, 983072, 5, 0, 983073, 5, 0, 983074, 5, 0, 983075, 5, 0, 983076, 5, 0, 983077, 5, 0, 983078, 5, 0, 983079, 5, 0, 983080, 5, 0, 983081, 5, 0, 983082, 5, 0, 983083, 5, 0, 983084, 5, 0, 983085, 5, 0, 983086, 5, 0, 983087, 5, 0, 983088, 5, 0, 983089, 5, 0, 983090, 5, 0, 983091, 5, 0, 983092, 5, 0, 983093, 5, 0, 983094, 5, 0, 983095, 5, 0, 983096, 5, 0, 983097, 5, 0, 983098, 5, 0 )
 
 [node name="StartPosition" type="Position2D" parent="."]
 position = Vector2( -34, 153 )
@@ -161,13 +222,21 @@ position = Vector2( -34, 152 )
 [node name="Sprite" parent="Player" index="0"]
 offset = Vector2( -1, 0 )
 
-[node name="Camera2D" type="Camera2D" parent="Player"]
-position = Vector2( 0, -50 )
+[node name="CameraTarget" type="Node2D" parent="Player"]
+position = Vector2( 100, 0 )
+
+[node name="Camera2D" type="Camera2D" parent="Player/CameraTarget"]
 current = true
 limit_left = 0
 limit_top = -20
 limit_right = 874
 limit_bottom = 217
+drag_margin_h_enabled = true
+drag_margin_v_enabled = true
+drag_margin_left = 0.1
+drag_margin_top = 1.0
+drag_margin_right = 0.0
+drag_margin_bottom = 1.0
 editor_draw_limits = true
 editor_draw_drag_margin = true
 
@@ -180,15 +249,15 @@ anims/StaggerForward = SubResource( 4 )
 
 [node name="GroundCollision" type="CollisionShape2D" parent="Terrain"]
 position = Vector2( 384, 182 )
-shape = SubResource( 6 )
+shape = SubResource( 5 )
 
 [node name="RightEdge" type="CollisionShape2D" parent="Terrain"]
 position = Vector2( 893, 81 )
-shape = SubResource( 7 )
+shape = SubResource( 6 )
 
 [node name="LeftEdge" type="CollisionShape2D" parent="Terrain"]
 position = Vector2( -72, 89 )
-shape = SubResource( 7 )
+shape = SubResource( 6 )
 
 [node name="UICanvas" type="CanvasLayer" parent="."]
 
@@ -198,7 +267,7 @@ amount = 800
 lifetime = 1.5
 preprocess = 1.5
 visibility_rect = Rect2( -386, -108, 384, 216 )
-process_material = SubResource( 1 )
+process_material = SubResource( 7 )
 
 [node name="Fader" type="ColorRect" parent="UICanvas"]
 anchor_right = 1.0
@@ -220,17 +289,42 @@ anchor_right = 0.5
 margin_left = -73.0
 margin_right = 73.0
 margin_bottom = 14.0
+text = "Running"
+align = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="FadePlayer" type="AnimationPlayer" parent="UICanvas"]
-anims/FadeScene = SubResource( 5 )
+anims/FadeScene = SubResource( 8 )
+
+[node name="VelocityVBox" type="VBoxContainer" parent="UICanvas"]
+margin_right = 105.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="XVelLabel" type="Label" parent="UICanvas/VelocityVBox"]
+margin_right = 105.0
+margin_bottom = 14.0
+text = "XVel: 888"
+
+[node name="YVelLabel" type="Label" parent="UICanvas/VelocityVBox"]
+margin_top = 18.0
+margin_right = 105.0
+margin_bottom = 32.0
+text = "YVel: 888"
 
 [node name="WaitStartTimer" type="Timer" parent="."]
 wait_time = 4.5
 one_shot = true
 autostart = true
+
+[node name="BallSpawnTimer" type="Timer" parent="."]
+
+[node name="BallSpawnPoint" type="Position2D" parent="."]
+position = Vector2( 887, 160 )
 
 [connection signal="DebugUpdateState" from="Player" to="." method="OnPlayerDebugUpdateState"]
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="OnAnimationFinished"]
@@ -238,6 +332,7 @@ autostart = true
 [connection signal="DialogueBoxClosed" from="UICanvas/DialogueBox" to="." method="OnDialogueBoxClosed"]
 [connection signal="animation_finished" from="UICanvas/FadePlayer" to="." method="OnFadePlayerAnimationFinished"]
 [connection signal="timeout" from="WaitStartTimer" to="." method="WaitStartTimerTimeout"]
+[connection signal="timeout" from="BallSpawnTimer" to="." method="OnBallSpawnTimerTimeout"]
 
 [editable path="Player"]
 [editable path="UICanvas/DialogueBox"]

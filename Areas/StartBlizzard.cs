@@ -1,8 +1,7 @@
 using Godot;
-using System;
-using System.Threading.Tasks;
 using ThousandYearsHome.Controls;
-using ThousandYearsHome.Entities.Player;
+using ThousandYearsHome.Entities;
+using ThousandYearsHome.Entities.PlayerEntity;
 using ThousandYearsHome.Extensions;
 
 namespace ThousandYearsHome.Areas
@@ -16,6 +15,9 @@ namespace ThousandYearsHome.Areas
         private Particles2D _snowParticles = null!;
         private ColorRect _fader = null!;
         private DialogueBox _dialogueBox = null!;
+        private Timer _ballSpawnTimer = null!;
+        private PackedScene _powerBallScene = null!;
+        private Position2D _ballSpawnPoint = null!;
 
         public bool SkipIntro { get; set; }
 
@@ -29,6 +31,9 @@ namespace ThousandYearsHome.Areas
             _player = GetNode<Player>("Player");
             _animator = GetNode<AnimationPlayer>("AnimationPlayer");
             _fadeAnimator = GetNode<AnimationPlayer>("UICanvas/FadePlayer");
+            _ballSpawnTimer = GetNode<Timer>("BallSpawnTimer");
+            _powerBallScene = GD.Load<PackedScene>("res://Entities/PowerBall.tscn");
+            _ballSpawnPoint = GetNode<Position2D>("BallSpawnPoint");
 
             Vector2 startPos = GetNode<Position2D>("StartPosition").Position;
             _player.Spawn(startPos);
@@ -39,15 +44,22 @@ namespace ThousandYearsHome.Areas
             }
         }
 
-        public void OnPlayerDebugUpdateState(PlayerStateKind newState)
+        // Called every frame. 'delta' is the elapsed time since the previous frame.
+        public override void _Process(float delta)
         {
-            GetNode<Label>("UICanvas/DebugStateLabel").Text = newState.ToString();
+
         }
 
-        public void DebugPlayWalkPressed()
+        public void OnPlayerDebugUpdateState(PlayerStateKind newState, float xVel, float yVel)
         {
-            _player.ResetPoseAnimation();
-            _player.AnimatePose("Walk");
+            GetNode<Label>("UICanvas/DebugStateLabel").Text = newState.ToString();
+            GetNode<Label>("UICanvas/VelocityVBox/XVelLabel").Text = $"XVel: {xVel}";
+            GetNode<Label>("UICanvas/VelocityVBox/YVelLabel").Text = $"YVel: {yVel}";
+        }
+
+        public void StartGameplay()
+        {
+            _ballSpawnTimer.Start();
         }
 
         public void WaitStartTimerTimeout()
@@ -55,6 +67,10 @@ namespace ThousandYearsHome.Areas
             if (!SkipIntro)
             {
                 _animator.Play("StaggerForward");
+            }
+            else
+            {
+                StartGameplay();
             }
         }
 
@@ -92,9 +108,9 @@ namespace ThousandYearsHome.Areas
                 _player.SetSprite(4);
 
                 await _dialogueBox.Open();
-                _dialogueBox.LoadText("* ...o close!\n", 0.1f);
+                _dialogueBox.LoadText("* ...o close!\n", 0.2f);
                 _dialogueBox.LoadSilence(0.5f);
-                _dialogueBox.LoadText("...ttle fur...", 0.2f);
+                _dialogueBox.LoadText("Just... ...ittle furth...", 0.1f);
                 await _dialogueBox.Run();
 
                 // Wait for the dialogue box to close, then restore the player and snow and stuff
@@ -103,13 +119,17 @@ namespace ThousandYearsHome.Areas
                 _fader.Color = new Color(_fader.Color, 0f);
                 _player.SetSprite(0);
                 _player.InputLocked = false;
+                StartGameplay();
             }
         }
 
-        // Called every frame. 'delta' is the elapsed time since the previous frame.
-        public override void _Process(float delta)
+        public void OnBallSpawnTimerTimeout()
         {
-
+            GD.Print("Spawning ball...");
+            PowerBall ball = _powerBallScene.Instance<PowerBall>();
+            float randomY = Numerology.RandRange(_ballSpawnPoint.Position.y - 60, _ballSpawnPoint.Position.y);
+            ball.Position = new Vector2(_ballSpawnPoint.Position.x, randomY);
+            AddChild(ball);
         }
     }
 }

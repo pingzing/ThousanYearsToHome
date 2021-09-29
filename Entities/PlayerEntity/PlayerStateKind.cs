@@ -1,4 +1,4 @@
-﻿namespace ThousandYearsHome.Entities.Player
+﻿namespace ThousandYearsHome.Entities.PlayerEntity
 {
     public enum PlayerStateKind
     {

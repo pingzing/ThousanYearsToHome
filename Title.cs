@@ -1,7 +1,7 @@
 using Godot;
 using System.Threading.Tasks;
 using ThousandYearsHome.Areas;
-using ThousandYearsHome.Entities.Player;
+using ThousandYearsHome.Entities.PlayerEntity;
 
 namespace ThousandYearsHome
 {

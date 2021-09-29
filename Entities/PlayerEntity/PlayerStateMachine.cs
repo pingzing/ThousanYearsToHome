@@ -2,7 +2,7 @@ using Godot;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ThousandYearsHome.Entities.Player
+namespace ThousandYearsHome.Entities.PlayerEntity
 {
     public class PlayerStateMachine : Node2D
     {

@@ -1,7 +1,7 @@
 using Godot;
 using System.Threading.Tasks;
 
-namespace ThousandYearsHome.Entities.Player
+namespace ThousandYearsHome.Entities.PlayerEntity
 {
     public class Player : KinematicBody2D
     {
@@ -14,9 +14,11 @@ namespace ThousandYearsHome.Entities.Player
         private AnimationPlayer _colorAnimator = null!;
         private Sprite _sprite = null!;
         private PlayerStateMachine _stateMachine = null!;
+        private CollisionShape2D _hornBoxCollisionShape = null!;
         private Timer _jumpTimer = null!;
         private Timer _floorTimer = null!;
 
+        private bool _flipH = false;
         private Vector2 _velocity = Vector2.Zero;
 
         public string CurrentAnimationName => _poseAnimator.CurrentAnimation;
@@ -38,16 +40,14 @@ namespace ThousandYearsHome.Entities.Player
             {
                 if (value != 0)
                 {
-                    bool oldFlip = _sprite.FlipH;
-                    _sprite.FlipH = value < 0;
-                    if (_sprite.FlipH != oldFlip)
+                    bool oldFlip = _flipH;
+                    _flipH = value < 0;
+                    if (_flipH != oldFlip)
                     {
+                        _sprite.Scale = new Vector2(_sprite.Scale.x * -1, 1);
                         // Immediately update animation state if we've changed direction,
                         // so we don't have one frame of the old facing while moving in reverse.
-                        if (_sprite.FlipH != oldFlip)
-                        {
-                            _poseAnimator.Advance(0);
-                        }
+                        _poseAnimator.Advance(0);
                     }
                 }
                 _velocity.x = value;
@@ -68,7 +68,7 @@ namespace ThousandYearsHome.Entities.Player
 
         [Export] public bool InputLocked = false;
         [Export] public float Gravity = 60f;
-        [Signal] public delegate void DebugUpdateState(PlayerStateKind newState);
+        [Signal] public delegate void DebugUpdateState(PlayerStateKind newState, float xVel, float yVel);
 
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
@@ -79,16 +79,9 @@ namespace ThousandYearsHome.Entities.Player
             _stateMachine = GetNode<PlayerStateMachine>("PlayerStateMachine");
             _jumpTimer = GetNode<Timer>("JumpTimer");
             _floorTimer = GetNode<Timer>("FloorTimer");
+            _hornBoxCollisionShape = GetNode<CollisionShape2D>("HornBox/HornBoxCollisionShape");
             _stateMachine.Init(this);
             Hide();
-        }
-
-        // Places the player at pos, unhides them, and enables their collision.
-        public void Spawn(Vector2 pos)
-        {
-            GlobalPosition = pos;
-            Show();
-            GetNode<CollisionShape2D>("CollisionShape2D").Disabled = false;
         }
 
         public override void _PhysicsProcess(float delta)
@@ -101,8 +94,16 @@ namespace ThousandYearsHome.Entities.Player
             {
                 UpdateFromInput(delta);
                 _stateMachine.Run();
-                EmitSignal(nameof(DebugUpdateState), _stateMachine.CurrentState.StateKind);
+                EmitSignal(nameof(DebugUpdateState), _stateMachine.CurrentState.StateKind, _velocity.x, _velocity.y);
             }
+        }
+
+        // Places the player at pos, unhides them, and enables their collision.
+        public void Spawn(Vector2 pos)
+        {
+            GlobalPosition = pos;
+            Show();
+            GetNode<CollisionShape2D>("BodyCollisionBox").Disabled = false;
         }
 
         private void UpdateFromInput(float delta)
@@ -171,6 +172,11 @@ namespace ThousandYearsHome.Entities.Player
         public void SetSprite(int frameIndex)
         {
             _sprite.Frame = frameIndex;
+        }
+
+        public void OnHornTouched(PowerBall ball)
+        {
+            GD.Print("Power ball touched!");
         }
     }
 }

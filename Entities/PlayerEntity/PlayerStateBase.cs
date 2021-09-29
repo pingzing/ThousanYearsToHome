@@ -1,7 +1,7 @@
 ﻿using Godot;
 using System.Threading.Tasks;
 
-namespace ThousandYearsHome.Entities.Player
+namespace ThousandYearsHome.Entities.PlayerEntity
 {
     public abstract class PlayerStateBase : Node2D
     {
