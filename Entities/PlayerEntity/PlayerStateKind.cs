@@ -6,5 +6,6 @@
         Running,
         InAir,
         Jumping,
+        Crouching,
     }
 }

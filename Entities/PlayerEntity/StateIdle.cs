@@ -38,6 +38,11 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 return PlayerStateKind.Running;
             }
 
+            if (player.Crouching)
+            {
+                return PlayerStateKind.Crouching;
+            }
+
             return null;
         }
     }

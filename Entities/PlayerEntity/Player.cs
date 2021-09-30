@@ -19,12 +19,12 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private Timer _floorTimer = null!;
 
         private bool _flipH = false;
-        private Vector2 _velocity = Vector2.Zero;
 
         public string CurrentAnimationName => _poseAnimator.CurrentAnimation;
 
         public bool Grounded => !_floorTimer.IsStopped();
         public bool Jumping => !_jumpTimer.IsStopped();
+        public bool Crouching => _verticalUnit == -1 && Grounded;
 
         private int _horizontalUnit = 0;
         public int HorizontalUnit => _horizontalUnit;
@@ -50,7 +50,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                         _poseAnimator.Advance(0);
                     }
                 }
-                _velocity.x = value;
                 _velX = value;
             }
         }
@@ -61,7 +60,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             get => _velY;
             set
             {
-                _velocity.y = value;
                 _velY = value;
             }
         }
@@ -94,7 +92,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             {
                 UpdateFromInput(delta);
                 _stateMachine.Run();
-                EmitSignal(nameof(DebugUpdateState), _stateMachine.CurrentState.StateKind, _velocity.x, _velocity.y);
+                EmitSignal(nameof(DebugUpdateState), _stateMachine.CurrentState.StateKind, VelX, VelY);
             }
         }
 
@@ -108,9 +106,8 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         private void UpdateFromInput(float delta)
         {
-            // TODO: Refactor these into three-state enums
             _horizontalUnit = (Input.IsActionPressed("ui_right") ? 1 : 0) - (Input.IsActionPressed("ui_left") ? 1 : 0);
-            _verticalUnit = (Input.IsActionPressed("ui_down") ? 1 : 0) - (Input.IsActionPressed("ui_up") ? 1 : 0);
+            _verticalUnit = (Input.IsActionPressed("ui_up") ? 1 : 0) - (Input.IsActionPressed("ui_down") ? 1 : 0);
             if (Input.IsActionJustPressed("ui_accept"))
             {
                 _jumpTimer.Start(); // Has us be in the "jumping" state for .06 seconds (which gets picked up the state machine, which makes us go up)
@@ -124,14 +121,19 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         // Called by the state machine.
         public void Move()
         {
-            var oldVel = _velocity;
-            _velocity = MoveAndSlide(_velocity, Vector2.Up, true);
+            //var oldVel = _velocity;
+            var velocity = MoveAndSlide(new Vector2(VelX, VelY), Vector2.Up, true);
+            VelX = velocity.x;
+            VelY = velocity.y;
             //var _collisions = GetSlideCount(); // TODO: Not sure if we need to handle this?
         }
 
         public void ApplyGravity(float gravity)
         {
-            _velocity += Vector2.Down * gravity;
+            var velocity = new Vector2(VelX, VelY);
+            velocity += Vector2.Down * gravity;
+            VelX = velocity.x;
+            VelY = velocity.y;
         }
 
         public void AnimatePose(string animationName, float animationSpeed = 1.0f)

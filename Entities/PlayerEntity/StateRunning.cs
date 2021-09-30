@@ -10,16 +10,28 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         [Export] private string _defaultAnimation = "Walk";
         public override string DefaultAnimation => _defaultAnimation;
 
-        [Export] private float RunSpeed = 200;
+        [Export] private float StartSpeed = 100f;
+        [Export] private float AccelPerTick = 5f;
+        [Export] private float DecelPerTick = 20f;
+        [Export] private float MaxSpeed = 200f;
 
+        // Gets called once per physics tick by _PhysicsProcess.
         public override PlayerStateKind? Run(Player player)
         {
+            // Player is pressing up or down
             if (player.VerticalUnit > 0)
             {
                 // example does some layer shenanigans for 1-way platforms
             }
 
-            player.VelX = player.HorizontalUnit * RunSpeed;
+            // No player input, and we're not moving
+            if (player.HorizontalUnit == 0 && player.VelX == 0)
+            {
+                return PlayerStateKind.Idle;
+            }
+
+            UpdateVelocity(player);
+
             player.ApplyGravity(player.Gravity);
             player.Move();
 
@@ -35,12 +47,54 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             {
                 return PlayerStateKind.Jumping;
             }
-            if (player.HorizontalUnit == 0)
+
+            if (player.Crouching)
             {
-                return PlayerStateKind.Idle;
+                return PlayerStateKind.Crouching;
             }
 
             return null;
+        }
+
+        private void UpdateVelocity(Player player)
+        {
+            float velX = player.VelX;
+
+            // If there's no player input:
+            if (player.HorizontalUnit == 0)
+            {
+                if (velX < 0) // Going left, go from negative to zero
+                {
+                    velX += AccelPerTick;
+                    velX = Mathf.Clamp(velX, -MaxSpeed, 0);
+                }
+                else // Going right, go from positive to zero
+                {
+                    velX -= AccelPerTick;
+                    velX = Mathf.Clamp(velX, 0, MaxSpeed);
+                }
+            }
+            else
+            {
+                // Get the player up to StartSpeed immediately if they're not there
+                if (Mathf.Abs(velX) < StartSpeed)
+                {
+                    velX = StartSpeed * player.HorizontalUnit;
+                }
+
+                // If changing directions, use DecelPerTick
+                if ((player.HorizontalUnit ^ (int)velX) < 0) // Binary XOR. If we wind up with something negative, the signs were different, an indication that we're moving in a different direction than our current velocity.
+                {
+                    velX += DecelPerTick * player.HorizontalUnit;
+                }
+                else
+                {
+                    velX += AccelPerTick * player.HorizontalUnit;
+                }
+                velX = Mathf.Clamp(velX, -MaxSpeed, MaxSpeed);
+            }
+
+            player.VelX = velX;
         }
     }
 }
