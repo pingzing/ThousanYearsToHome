@@ -12,6 +12,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         [Export] private float StartSpeed = 100f;
         [Export] private float AccelPerTick = 5f;
+        [Export] private float StartingAccelPerTick = 25f;
         [Export] private float DecelPerTick = 20f;
         [Export] private float MaxSpeed = 200f;
 
@@ -76,10 +77,10 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
             else
             {
-                // Get the player up to StartSpeed immediately if they're not there
+                // Start with high aceleration if we're below StartSpeed
                 if (Mathf.Abs(velX) < StartSpeed)
                 {
-                    velX = StartSpeed * player.HorizontalUnit;
+                    velX += StartingAccelPerTick * player.HorizontalUnit;
                 }
 
                 // If changing directions, use DecelPerTick
