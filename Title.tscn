@@ -226,10 +226,11 @@ __meta__ = {
 }
 
 [node name="MenuVBox" type="VBoxContainer" parent="."]
+modulate = Color( 1, 1, 1, 0 )
 anchor_top = 0.703704
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -32.0
+margin_top = -32.0001
 margin_bottom = -40.0
 grow_vertical = 0
 theme = ExtResource( 3 )
@@ -243,27 +244,61 @@ margin_bottom = 16.0
 mouse_filter = 2
 custom_fonts/font = ExtResource( 4 )
 shortcut_in_tooltip = false
+button_mask = 0
 text = "Start"
 
-[node name="ContinueGame" type="Button" parent="MenuVBox"]
+[node name="StageSelect" type="Button" parent="MenuVBox"]
 margin_top = 20.0
 margin_right = 384.0
 margin_bottom = 36.0
 mouse_filter = 2
-custom_fonts/font = ExtResource( 4 )
-text = "Continue"
+shortcut_in_tooltip = false
+button_mask = 0
+text = "Stage Select"
 
-[node name="QuitGame" type="Button" parent="MenuVBox"]
+[node name="ContinueGame" type="Button" parent="MenuVBox"]
 margin_top = 40.0
 margin_right = 384.0
 margin_bottom = 56.0
 mouse_filter = 2
 custom_fonts/font = ExtResource( 4 )
 shortcut_in_tooltip = false
+button_mask = 0
+text = "Continue"
+
+[node name="QuitGame" type="Button" parent="MenuVBox"]
+margin_top = 60.0
+margin_right = 384.0
+margin_bottom = 76.0
+mouse_filter = 2
+custom_fonts/font = ExtResource( 4 )
+shortcut_in_tooltip = false
+button_mask = 0
 text = "Quit"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="StageSelectVBox" type="VBoxContainer" parent="."]
+visible = false
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_bottom = -60.0
+grow_vertical = 0
+theme = ExtResource( 3 )
+alignment = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BackButton" type="Button" parent="StageSelectVBox"]
+margin_right = 384.0
+margin_bottom = 16.0
+mouse_filter = 2
+shortcut_in_tooltip = false
+button_mask = 0
+text = "<- Back"
 
 [node name="ShowTitleTimer" type="Timer" parent="."]
 wait_time = 0.5
@@ -282,8 +317,10 @@ autostart = true
 "anims/Speed Up Snow" = SubResource( 7 )
 
 [connection signal="pressed" from="MenuVBox/StartGame" to="." method="OnStartGamePressed"]
+[connection signal="pressed" from="MenuVBox/StageSelect" to="." method="OnStageSelectPressed"]
 [connection signal="pressed" from="MenuVBox/ContinueGame" to="." method="OnContinuePressed"]
 [connection signal="pressed" from="MenuVBox/QuitGame" to="." method="OnQuitGamePressed"]
+[connection signal="pressed" from="StageSelectVBox/BackButton" to="." method="OnStageSelectBackPressed"]
 [connection signal="timeout" from="ShowTitleTimer" to="." method="ShowTitleTimerTimeout"]
 [connection signal="timeout" from="ShowMenuTimer" to="." method="ShowMenuTimerTimeout"]
 [connection signal="animation_finished" from="FadeAnimator" to="." method="FadeAnimationFinished"]

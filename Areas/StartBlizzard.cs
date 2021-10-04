@@ -18,6 +18,7 @@ namespace ThousandYearsHome.Areas
         private Timer _ballSpawnTimer = null!;
         private PackedScene _powerBallScene = null!;
         private Position2D _ballSpawnPoint = null!;
+        private HUD _hud = null!;
 
         public bool SkipIntro { get; set; }
 
@@ -34,6 +35,7 @@ namespace ThousandYearsHome.Areas
             _ballSpawnTimer = GetNode<Timer>("BallSpawnTimer");
             _powerBallScene = GD.Load<PackedScene>("res://Entities/PowerBall.tscn");
             _ballSpawnPoint = GetNode<Position2D>("BallSpawnPoint");
+            _hud = GetNode<HUD>("UICanvas/HUD");
 
             Vector2 startPos = GetNode<Position2D>("StartPosition").Position;
             _player.Spawn(startPos);
@@ -52,9 +54,8 @@ namespace ThousandYearsHome.Areas
 
         public void OnPlayerDebugUpdateState(PlayerStateKind newState, float xVel, float yVel)
         {
-            GetNode<Label>("UICanvas/DebugStateLabel").Text = newState.ToString();
-            GetNode<Label>("UICanvas/VelocityVBox/XVelLabel").Text = $"XVel: {xVel}";
-            GetNode<Label>("UICanvas/VelocityVBox/YVelLabel").Text = $"YVel: {yVel}";
+            _hud.Debug_SetStateLabel(newState);
+            _hud.Debug_SetVelocity(new Vector2(xVel, yVel));
         }
 
         public void StartGameplay()

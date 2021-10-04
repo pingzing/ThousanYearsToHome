@@ -12,8 +12,9 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         [Export] private float StartSpeed = 100f;
         [Export] private float AccelPerTick = 5f;
+        [Export] private float DecelPerTick = 15f;
         [Export] private float StartingAccelPerTick = 25f;
-        [Export] private float DecelPerTick = 20f;
+        [Export] private float TurningAccel = 20f;
         [Export] private float MaxSpeed = 200f;
 
         // Gets called once per physics tick by _PhysicsProcess.
@@ -66,12 +67,12 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             {
                 if (velX < 0) // Going left, go from negative to zero
                 {
-                    velX += AccelPerTick;
+                    velX += DecelPerTick;
                     velX = Mathf.Clamp(velX, -MaxSpeed, 0);
                 }
                 else // Going right, go from positive to zero
                 {
-                    velX -= AccelPerTick;
+                    velX -= DecelPerTick;
                     velX = Mathf.Clamp(velX, 0, MaxSpeed);
                 }
             }
@@ -83,10 +84,10 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                     velX += StartingAccelPerTick * player.HorizontalUnit;
                 }
 
-                // If changing directions, use DecelPerTick
+                // If changing directions, use TurningAccel
                 if ((player.HorizontalUnit ^ (int)velX) < 0) // Binary XOR. If we wind up with something negative, the signs were different, an indication that we're moving in a different direction than our current velocity.
                 {
-                    velX += DecelPerTick * player.HorizontalUnit;
+                    velX += TurningAccel * player.HorizontalUnit;
                 }
                 else
                 {

@@ -26,7 +26,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _currentState.Enter(_player);
         }
 
-        public void Run()
+        public PlayerStateKind Run()
         {
             PlayerStateKind? nextStateKind = _currentState?.Run(_player);
             if (nextStateKind != null)
@@ -36,6 +36,8 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 _currentState = nextState;
                 _currentState.Enter(_player);
             }
+
+            return _currentState!.StateKind;
         }
     }
 }

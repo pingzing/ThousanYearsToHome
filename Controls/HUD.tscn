@@ -1,0 +1,40 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Controls/HUD.cs" type="Script" id=1]
+[ext_resource path="res://art/BaseTheme.tres" type="Theme" id=2]
+
+[node name="HUD" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 2 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DEBUG_CurrentStateLabel" type="Label" parent="."]
+anchor_right = 1.0
+margin_bottom = 14.0
+text = "CurrentState"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DEBUG_VelocityContainer" type="VBoxContainer" parent="."]
+margin_right = 71.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DEBUG_XVelLabel" type="Label" parent="DEBUG_VelocityContainer"]
+margin_right = 78.0
+margin_bottom = 16.0
+text = "XVel: -888.88"
+
+[node name="DEBUG_YVelLabel" type="Label" parent="DEBUG_VelocityContainer"]
+margin_top = 20.0
+margin_right = 78.0
+margin_bottom = 36.0
+text = "YVel: -888.88"

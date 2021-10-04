@@ -17,6 +17,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private CollisionShape2D _hornBoxCollisionShape = null!;
         private Timer _jumpTimer = null!;
         private Timer _floorTimer = null!;
+        private Timer _jumpHoldTimer = null!;
 
         private bool _flipH = false;
 
@@ -24,7 +25,9 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         public bool Grounded => !_floorTimer.IsStopped();
         public bool Jumping => !_jumpTimer.IsStopped();
+        public bool JumpHolding => !_jumpHoldTimer.IsStopped();
         public bool Crouching => _verticalUnit == -1 && Grounded;
+        public bool JumpAvailable { get; set; }
 
         private int _horizontalUnit = 0;
         public int HorizontalUnit => _horizontalUnit;
@@ -77,21 +80,21 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _stateMachine = GetNode<PlayerStateMachine>("PlayerStateMachine");
             _jumpTimer = GetNode<Timer>("JumpTimer");
             _floorTimer = GetNode<Timer>("FloorTimer");
-            _hornBoxCollisionShape = GetNode<CollisionShape2D>("HornBox/HornBoxCollisionShape");
+            _jumpHoldTimer = GetNode<Timer>("JumpHoldTimer");
+            _hornBoxCollisionShape = GetNode<CollisionShape2D>("Sprite/HornBox/HornBoxCollisionShape");
             _stateMachine.Init(this);
-            Hide();
         }
 
         public override void _PhysicsProcess(float delta)
         {
             if (InputLocked)
             {
-
+                // Do nothing. Used to prevent player input during cutscenes, etc.
             }
             else
             {
                 UpdateFromInput(delta);
-                _stateMachine.Run();
+                var newState = _stateMachine.Run();
                 EmitSignal(nameof(DebugUpdateState), _stateMachine.CurrentState.StateKind, VelX, VelY);
             }
         }
@@ -110,11 +113,21 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _verticalUnit = (Input.IsActionPressed("ui_up") ? 1 : 0) - (Input.IsActionPressed("ui_down") ? 1 : 0);
             if (Input.IsActionJustPressed("ui_accept"))
             {
-                _jumpTimer.Start(); // Has us be in the "jumping" state for .06 seconds (which gets picked up the state machine, which makes us go up)
+                // Initial jump
+                _jumpTimer.Start();
             }
+
+            if (Input.IsActionPressed("ui_accept"))
+            {
+                // Holding the jump button for more air
+                _jumpHoldTimer.Start();
+            }
+
             if (IsOnFloor())
             {
-                _floorTimer.Start(); // Makes us be "on the floor" for 0.1s after leaving the ground. Refreshes every frame we're on the ground.
+                // Makes us be "on the floor" for 0.1s after leaving the ground. Refreshes every frame we're on the ground.
+                // Allows for jumping a little bit after running off an edge.
+                _floorTimer.Start();
             }
         }
 
@@ -133,7 +146,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             var velocity = new Vector2(VelX, VelY);
             velocity += Vector2.Down * gravity;
             VelX = velocity.x;
-            VelY = velocity.y;
+            VelY = Mathf.Clamp(velocity.y, -1000f, 600f);
         }
 
         public void AnimatePose(string animationName, float animationSpeed = 1.0f)
@@ -178,7 +191,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         public void OnHornTouched(PowerBall ball)
         {
-            GD.Print("Power ball touched!");
+            // TODO: Increase stamina meter, make player glow
         }
     }
 }

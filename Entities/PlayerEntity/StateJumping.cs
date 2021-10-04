@@ -1,4 +1,5 @@
 ﻿using Godot;
+using System.Threading.Tasks;
 
 namespace ThousandYearsHome.Entities.PlayerEntity
 {
@@ -10,12 +11,38 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         [Export] private string _defaultAnimation = "Jump";
         public override string DefaultAnimation => _defaultAnimation;
 
-        [Export] private float JumpSpeed = 600f;
+        [Export] private float _initialImpulse = 600;
+        [Export] private float _reductionPerTick = 25f;
+        [Export] private float _inAirSpeed = 200f;
+
+        private float _currentReduction = 0f;
+
+        public override Task Enter(Player player)
+        {
+            _currentReduction = 0f;
+            return base.Enter(player);
+        }
 
         public override PlayerStateKind? Run(Player player)
         {
-            player.VelY = -JumpSpeed;
+            if (!player.JumpHolding && !player.Jumping)
+            {
+                return PlayerStateKind.InAir;
+            }
+
+            player.VelX = player.HorizontalUnit * _inAirSpeed;
+            player.VelY = -_initialImpulse + _currentReduction;
             player.Move();
+            player.ApplyGravity(player.Gravity);
+            _currentReduction += _reductionPerTick;
+
+            if (player.Jumping
+                || player.JumpHolding
+                && player.VelY < 0)
+            {
+                return null;
+            }
+
             return PlayerStateKind.InAir;
         }
     }

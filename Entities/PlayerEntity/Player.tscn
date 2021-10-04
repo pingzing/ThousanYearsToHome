@@ -272,3 +272,7 @@ one_shot = true
 [node name="FloorTimer" type="Timer" parent="."]
 wait_time = 0.1
 one_shot = true
+
+[node name="JumpHoldTimer" type="Timer" parent="."]
+wait_time = 0.06
+one_shot = true
