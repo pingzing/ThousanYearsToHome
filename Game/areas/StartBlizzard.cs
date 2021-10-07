@@ -1,4 +1,5 @@
 using Godot;
+using System.Threading.Tasks;
 using ThousandYearsHome.Controls;
 using ThousandYearsHome.Entities;
 using ThousandYearsHome.Entities.PlayerEntity;
@@ -12,10 +13,10 @@ namespace ThousandYearsHome.Areas
         private Player _player = null!;
         private AnimationPlayer _animator = null!;
         private AnimationPlayer _fadeAnimator = null!;
+        private Tween _tweener = null!;
         private Particles2D _snowParticles = null!;
         private ColorRect _fader = null!;
         private DialogueBox _dialogueBox = null!;
-        private Timer _ballSpawnTimer = null!;
         private PackedScene _powerBallScene = null!;
         private Position2D _ballSpawnPoint = null!;
         private HUD _hud = null!;
@@ -32,7 +33,7 @@ namespace ThousandYearsHome.Areas
             _player = GetNode<Player>("Player");
             _animator = GetNode<AnimationPlayer>("AnimationPlayer");
             _fadeAnimator = GetNode<AnimationPlayer>("UICanvas/FadePlayer");
-            _ballSpawnTimer = GetNode<Timer>("BallSpawnTimer");
+            _tweener = GetNode<Tween>("Tweener");
             _powerBallScene = GD.Load<PackedScene>("res://entities/PowerBall.tscn");
             _ballSpawnPoint = GetNode<Position2D>("BallSpawnPoint");
             _hud = GetNode<HUD>("UICanvas/HUD");
@@ -58,69 +59,55 @@ namespace ThousandYearsHome.Areas
             _hud.Debug_SetVelocity(new Vector2(xVel, yVel));
         }
 
-        public void StartGameplay()
-        {
-            _ballSpawnTimer.Start();
-        }
-
-        public void WaitStartTimerTimeout()
+        public async void WaitStartTimerTimeout()
         {
             if (!SkipIntro)
             {
-                _animator.Play("StaggerForward");
-            }
-            else
-            {
-                StartGameplay();
-            }
-        }
-
-        public void OnAnimationStarted(string name)
-        {
-            if (name == "PassOut")
-            {
-                _fadeAnimator.Play("FadeScene");
-            }
-        }
-
-        public void OnAnimationFinished(string name)
-        {
-            if (name == "StaggerForward")
-            {
-                _animator.Play("Shiver");
-            }
-            if (name == "Shiver")
-            {
-                _animator.Play("PassOut");
-            }
-        }
-
-        public void OnDialogueBoxClosed()
-        {
-        }
-
-        public async void OnFadePlayerAnimationFinished(string name)
-        {
-            if (name == "FadeScene")
-            {
-                _player.AnimateColor("FlashWhite");
-                _fader.Color = new Color(_fader.Color, .3f); // Un-dim MOST of the way. Rest of the way after dialogue.
-                _snowParticles.SpeedScale = 0f;
-                _player.SetSprite(4);
+                _player.ResetPoseAnimation();
+                _player.AnimatePose("Walk");
+                _tweener.InterpolateProperty(_player, "position", null, new Vector2(_player.Position.x + 100, _player.Position.y), 1.5f, Tween.TransitionType.Quad, Tween.EaseType.Out);
+                _tweener.Start();
+                await this.ToSignalWithArgs(_tweener, "tween_completed", 0, _player);
+                _player.AnimatePose("Idle");
 
                 await _dialogueBox.Open();
-                _dialogueBox.LoadText("* ...o close!\n", 0.2f);
-                _dialogueBox.LoadSilence(0.5f);
-                _dialogueBox.LoadText("Just... ...ittle furth...", 0.1f);
+                _dialogueBox.LoadText("* ...good. ", .08f);
+                _dialogueBox.LoadBreak();
+                _dialogueBox.LoadText("Nearing the source. Not far now.", .03f);
                 await _dialogueBox.Run();
-
-                // Wait for the dialogue box to close, then restore the player and snow and stuff
                 await ToSignal(_dialogueBox, "DialogueBoxClosed");
-                _snowParticles.SpeedScale = 1.0f;
-                _fader.Color = new Color(_fader.Color, 0f);
-                _player.SetSprite(0);
+
+                // A lot of this can probably be reused for the cutscene after we find the frozen keeper
+
+                //_animator.Play("StaggerForward");
+                //await this.ToSignalWithArgs(_animator, "animation_finished", 0, "StaggerForward");
+
+                //_animator.Play("Shiver");
+                //await this.ToSignalWithArgs(_animator, "animation_finished", 0, "Shiver");
+
+                //_animator.Play("PassOut");
+
+                //_fadeAnimator.Play("FadeScene");
+                //await this.ToSignalWithArgs(_fadeAnimator, "animation_finished", 0, "FadeScene");
+
+                //_player.AnimateColor("FlashWhite");
+                //_fader.Color = new Color(_fader.Color, .3f); // Un-dim MOST of the way. Rest of the way after dialogue.
+                //_snowParticles.SpeedScale = 0f;
+                //_player.SetSprite(4);
+
+                //// Dialogue
+                //await _dialogueBox.Open();
+                //_dialogueBox.LoadText("* ...o close!\n", 0.2f);
+                //_dialogueBox.LoadSilence(0.5f);
+                //_dialogueBox.LoadText("Just... ...ittle furth...", 0.1f);
+                //await _dialogueBox.Run();
+
+                //// Wait for the dialogue box to close, then restore the player and snow and stuff
+                //await ToSignal(_dialogueBox, "DialogueBoxClosed");
+                //_snowParticles.SpeedScale = 1.0f;
+                //_fader.Color = new Color(_fader.Color, 0f);
+                //_player.SetSprite(0);
                 _player.InputLocked = false;
-                StartGameplay();
             }
         }
 

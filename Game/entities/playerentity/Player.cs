@@ -1,5 +1,6 @@
 using Godot;
 using System.Threading.Tasks;
+using ThousandYearsHome.Extensions;
 
 namespace ThousandYearsHome.Entities.PlayerEntity
 {
@@ -101,12 +102,16 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
         }
 
-        // Places the player at pos, unhides them, and enables their collision.
+        // Places the player at pos, enables their collision, and initializes their state machine.
         public void Spawn(Vector2 pos)
         {
             GlobalPosition = pos;
             Show();
             GetNode<CollisionShape2D>("BodyCollisionBox").Disabled = false;
+
+            // Make sure the initial state and collisions are taken care of.
+            _stateMachine.Run();
+            Move();
         }
 
         private void UpdateFromInput(float delta)
@@ -160,7 +165,8 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _poseAnimator.Play(animationName, animationSpeed);
         }
 
-        public SignalAwaiter WaitForCurrentPoseAnimationAsync()
+        // TODO: Can we make this more robust? Should we?
+        public SignalAwaiter WaitForCurrentPoseAnimationFinished()
         {
             return ToSignal(_poseAnimator, "animation_finished");
         }

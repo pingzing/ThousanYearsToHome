@@ -19,7 +19,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         {
             if (player.CurrentAnimationName == "Jump")
             {
-                await player.WaitForCurrentPoseAnimationAsync();
+                await player.WaitForCurrentPoseAnimationFinished();
                 // TODO: wait for animation to finish then call base.Enter()
             }
             else

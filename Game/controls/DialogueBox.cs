@@ -44,7 +44,7 @@ namespace ThousandYearsHome.Controls
 
             if (_bufferEmptied)
             {
-                if (Input.IsActionPressed("ui_accept"))
+                if (Input.IsActionJustPressed("ui_accept"))
                 {
                     _ = Close();
                 }
