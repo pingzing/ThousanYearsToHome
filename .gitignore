@@ -1,5 +1,6 @@
 # Project-specific
-output/
+Game/output/
+demo\ videos/
 
 # Visual Studio
 .vs/

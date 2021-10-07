@@ -1,0 +1,234 @@
+[gd_scene load_steps=15 format=2]
+
+[ext_resource path="res://Entities/PlayerEntity/Player.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Areas/StartBlizzard.cs" type="Script" id=2]
+[ext_resource path="res://art/BlizzardBackgrounds.png" type="Texture" id=3]
+[ext_resource path="res://art/BlizzardTileset.tres" type="TileSet" id=4]
+[ext_resource path="res://Controls/DialogueBox.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Controls/HUD.tscn" type="PackedScene" id=6]
+
+[sub_resource type="Animation" id=1]
+length = 4.0
+tracks/0/type = "value"
+tracks/0/path = NodePath("Player/Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 2, 4 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ 5, 6 ]
+}
+
+[sub_resource type="Animation" id=2]
+length = 0.64
+step = 0.02
+tracks/0/type = "value"
+tracks/0/path = NodePath("Player/Sprite:offset")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.38, 0.4, 0.42, 0.44, 0.46, 0.48, 0.5, 0.52, 0.54, 0.56, 0.58, 0.6, 0.62, 0.64 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( 0, 0 ) ]
+}
+
+[sub_resource type="Animation" id=3]
+length = 7.0
+step = 0.02
+tracks/0/type = "value"
+tracks/0/path = NodePath("Player:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 1.2, 1.5, 2.6, 2.9, 4.1 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( -20, 152 ), Vector2( 9, 152 ), Vector2( 9, 152 ), Vector2( 38, 152 ), Vector2( 38, 152 ), Vector2( 67, 152 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Player/Sprite:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 1.1, 1.5, 2.6, 2.9, 4.1, 6.02 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 1, 0, 2, 0, 3, 0, 4 ]
+}
+
+[sub_resource type="RectangleShape2D" id=4]
+extents = Vector2( 512, 4 )
+
+[sub_resource type="RectangleShape2D" id=5]
+extents = Vector2( 5, 97 )
+
+[sub_resource type="ParticlesMaterial" id=6]
+emission_shape = 2
+emission_box_extents = Vector3( 1, 100, 1 )
+flag_disable_z = true
+direction = Vector3( -1, 0, 0 )
+spread = 7.98
+gravity = Vector3( -40, 5, 0 )
+initial_velocity = 340.41
+initial_velocity_random = 0.4
+angular_velocity = 10.21
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+linear_accel = -24.39
+linear_accel_random = 1.0
+scale = 1.25
+scale_random = 1.0
+
+[sub_resource type="Animation" id=7]
+length = 7.0
+tracks/0/type = "value"
+tracks/0/path = NodePath("Fader:color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 7 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 0, 0, 0, 0 ), Color( 0, 0, 0, 0.815686 ) ]
+}
+
+[sub_resource type="RectangleShape2D" id=8]
+extents = Vector2( 21.2091, 145.175 )
+
+[node name="StartBlizzard" type="Node"]
+script = ExtResource( 2 )
+
+[node name="ParallaxBackground" type="ParallaxBackground" parent="."]
+
+[node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground"]
+position = Vector2( 0, -22 )
+motion_scale = Vector2( 0.5, 1 )
+motion_mirroring = Vector2( 384, 0 )
+
+[node name="TextureRect" type="TextureRect" parent="ParallaxBackground/ParallaxLayer"]
+margin_right = 40.0
+margin_bottom = 40.0
+texture = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = ExtResource( 4 )
+cell_size = Vector2( 16, 16 )
+format = 1
+tile_data = PoolIntArray( 720893, 0, 0, 720894, 0, 0, 720895, 0, 0, 655360, 0, 0, 655361, 0, 0, 655362, 0, 0, 655363, 0, 0, 655364, 0, 0, 655365, 0, 0, 655366, 0, 0, 655367, 0, 0, 655368, 0, 0, 655369, 0, 0, 655370, 0, 0, 655371, 0, 0, 655372, 0, 0, 655373, 0, 0, 655374, 0, 0, 655375, 0, 0, 655376, 0, 0, 655377, 0, 0, 655378, 0, 0, 655379, 0, 0, 655380, 0, 0, 655381, 0, 0, 655382, 0, 0, 655383, 0, 0, 655384, 0, 0, 655385, 0, 0, 655386, 0, 0, 655387, 0, 0, 655388, 0, 0, 655389, 0, 0, 655390, 0, 0, 655391, 0, 0, 655392, 0, 0, 655393, 0, 0, 655394, 0, 0, 655395, 0, 0, 655396, 0, 0, 655397, 0, 0, 655398, 0, 0, 655399, 0, 0, 655400, 0, 0, 655401, 0, 0, 655402, 0, 0, 655403, 0, 0, 655404, 0, 0, 655405, 0, 0, 655406, 0, 0, 655407, 0, 0, 655408, 0, 0, 655409, 0, 0, 655410, 0, 0, 655411, 0, 0, 655412, 0, 0, 655413, 0, 0, 655414, 0, 0, 655415, 0, 0, 655416, 0, 0, 655417, 0, 0, 655418, 0, 0, 655419, 0, 0, 786429, 2, 0, 786430, 2, 0, 786431, 2, 0, 720896, 2, 0, 720897, 2, 0, 720898, 2, 0, 720899, 2, 0, 720900, 2, 0, 720901, 2, 0, 720902, 2, 0, 720903, 2, 0, 720904, 2, 0, 720905, 2, 0, 720906, 2, 0, 720907, 2, 0, 720908, 2, 0, 720909, 2, 0, 720910, 2, 0, 720911, 2, 0, 720912, 2, 0, 720913, 2, 0, 720914, 2, 0, 720915, 2, 0, 720916, 2, 0, 720917, 2, 0, 720918, 2, 0, 720919, 2, 0, 720920, 2, 0, 720921, 2, 0, 720922, 2, 0, 720923, 2, 0, 720924, 2, 0, 720925, 2, 0, 720926, 2, 0, 720927, 2, 0, 720928, 2, 0, 720929, 2, 0, 720930, 2, 0, 720931, 2, 0, 720932, 2, 0, 720933, 2, 0, 720934, 2, 0, 720935, 2, 0, 720936, 2, 0, 720937, 2, 0, 720938, 2, 0, 720939, 2, 0, 720940, 2, 0, 720941, 2, 0, 720942, 2, 0, 720943, 2, 0, 720944, 2, 0, 720945, 2, 0, 720946, 2, 0, 720947, 2, 0, 720948, 2, 0, 720949, 2, 0, 720950, 2, 0, 720951, 2, 0, 720952, 2, 0, 720953, 2, 0, 720954, 2, 0, 720955, 2, 0, 720956, 2, 0, 720957, 2, 0, 720958, 2, 0, 720959, 2, 0, 851965, 3, 0, 851966, 3, 0, 851967, 3, 0, 786432, 3, 0, 786433, 3, 0, 786434, 3, 0, 786435, 3, 0, 786436, 3, 0, 786437, 3, 0, 786438, 3, 0, 786439, 3, 0, 786440, 3, 0, 786441, 3, 0, 786442, 3, 0, 786443, 3, 0, 786444, 3, 0, 786445, 3, 0, 786446, 3, 0, 786447, 3, 0, 786448, 3, 0, 786449, 3, 0, 786450, 3, 0, 786451, 3, 0, 786452, 3, 0, 786453, 3, 0, 786454, 3, 0, 786455, 3, 0, 786456, 3, 0, 786457, 3, 0, 786458, 3, 0, 786459, 3, 0, 786460, 3, 0, 786461, 3, 0, 786462, 3, 0, 786463, 3, 0, 786464, 3, 0, 786465, 3, 0, 786466, 3, 0, 786467, 3, 0, 786468, 3, 0, 786469, 3, 0, 786470, 3, 0, 786471, 3, 0, 786472, 3, 0, 786473, 3, 0, 786474, 3, 0, 786475, 3, 0, 786476, 3, 0, 786477, 3, 0, 786478, 3, 0, 786479, 3, 0, 786480, 3, 0, 786481, 3, 0, 786482, 3, 0, 786483, 3, 0, 786484, 3, 0, 786485, 3, 0, 786486, 3, 0, 786487, 3, 0, 786488, 3, 0, 786489, 3, 0, 786490, 3, 0, 786491, 3, 0, 786492, 3, 0, 786493, 3, 0, 786494, 3, 0, 786495, 3, 0, 917501, 4, 0, 917502, 4, 0, 917503, 4, 0, 851968, 4, 0, 851969, 4, 0, 851970, 4, 0, 851971, 4, 0, 851972, 4, 0, 851973, 4, 0, 851974, 4, 0, 851975, 4, 0, 851976, 4, 0, 851977, 4, 0, 851978, 4, 0, 851979, 4, 0, 851980, 4, 0, 851981, 4, 0, 851982, 4, 0, 851983, 4, 0, 851984, 4, 0, 851985, 4, 0, 851986, 4, 0, 851987, 4, 0, 851988, 4, 0, 851989, 4, 0, 851990, 4, 0, 851991, 4, 0, 851992, 4, 0, 851993, 4, 0, 851994, 4, 0, 851995, 4, 0, 851996, 4, 0, 851997, 4, 0, 851998, 4, 0, 851999, 4, 0, 852000, 4, 0, 852001, 4, 0, 852002, 4, 0, 852003, 4, 0, 852004, 4, 0, 852005, 4, 0, 852006, 4, 0, 852007, 4, 0, 852008, 4, 0, 852009, 4, 0, 852010, 4, 0, 852011, 4, 0, 852012, 4, 0, 852013, 4, 0, 852014, 4, 0, 852015, 4, 0, 852016, 4, 0, 852017, 4, 0, 852018, 4, 0, 852019, 4, 0, 852020, 4, 0, 852021, 4, 0, 852022, 4, 0, 852023, 4, 0, 852024, 4, 0, 852025, 4, 0, 852026, 4, 0, 852027, 4, 0, 852028, 4, 0, 983037, 5, 0, 983038, 5, 0, 983039, 5, 0, 917504, 5, 0, 917505, 5, 0, 917506, 5, 0, 917507, 5, 0, 917508, 5, 0, 917509, 5, 0, 917510, 5, 0, 917511, 5, 0, 917512, 5, 0, 917513, 5, 0, 917514, 5, 0, 917515, 5, 0, 917516, 5, 0, 917517, 5, 0, 917518, 5, 0, 917519, 5, 0, 917520, 5, 0, 917521, 5, 0, 917522, 5, 0, 917523, 5, 0, 917524, 5, 0, 917525, 5, 0, 917526, 5, 0, 917527, 5, 0, 917528, 5, 0, 917529, 5, 0, 917530, 5, 0, 917531, 5, 0, 917532, 5, 0, 917533, 5, 0, 917534, 5, 0, 917535, 5, 0, 917536, 5, 0, 917537, 5, 0, 917538, 5, 0, 917539, 5, 0, 917540, 5, 0, 917541, 5, 0, 917542, 5, 0, 917543, 5, 0, 917544, 5, 0, 917545, 5, 0, 917546, 5, 0, 917547, 5, 0, 917548, 5, 0, 917549, 5, 0, 917550, 5, 0, 917551, 5, 0, 917552, 5, 0, 917553, 5, 0, 917554, 5, 0, 917555, 5, 0, 917556, 5, 0, 917557, 5, 0, 917558, 5, 0, 917559, 5, 0, 917560, 5, 0, 917561, 5, 0, 917562, 5, 0, 917563, 5, 0, 917564, 5, 0, 917565, 5, 0, 1048573, 1, 0, 1048574, 1, 0, 1048575, 1, 0, 983040, 1, 0, 983041, 1, 0, 983042, 1, 0, 983043, 1, 0, 983044, 1, 0, 983045, 1, 0, 983046, 1, 0, 983047, 1, 0, 983048, 1, 0, 983049, 1, 0, 983050, 1, 0, 983051, 1, 0, 983052, 1, 0, 983053, 1, 0, 983054, 1, 0, 983055, 1, 0, 983056, 1, 0, 983057, 1, 0, 983058, 1, 0, 983059, 1, 0, 983060, 1, 0, 983061, 1, 0, 983062, 1, 0, 983063, 1, 0, 983064, 1, 0, 983065, 1, 0, 983066, 1, 0, 983067, 1, 0, 983068, 1, 0, 983069, 1, 0, 983070, 1, 0, 983071, 1, 0, 983072, 1, 0, 983073, 1, 0, 983074, 1, 0, 983075, 1, 0, 983076, 1, 0, 983077, 1, 0, 983078, 1, 0, 983079, 1, 0, 983080, 1, 0, 983081, 1, 0, 983082, 1, 0, 983083, 1, 0, 983084, 1, 0, 983085, 1, 0, 983086, 1, 0, 983087, 1, 0, 983088, 1, 0, 983089, 1, 0, 983090, 1, 0, 983091, 1, 0, 983092, 1, 0, 983093, 1, 0, 983094, 1, 0, 983095, 1, 0, 983096, 1, 0, 983097, 1, 0, 983098, 1, 0, 983099, 1, 0, 983100, 1, 0, 983101, 1, 0 )
+
+[node name="StartPosition" type="Position2D" parent="."]
+position = Vector2( -34, 153 )
+
+[node name="Player" parent="." instance=ExtResource( 1 )]
+position = Vector2( -34, 152 )
+
+[node name="Sprite" parent="Player" index="0"]
+offset = Vector2( -1, 0 )
+
+[node name="CameraTarget" type="Node2D" parent="Player"]
+position = Vector2( 100, 0 )
+
+[node name="Camera2D" type="Camera2D" parent="Player/CameraTarget"]
+current = true
+limit_left = 0
+limit_top = -20
+limit_right = 874
+limit_bottom = 217
+drag_margin_h_enabled = true
+drag_margin_v_enabled = true
+drag_margin_left = 0.1
+drag_margin_top = 1.0
+drag_margin_right = 0.0
+drag_margin_bottom = 1.0
+editor_draw_limits = true
+editor_draw_drag_margin = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+anims/PassOut = SubResource( 1 )
+anims/Shiver = SubResource( 2 )
+anims/StaggerForward = SubResource( 3 )
+
+[node name="Terrain" type="StaticBody2D" parent="."]
+
+[node name="GroundCollision" type="CollisionShape2D" parent="Terrain"]
+position = Vector2( 384, 182 )
+shape = SubResource( 4 )
+
+[node name="RightEdge" type="CollisionShape2D" parent="Terrain"]
+position = Vector2( 893, 81 )
+shape = SubResource( 5 )
+
+[node name="LeftEdge" type="CollisionShape2D" parent="Terrain"]
+position = Vector2( -72, 89 )
+shape = SubResource( 5 )
+
+[node name="UICanvas" type="CanvasLayer" parent="."]
+
+[node name="Particles2D" type="Particles2D" parent="UICanvas"]
+position = Vector2( 387, 105 )
+amount = 800
+lifetime = 1.5
+preprocess = 1.5
+visibility_rect = Rect2( -386, -108, 384, 216 )
+process_material = SubResource( 6 )
+
+[node name="HUD" parent="UICanvas" instance=ExtResource( 6 )]
+
+[node name="Fader" type="ColorRect" parent="UICanvas"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DialogueBox" parent="UICanvas" instance=ExtResource( 5 )]
+margin_left = 16.0
+margin_top = 39.0
+margin_right = 375.0
+margin_bottom = 84.0
+
+[node name="FadePlayer" type="AnimationPlayer" parent="UICanvas"]
+anims/FadeScene = SubResource( 7 )
+
+[node name="WaitStartTimer" type="Timer" parent="."]
+wait_time = 4.5
+one_shot = true
+autostart = true
+
+[node name="BallSpawnTimer" type="Timer" parent="."]
+
+[node name="BallSpawnPoint" type="Position2D" parent="."]
+position = Vector2( 887, 160 )
+
+[node name="BallKillArea" type="Area2D" parent="."]
+
+[node name="BallKillBox" type="CollisionShape2D" parent="BallKillArea"]
+position = Vector2( -22.8627, 84 )
+shape = SubResource( 8 )
+
+[connection signal="DebugUpdateState" from="Player" to="." method="OnPlayerDebugUpdateState"]
+[connection signal="animation_finished" from="AnimationPlayer" to="." method="OnAnimationFinished"]
+[connection signal="animation_started" from="AnimationPlayer" to="." method="OnAnimationStarted"]
+[connection signal="DialogueBoxClosed" from="UICanvas/DialogueBox" to="." method="OnDialogueBoxClosed"]
+[connection signal="animation_finished" from="UICanvas/FadePlayer" to="." method="OnFadePlayerAnimationFinished"]
+[connection signal="timeout" from="WaitStartTimer" to="." method="WaitStartTimerTimeout"]
+[connection signal="timeout" from="BallSpawnTimer" to="." method="OnBallSpawnTimerTimeout"]
+
+[editable path="Player"]
+[editable path="UICanvas/DialogueBox"]
