@@ -16,6 +16,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         [Export] private float StartingAccelPerTick = 25f;
         [Export] private float TurningAccel = 20f;
         [Export] private float MaxSpeed = 200f;
+        [Export] private float SlopeSpeedMultiplier = 2f;
 
         // Gets called once per physics tick by _PhysicsProcess.
         public override PlayerStateKind? Run(Player player)
@@ -93,7 +94,14 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 {
                     velX += AccelPerTick * player.HorizontalUnit;
                 }
+
                 velX = Mathf.Clamp(velX, -MaxSpeed, MaxSpeed);
+
+                // Allow player to climb up slopes at normal speed
+                if (velX > 0 && player.IsOnSlope)
+                {
+                    velX *= SlopeSpeedMultiplier;
+                }
             }
 
             player.VelX = velX;

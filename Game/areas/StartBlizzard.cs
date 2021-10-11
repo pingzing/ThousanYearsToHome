@@ -20,6 +20,9 @@ namespace ThousandYearsHome.Areas
         private PackedScene _powerBallScene = null!;
         private Position2D _ballSpawnPoint = null!;
         private HUD _hud = null!;
+        private Camera2D _playerCamera = null!;
+        private Camera2D _cinematicCamera = null!;
+        private CollisionShape2D _leftEdge = null!;
 
         public bool SkipIntro { get; set; }
 
@@ -37,6 +40,9 @@ namespace ThousandYearsHome.Areas
             _powerBallScene = GD.Load<PackedScene>("res://entities/PowerBall.tscn");
             _ballSpawnPoint = GetNode<Position2D>("BallSpawnPoint");
             _hud = GetNode<HUD>("UICanvas/HUD");
+            _playerCamera = GetNode<Camera2D>("Player/CameraTarget/Camera2D");
+            _cinematicCamera = GetNode<Camera2D>("CinematicCamera");
+            _leftEdge = GetNode<CollisionShape2D>("Terrain/LeftEdge");
 
             Vector2 startPos = GetNode<Position2D>("StartPosition").Position;
             _player.Spawn(startPos);
@@ -63,9 +69,16 @@ namespace ThousandYearsHome.Areas
         {
             if (!SkipIntro)
             {
+                float playerCamCenterY = (int)_playerCamera.GetViewportRect().End.y / 2 + 1;
+                // Initial camera Pan
+                _tweener.InterpolateProperty(_cinematicCamera, "global_position", null, new Vector2(_cinematicCamera.GlobalPosition.x, playerCamCenterY), 6.5f, Tween.TransitionType.Cubic, Tween.EaseType.InOut);
+                _tweener.Start();
+                await this.ToSignalWithArgs(_tweener, "tween_completed", 0, _cinematicCamera);
+
+                // Blue walks on and talks
                 _player.ResetPoseAnimation();
                 _player.AnimatePose("Walk");
-                _tweener.InterpolateProperty(_player, "position", null, new Vector2(_player.Position.x + 100, _player.Position.y), 1.5f, Tween.TransitionType.Quad, Tween.EaseType.Out);
+                _tweener.InterpolateProperty(_player, "position", null, new Vector2(_player.Position.x + 100, _player.Position.y), 3.3f, Tween.TransitionType.Quad, Tween.EaseType.Out);
                 _tweener.Start();
                 await this.ToSignalWithArgs(_tweener, "tween_completed", 0, _player);
                 _player.AnimatePose("Idle");
@@ -76,6 +89,10 @@ namespace ThousandYearsHome.Areas
                 _dialogueBox.LoadText("Nearing the source. Not far now.", .03f);
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, "DialogueBoxClosed");
+
+                _cinematicCamera.Current = false;
+                _playerCamera.Current = true;
+                _leftEdge.Disabled = false;
 
                 // A lot of this can probably be reused for the cutscene after we find the frozen keeper
 

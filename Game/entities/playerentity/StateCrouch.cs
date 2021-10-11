@@ -31,6 +31,13 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 player.VelX = velX;
             }
 
+            // Allow player to drop through platform before applying gravity/movement
+            if (player.Jumping && player.IsOnOneWayPlatform)
+            {
+                player.CollisionLayer = 1;
+                player.StartOneWayPlatformTimer();
+            }
+
             player.ApplyGravity(player.JumpResistance);
             player.Move();
 
@@ -39,7 +46,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 return PlayerStateKind.InAir;
             }
 
-            if (player.Jumping)
+            if (player.Jumping && !player.IsOnOneWayPlatform)
             {
                 return PlayerStateKind.Jumping;
             }

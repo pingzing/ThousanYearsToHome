@@ -3,24 +3,48 @@ using ThousandYearsHome.Entities.PlayerEntity;
 
 namespace ThousandYearsHome.Entities
 {
+    [Tool]
     public class PowerBall : Node2D
     {
         [Export] private float Speed = 150f;
         [Export] private Vector2 Direction = Vector2.Left;
 
+        private bool _active = false;
+
         public override void _Ready()
         {
+            if (Engine.EditorHint)
+            {
+                return;
+            }
 
+            Hide();
         }
 
         public override void _PhysicsProcess(float delta)
         {
+            if (Engine.EditorHint)
+            {
+                return; // TODO: can preview these things moving
+            }
+
+            if (!_active)
+            {
+                return;
+            }
+
             Position += Direction * Speed * delta;
+        }
+
+        public void Activate()
+        {
+            Show();
+            _active = true;
         }
 
         public void OnCollisionAreaEntered(Area2D area)
         {
-            if (area.Name == "HornBox")
+            if (area.Name == "HornBox") // TODO: Something more type safe?
             {
                 var player = area.GetParent().GetParent<Player>();
                 player.OnHornTouched(this);

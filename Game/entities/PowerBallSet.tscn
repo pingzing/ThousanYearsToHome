@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://entities/PowerBallSet.cs" type="Script" id=1]
+
+[sub_resource type="RectangleShape2D" id=1]
+
+[node name="PowerBallSet" type="Node2D"]
+script = ExtResource( 1 )
+TriggerShape = SubResource( 1 )
+
+[node name="TriggerArea" type="Area2D" parent="."]
+
+[node name="TriggerShape" type="CollisionShape2D" parent="TriggerArea"]
+shape = SubResource( 1 )
+
+[node name="Bullets" type="Node2D" parent="."]
+
+[connection signal="body_entered" from="TriggerArea" to="." method="OnTriggerAreaBodyEntered"]

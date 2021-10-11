@@ -66,16 +66,19 @@ tracks/1/keys = {
 "values": [ 1, 0, 2, 0, 3, 0, 4 ]
 }
 
-[sub_resource type="Animation" id=9]
+[sub_resource type="Animation" id=4]
 resource_name = "TrotIntoFrame"
 
-[sub_resource type="RectangleShape2D" id=4]
+[sub_resource type="RectangleShape2D" id=5]
 extents = Vector2( 512, 4 )
 
-[sub_resource type="RectangleShape2D" id=5]
+[sub_resource type="RectangleShape2D" id=6]
 extents = Vector2( 5, 97 )
 
-[sub_resource type="ParticlesMaterial" id=6]
+[sub_resource type="RectangleShape2D" id=9]
+extents = Vector2( 21.2091, 145.175 )
+
+[sub_resource type="ParticlesMaterial" id=7]
 emission_shape = 2
 emission_box_extents = Vector3( 1, 100, 1 )
 flag_disable_z = true
@@ -92,7 +95,7 @@ linear_accel_random = 1.0
 scale = 1.25
 scale_random = 1.0
 
-[sub_resource type="Animation" id=7]
+[sub_resource type="Animation" id=8]
 length = 7.0
 tracks/0/type = "value"
 tracks/0/path = NodePath("Fader:color")
@@ -107,17 +110,33 @@ tracks/0/keys = {
 "values": [ Color( 0, 0, 0, 0 ), Color( 0, 0, 0, 0.815686 ) ]
 }
 
-[sub_resource type="RectangleShape2D" id=8]
-extents = Vector2( 21.2091, 145.175 )
-
 [node name="StartBlizzard" type="Node"]
 script = ExtResource( 2 )
 
 [node name="ParallaxBackground" type="ParallaxBackground" parent="."]
 
+[node name="ColorRect2" type="ColorRect" parent="ParallaxBackground"]
+margin_top = -226.0
+margin_right = 2680.0
+margin_bottom = 35.0
+color = Color( 0.321569, 0.647059, 0.870588, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect" type="ColorRect" parent="ParallaxBackground"]
+margin_top = 148.0
+margin_right = 1198.0
+margin_bottom = 215.0
+color = Color( 0.921569, 0.976471, 1, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground"]
 position = Vector2( 0, -22 )
-motion_scale = Vector2( 0.5, 1 )
+motion_scale = Vector2( 0.5, 0.3 )
+motion_offset = Vector2( 0, -100 )
 motion_mirroring = Vector2( 384, 0 )
 
 [node name="TextureRect" type="TextureRect" parent="ParallaxBackground/ParallaxLayer"]
@@ -147,9 +166,8 @@ offset = Vector2( -1, 0 )
 position = Vector2( 100, 0 )
 
 [node name="Camera2D" type="Camera2D" parent="Player/CameraTarget"]
-current = true
 limit_left = 0
-limit_top = -20
+limit_top = -100
 limit_right = 874
 limit_bottom = 217
 drag_margin_h_enabled = true
@@ -165,21 +183,55 @@ editor_draw_drag_margin = true
 anims/PassOut = SubResource( 1 )
 anims/Shiver = SubResource( 2 )
 anims/StaggerForward = SubResource( 3 )
-anims/TrotIntoFrame = SubResource( 9 )
+anims/TrotIntoFrame = SubResource( 4 )
 
 [node name="Terrain" type="StaticBody2D" parent="."]
 
 [node name="GroundCollision" type="CollisionShape2D" parent="Terrain"]
 position = Vector2( 384, 182 )
-shape = SubResource( 4 )
+shape = SubResource( 5 )
 
 [node name="RightEdge" type="CollisionShape2D" parent="Terrain"]
 position = Vector2( 893, 81 )
-shape = SubResource( 5 )
+shape = SubResource( 6 )
 
 [node name="LeftEdge" type="CollisionShape2D" parent="Terrain"]
-position = Vector2( -72, 89 )
-shape = SubResource( 5 )
+position = Vector2( -6, 81 )
+shape = SubResource( 6 )
+disabled = true
+
+[node name="OneWayPlatforms" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 2
+
+[node name="WaitStartTimer" type="Timer" parent="."]
+wait_time = 4.5
+one_shot = true
+autostart = true
+
+[node name="BallSpawnPoint" type="Position2D" parent="."]
+position = Vector2( 887, 160 )
+
+[node name="BallKillArea" type="Area2D" parent="."]
+
+[node name="BallKillBox" type="CollisionShape2D" parent="BallKillArea"]
+position = Vector2( -22.8627, 84 )
+shape = SubResource( 9 )
+
+[node name="Tweener" type="Tween" parent="."]
+
+[node name="CinematicCamera" type="Camera2D" parent="."]
+position = Vector2( 192, -90 )
+current = true
+limit_left = 0
+limit_top = -200
+limit_bottom = 217
+drag_margin_left = 0.0
+drag_margin_top = 0.0
+drag_margin_right = 0.0
+drag_margin_bottom = 0.0
+editor_draw_limits = true
+editor_draw_drag_margin = true
 
 [node name="UICanvas" type="CanvasLayer" parent="."]
 
@@ -189,7 +241,7 @@ amount = 800
 lifetime = 1.5
 preprocess = 1.5
 visibility_rect = Rect2( -386, -108, 384, 216 )
-process_material = SubResource( 6 )
+process_material = SubResource( 7 )
 
 [node name="HUD" parent="UICanvas" instance=ExtResource( 6 )]
 
@@ -208,30 +260,14 @@ margin_right = 375.0
 margin_bottom = 84.0
 
 [node name="FadePlayer" type="AnimationPlayer" parent="UICanvas"]
-anims/FadeScene = SubResource( 7 )
-
-[node name="WaitStartTimer" type="Timer" parent="."]
-wait_time = 4.5
-one_shot = true
-autostart = true
-
-[node name="BallSpawnPoint" type="Position2D" parent="."]
-position = Vector2( 887, 160 )
-
-[node name="BallKillArea" type="Area2D" parent="."]
-
-[node name="BallKillBox" type="CollisionShape2D" parent="BallKillArea"]
-position = Vector2( -22.8627, 84 )
-shape = SubResource( 8 )
-
-[node name="Tweener" type="Tween" parent="."]
+anims/FadeScene = SubResource( 8 )
 
 [connection signal="DebugUpdateState" from="Player" to="." method="OnPlayerDebugUpdateState"]
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="OnAnimationFinished"]
 [connection signal="animation_started" from="AnimationPlayer" to="." method="OnAnimationStarted"]
+[connection signal="timeout" from="WaitStartTimer" to="." method="WaitStartTimerTimeout"]
 [connection signal="DialogueBoxClosed" from="UICanvas/DialogueBox" to="." method="OnDialogueBoxClosed"]
 [connection signal="animation_finished" from="UICanvas/FadePlayer" to="." method="OnFadePlayerAnimationFinished"]
-[connection signal="timeout" from="WaitStartTimer" to="." method="WaitStartTimerTimeout"]
 
 [editable path="Player"]
 [editable path="UICanvas/DialogueBox"]

@@ -219,6 +219,7 @@ extents = Vector2( 2.23205, 6 )
 extents = Vector2( 12, 23 )
 
 [node name="Player" type="KinematicBody2D"]
+collision_layer = 3
 script = ExtResource( 1 )
 
 [node name="Sprite" type="Sprite" parent="."]
@@ -275,3 +276,9 @@ one_shot = true
 [node name="JumpHoldTimer" type="Timer" parent="."]
 wait_time = 0.06
 one_shot = true
+
+[node name="OneWayPlatformTimer" type="Timer" parent="."]
+wait_time = 0.2
+one_shot = true
+
+[connection signal="timeout" from="OneWayPlatformTimer" to="." method="OnOneWayPlatformTimerTimeout"]
