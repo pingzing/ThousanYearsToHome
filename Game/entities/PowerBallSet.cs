@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using ThousandYearsHome.Entities.PlayerEntity;
 
@@ -26,7 +27,9 @@ namespace ThousandYearsHome.Entities
         private Area2D _triggerArea = null!;
         private CollisionShape2D _triggerCollisionShape2D = null!;
         private Node2D _bulletHolder = null!;
-        private PowerBall[] _powerBalls;
+        private List<PowerBall> _powerBalls;
+
+        private bool _triggered = false;
 
         public override void _Ready()
         {
@@ -40,17 +43,23 @@ namespace ThousandYearsHome.Entities
             }
 
             // Both readies
-            _powerBalls = _bulletHolder.GetChildren().Cast<PowerBall>().ToArray();
+            _powerBalls = _bulletHolder.GetChildren().Cast<PowerBall>().ToList();
             foreach (var ball in _powerBalls)
             {
-
+                ball.Connect("FreeQueued", this, nameof(OnBallFreed));
             }
         }
 
         public void OnTriggerAreaBodyEntered(Node node)
         {
+            if (_triggered)
+            {
+                return;
+            }
+
             if (node is Player)
             {
+                _triggered = true;
                 foreach (var ball in _powerBalls)
                 {
                     ball.Activate();
@@ -58,6 +67,15 @@ namespace ThousandYearsHome.Entities
             }
         }
 
+        public void OnBallFreed(PowerBall ball)
+        {
+            _powerBalls.Remove(ball);
+            ball = null!;
+            if (!_powerBalls.Any())
+            {
+                QueueFree();
+            }
+        }
 
         // ---Tool stuff---
 

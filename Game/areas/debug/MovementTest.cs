@@ -14,7 +14,7 @@ namespace ThousandYearsHome.Areas.Debug
         public override void _Ready()
         {
             _hud = GetNode<HUD>("CanvasLayer/HUD");
-            _cameraTarget = GetNode<Node2D>("CameraTarget");
+            _cameraTarget = GetNode<Node2D>("Player/CameraTarget/Camera2D");
             _player = GetNode<Player>("Player");
         }
 

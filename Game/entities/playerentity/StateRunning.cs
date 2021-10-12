@@ -14,7 +14,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         [Export] private float AccelPerTick = 5f;
         [Export] private float DecelPerTick = 15f;
         [Export] private float StartingAccelPerTick = 25f;
-        [Export] private float TurningAccel = 20f;
+        [Export] private float TurningAccel = 35f;
         [Export] private float MaxSpeed = 200f;
         [Export] private float SlopeSpeedMultiplier = 2f;
 

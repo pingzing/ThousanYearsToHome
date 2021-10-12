@@ -11,8 +11,8 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         [Export] private string _defaultAnimation = "Jump";
         public override string DefaultAnimation => _defaultAnimation;
 
-        [Export] private float _initialImpulse = 550;
-        [Export] private float _reductionPerTick = 25f;
+        [Export] private float _initialImpulse = 440;
+        [Export] private float _reductionPerTick = 15f;
         [Export] private float _inAirSpeed = 200f;
 
         private float _currentReduction = 0f;
@@ -31,7 +31,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
 
             player.VelX = player.HorizontalUnit * _inAirSpeed;
-            player.VelY = -_initialImpulse + _currentReduction;
+            player.VelY = Mathf.Min(0, -_initialImpulse + _currentReduction);
             player.Move();
             player.ApplyGravity(player.JumpResistance);
             _currentReduction += _reductionPerTick;

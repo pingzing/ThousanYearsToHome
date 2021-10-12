@@ -1,13 +1,39 @@
 using Godot;
 using ThousandYearsHome.Entities.PlayerEntity;
+using ThousandYearsHome.Extensions;
 
 namespace ThousandYearsHome.Entities
 {
     [Tool]
     public class PowerBall : Node2D
     {
-        [Export] private float Speed = 150f;
-        [Export] private Vector2 Direction = Vector2.Left;
+        private float _speed = 150f;
+        [Export(PropertyHint.Range, "0, 10000, 1")]
+        public float Speed
+        {
+            get => _speed;
+            set
+            {
+                _speed = value;
+                Update();
+            }
+        }
+
+        // In degrees, for easier Editor-ing.
+        private float _directionAngle = 180;
+        [Export(PropertyHint.Range, "0, 359")]
+        public float DirectionAngle
+        {
+            get => _directionAngle;
+            set
+            {
+                _directionAngle = value;
+                Update();
+            }
+        }
+
+
+        [Signal] public delegate void FreeQueued(PowerBall ball);
 
         private bool _active = false;
 
@@ -33,7 +59,9 @@ namespace ThousandYearsHome.Entities
                 return;
             }
 
-            Position += Direction * Speed * delta;
+            var directionRadians = Numerology.DegToRad(DirectionAngle);
+            Vector2 direction = new Vector2(Mathf.Cos(directionRadians), Mathf.Sin(directionRadians));
+            Position += direction * Speed * delta;
         }
 
         public void Activate()
@@ -59,13 +87,29 @@ namespace ThousandYearsHome.Entities
             if (area.Name == "BallKillArea")
             {
                 QueueFree();
+                EmitSignal(nameof(FreeQueued), this);
             }
         }
 
         public void OnTouchedTimerTimeout()
         {
-            // Remove the node at the end of the countdown.
             QueueFree();
+            EmitSignal(nameof(FreeQueued), this);
+        }
+
+        // ---Tool stuff---
+
+        public override void _Draw()
+        {
+            if (!Engine.EditorHint)
+            {
+                return;
+            }
+
+            var directionRadians = Numerology.DegToRad(DirectionAngle);
+            Vector2 direction = new Vector2(Mathf.Cos(directionRadians), Mathf.Sin(directionRadians));
+            Vector2 secondPont = -direction * Speed;
+            DrawLine(Vector2.Zero, secondPont, new Color(1f, 1f, 0f), 2f, true);
         }
     }
 }

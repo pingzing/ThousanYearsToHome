@@ -75,10 +75,10 @@ extents = Vector2( 512, 4 )
 [sub_resource type="RectangleShape2D" id=6]
 extents = Vector2( 5, 97 )
 
-[sub_resource type="RectangleShape2D" id=9]
+[sub_resource type="RectangleShape2D" id=7]
 extents = Vector2( 21.2091, 145.175 )
 
-[sub_resource type="ParticlesMaterial" id=7]
+[sub_resource type="ParticlesMaterial" id=8]
 emission_shape = 2
 emission_box_extents = Vector3( 1, 100, 1 )
 flag_disable_z = true
@@ -95,7 +95,7 @@ linear_accel_random = 1.0
 scale = 1.25
 scale_random = 1.0
 
-[sub_resource type="Animation" id=8]
+[sub_resource type="Animation" id=9]
 length = 7.0
 tracks/0/type = "value"
 tracks/0/path = NodePath("Fader:color")
@@ -216,7 +216,7 @@ position = Vector2( 887, 160 )
 
 [node name="BallKillBox" type="CollisionShape2D" parent="BallKillArea"]
 position = Vector2( -22.8627, 84 )
-shape = SubResource( 9 )
+shape = SubResource( 7 )
 
 [node name="Tweener" type="Tween" parent="."]
 
@@ -241,7 +241,7 @@ amount = 800
 lifetime = 1.5
 preprocess = 1.5
 visibility_rect = Rect2( -386, -108, 384, 216 )
-process_material = SubResource( 7 )
+process_material = SubResource( 8 )
 
 [node name="HUD" parent="UICanvas" instance=ExtResource( 6 )]
 
@@ -260,7 +260,7 @@ margin_right = 375.0
 margin_bottom = 84.0
 
 [node name="FadePlayer" type="AnimationPlayer" parent="UICanvas"]
-anims/FadeScene = SubResource( 8 )
+anims/FadeScene = SubResource( 9 )
 
 [connection signal="DebugUpdateState" from="Player" to="." method="OnPlayerDebugUpdateState"]
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="OnAnimationFinished"]
