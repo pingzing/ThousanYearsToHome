@@ -2,6 +2,7 @@
 
 namespace ThousandYearsHome.Entities.PlayerEntity
 {
+    [Tool]
     public class StateRunning : PlayerStateBase
     {
         [Export] private PlayerStateKind _stateKind = PlayerStateKind.Running;
@@ -35,7 +36,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
             UpdateVelocity(player);
 
-            player.ApplyGravity(player.JumpResistance);
+            player.ApplyGravity(Player.IdleGravity);
             player.Move();
 
             if (!player.IsOnFloor())

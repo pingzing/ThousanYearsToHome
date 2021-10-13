@@ -2,6 +2,7 @@
 
 namespace ThousandYearsHome.Entities.PlayerEntity
 {
+    [Tool]
     public class StateCrouch : PlayerStateBase
     {
         [Export] private PlayerStateKind _stateKind = PlayerStateKind.Crouching;
@@ -38,7 +39,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 player.StartOneWayPlatformTimer();
             }
 
-            player.ApplyGravity(player.JumpResistance);
+            player.ApplyGravity(Player.IdleGravity);
             player.Move();
 
             if (!player.IsOnFloor())

@@ -1,9 +1,12 @@
 using Godot;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ThousandYearsHome.Extensions;
 
 namespace ThousandYearsHome.Entities.PlayerEntity
 {
+    [Tool]
     public class Player : KinematicBody2D
     {
         public const int StandFrame = 0;
@@ -40,6 +43,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         private int _verticalUnit = 0;
         public int VerticalUnit => _verticalUnit;
+        public const float IdleGravity = 50f;
 
         private float _velX;
         public float VelX
@@ -74,10 +78,32 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             set => _velY = value;
         }
 
+        private float _fallGravity = 40f;
+        [Export]
+        public float FallGravity
+        {
+            get => _fallGravity;
+            set
+            {
+                _fallGravity = value;
+                Update();
+            }
+        }
+
+        private float _maxFallSpeed = 450f;
+        [Export]
+        public float MaxFallSpeed
+        {
+            get => _maxFallSpeed;
+            set
+            {
+                _maxFallSpeed = value;
+                Update();
+            }
+        }
+
+
         [Export] public bool InputLocked = false;
-        [Export] public float JumpResistance = 50f;
-        [Export] public float FallGravity = 40f;
-        [Export] public float MaxFallSpeed = 450f;
         [Signal] public delegate void DebugUpdateState(PlayerStateKind newState, float xVel, float yVel);
 
         // Called when the node enters the scene tree for the first time.
@@ -98,6 +124,11 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         public override void _PhysicsProcess(float delta)
         {
+            if (Engine.EditorHint)
+            {
+                return;
+            }
+
             if (InputLocked)
             {
                 // Do nothing. Used to prevent player input during cutscenes, etc.
@@ -284,6 +315,49 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             // When passing through one-way platforms, they only occupy Layer 1.
             // Once the timer expires, this puts them back on both layers.
             CollisionLayer = 1 | 2;
+        }
+
+        // --- Tool stuff ---
+
+        public override void _Draw()
+        {
+            if (!Engine.EditorHint)
+            {
+                return;
+            }
+
+            var startPos = Position;
+
+            List<Vector2> upFrames = new List<Vector2>();
+            _stateMachine.Init(this);
+
+            _floorTimer.Start();
+            _jumpTimer.Start();
+            _jumpHoldTimer.Start();
+            _stateMachine.Run();
+            while (_stateMachine.CurrentState.StateKind == PlayerStateKind.Jumping)
+            {
+                _floorTimer.Stop();
+                _jumpHoldTimer.Start();
+                upFrames.Add(Position);
+                _stateMachine.Run();
+            }
+
+            foreach (var frame in upFrames)
+            {
+                GD.Print($"UpFrame: {frame}");
+            }
+
+            _floorTimer.Stop();
+            _jumpTimer.Stop();
+            _jumpHoldTimer.Stop();
+
+            // Force the player back into idle and put them back where they started
+            Position = startPos;
+            _floorTimer.Start();
+            _stateMachine.Run();
+
+            DrawLine(Vector2.Zero, upFrames.Last() - upFrames.First(), new Color(1, 0, 0), 1, true);
         }
     }
 }

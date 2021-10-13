@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace ThousandYearsHome.Entities.PlayerEntity
 {
+    [Tool]
     public class PlayerStateMachine : Node2D
     {
         private Dictionary<PlayerStateKind, PlayerStateBase> _states = new Dictionary<PlayerStateKind, PlayerStateBase>();

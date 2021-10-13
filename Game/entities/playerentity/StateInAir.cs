@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace ThousandYearsHome.Entities.PlayerEntity
 {
+    [Tool]
     public class StateInAir : PlayerStateBase
     {
 

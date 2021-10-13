@@ -2,6 +2,7 @@
 
 namespace ThousandYearsHome.Entities.PlayerEntity
 {
+    [Tool]
     public class StateIdle : PlayerStateBase
     {
         [Export] private PlayerStateKind _stateKind = PlayerStateKind.Idle;
@@ -19,7 +20,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
             if (player.HorizontalUnit == 0 && player.VerticalUnit > 0)
             {
-                player.ApplyGravity(player.JumpResistance);
+                player.ApplyGravity(Player.IdleGravity);
                 player.Move();
             }
 
