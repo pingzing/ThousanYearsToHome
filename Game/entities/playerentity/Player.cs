@@ -38,11 +38,11 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public bool IsOnOneWayPlatform { get; private set; } = false;
         public bool IsOnSlope { get; private set; } = false;
 
-        private int _horizontalUnit = 0;
-        public int HorizontalUnit => _horizontalUnit;
+        public int HorizontalUnit { get; set; } = 0;
 
         private int _verticalUnit = 0;
         public int VerticalUnit => _verticalUnit;
+
         public const float IdleGravity = 50f;
 
         private float _velX;
@@ -155,7 +155,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         private void UpdateFromInput(float delta)
         {
-            _horizontalUnit = (Input.IsActionPressed("ui_right") ? 1 : 0) - (Input.IsActionPressed("ui_left") ? 1 : 0);
+            HorizontalUnit = (Input.IsActionPressed("ui_right") ? 1 : 0) - (Input.IsActionPressed("ui_left") ? 1 : 0);
             _verticalUnit = (Input.IsActionPressed("ui_up") ? 1 : 0) - (Input.IsActionPressed("ui_down") ? 1 : 0);
 
             if (Input.IsActionJustPressed("ui_accept"))
@@ -247,6 +247,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             {
                 return;
             }
+
             var velocity = new Vector2(VelX, VelY);
             velocity += Vector2.Down * gravity;
             VelX = velocity.x;
@@ -315,49 +316,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             // When passing through one-way platforms, they only occupy Layer 1.
             // Once the timer expires, this puts them back on both layers.
             CollisionLayer = 1 | 2;
-        }
-
-        // --- Tool stuff ---
-
-        public override void _Draw()
-        {
-            if (!Engine.EditorHint)
-            {
-                return;
-            }
-
-            var startPos = Position;
-
-            List<Vector2> upFrames = new List<Vector2>();
-            _stateMachine.Init(this);
-
-            _floorTimer.Start();
-            _jumpTimer.Start();
-            _jumpHoldTimer.Start();
-            _stateMachine.Run();
-            while (_stateMachine.CurrentState.StateKind == PlayerStateKind.Jumping)
-            {
-                _floorTimer.Stop();
-                _jumpHoldTimer.Start();
-                upFrames.Add(Position);
-                _stateMachine.Run();
-            }
-
-            foreach (var frame in upFrames)
-            {
-                GD.Print($"UpFrame: {frame}");
-            }
-
-            _floorTimer.Stop();
-            _jumpTimer.Stop();
-            _jumpHoldTimer.Stop();
-
-            // Force the player back into idle and put them back where they started
-            Position = startPos;
-            _floorTimer.Start();
-            _stateMachine.Run();
-
-            DrawLine(Vector2.Zero, upFrames.Last() - upFrames.First(), new Color(1, 0, 0), 1, true);
         }
     }
 }

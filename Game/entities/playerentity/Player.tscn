@@ -221,6 +221,9 @@ extents = Vector2( 12, 23 )
 [node name="Player" type="KinematicBody2D"]
 collision_layer = 3
 script = ExtResource( 1 )
+__meta__ = {
+"_edit_group_": true
+}
 
 [node name="Sprite" type="Sprite" parent="."]
 texture = ExtResource( 2 )

@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=2]
 
-[ext_resource path="res://Entities/PlayerEntity/Player.tscn" type="PackedScene" id=1]
+[ext_resource path="res://entities/playerentity/Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Controls/HUD.tscn" type="PackedScene" id=2]
 [ext_resource path="res://art/BlizzardTileset.tres" type="TileSet" id=3]
 [ext_resource path="res://art/BlizzardBackgrounds.png" type="Texture" id=4]
@@ -56,13 +56,10 @@ format = 1
 tile_data = PoolIntArray( 131161, 10, 0, 131162, 11, 0, 131163, 12, 0, 131166, 6, 0, 131167, 8, 0, 131168, 7, 0, 524306, 10, 0, 524307, 11, 0, 524308, 12, 0, 524376, 10, 0, 524377, 11, 0, 524378, 12, 0, 655443, 10, 0, 655444, 11, 0, 655445, 12, 0, 852051, 1, 0, 852052, 1, 0, 852053, 1, 0, 852054, 1, 0, 852055, 1, 0, 852056, 1, 0, 852057, 1, 0, 852058, 1, 0, 852059, 1, 0, 852060, 1, 0, 852061, 1, 0, 852062, 1, 0, 852063, 1, 0, 852064, 1, 0, 852065, 1, 0, 852066, 1, 0, 852067, 1, 0, 852068, 1, 0, 852069, 1, 0, 852070, 1, 0 )
 
 [node name="Player" parent="." instance=ExtResource( 1 )]
-position = Vector2( 40, 151.998 )
-
-[node name="Sprite" parent="Player" index="0"]
-position = Vector2( -1, 0 )
+position = Vector2( 63, 151 )
 
 [node name="CameraTarget" type="Node2D" parent="Player"]
-position = Vector2( 50, 0 )
+position = Vector2( 27, 0.998001 )
 
 [node name="Camera2D" type="Camera2D" parent="Player/CameraTarget"]
 current = true
@@ -119,7 +116,7 @@ position = Vector2( 139, -25 )
 [node name="PowerBall2" parent="PowerBallSet3/Bullets" index="1" instance=ExtResource( 7 )]
 position = Vector2( 196, -61 )
 
-[connection signal="DebugUpdateState" from="Player" to="." method="OnDebugUpdateState"]
+[connection signal="DebugUpdateState" from="Player" to="." method="OnPlayerDebugUpdateState"]
 
 [editable path="Player"]
 [editable path="PowerBallSet1"]
