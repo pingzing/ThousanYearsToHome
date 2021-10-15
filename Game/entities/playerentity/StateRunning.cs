@@ -11,12 +11,12 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         [Export] private string _defaultAnimation = "Walk";
         public override string DefaultAnimation => _defaultAnimation;
 
-        [Export] private float StartSpeed = 100f;
+        [Export] private float StartSpeed = 87.5f;
         [Export] private float AccelPerTick = 5f;
         [Export] private float DecelPerTick = 15f;
         [Export] private float StartingAccelPerTick = 25f;
         [Export] private float TurningAccel = 35f;
-        [Export] private float MaxSpeed = 200f;
+        [Export] private float MaxSpeed = 175f;
         [Export] private float SlopeSpeedMultiplier = 2f;
 
         // Gets called once per physics tick by _PhysicsProcess.
@@ -42,10 +42,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             if (!player.IsOnFloor())
             {
                 return PlayerStateKind.InAir;
-            }
-            if (player.VelY > 0)
-            {
-                player.VelY = 0;
             }
             if (player.Jumping)
             {
@@ -98,10 +94,16 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
                 velX = Mathf.Clamp(velX, -MaxSpeed, MaxSpeed);
 
-                // Allow player to climb up slopes at normal speed
-                if (velX > 0 && player.IsOnSlope)
+                // Allow player to climb up slopes at normal speed                
+                if (player.IsOnSlope)
                 {
-                    velX *= SlopeSpeedMultiplier;
+                    bool isRightSlope = player.GetFloorNormal().x < 0;
+                    // ...but only if they're actually climbing a slope
+                    if ((player.HorizontalUnit > 0 && isRightSlope && velX > 0)
+                        || (player.HorizontalUnit < 0 && !isRightSlope && velX < 0))
+                    {
+                        velX *= SlopeSpeedMultiplier;
+                    }
                 }
             }
 

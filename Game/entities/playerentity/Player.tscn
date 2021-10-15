@@ -260,6 +260,7 @@ script = ExtResource( 3 )
 script = ExtResource( 5 )
 
 [node name="StateJumping" type="Node2D" parent="PlayerStateMachine"]
+position = Vector2( 1, 0 )
 script = ExtResource( 7 )
 
 [node name="StateInAir" type="Node2D" parent="PlayerStateMachine"]

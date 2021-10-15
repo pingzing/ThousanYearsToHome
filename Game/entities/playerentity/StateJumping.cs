@@ -14,49 +14,43 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         [Export] private string _defaultAnimation = "Jump";
         public override string DefaultAnimation => _defaultAnimation;
 
-        private float _inAirSpeed = 200f;
+        private float _inAirSpeed = 175;
+        // Enforce a minimum of 5 ticks of jumping, so you're always guaranteed a minimum wage^H^H^H^H jump
+        private uint _ticksJumping = 0;
+        private uint _minTicks = 5;
+        private float _currentReduction = 0f;
 
-        private float _initialImpulse = 175;
+        private float _initialSpeed = 550f;
         [Export]
-        public float InitialImpulse
+        public float InitialSpeed
         {
-            get => _initialImpulse;
-            set
-            {
-                _initialImpulse = value;
-                Update();
-            }
+            get => _initialSpeed;
+            set { _initialSpeed = value; Update(); }
         }
 
-        // Enforce a minimum of 5 ticks of jumping, so you're always guaranteed a minimum wage^H^H^H^H jump
-        private uint _minTicks = 5;
-        private uint _ticksJumping = 0;
+        private float _holdingSpeed = 450f;
+        [Export]
+        public float HoldingSpeed
+        {
+            get => _holdingSpeed;
+            set { _holdingSpeed = value; Update(); }
+        }
 
-        private float _reductionPerTick = 27;
+        private float _reductionPerTick = 85f;
         [Export]
         public float ReductionPerTick
         {
             get => _reductionPerTick;
-            set
-            {
-                _reductionPerTick = value;
-                Update();
-            }
+            set { _reductionPerTick = value; Update(); }
         }
 
-        private float _jumpResistance = 30f;
+        private float _releaseSpeed = 90f;
         [Export]
-        public float JumpResistance
+        public float ReleaseSpeed
         {
-            get => _jumpResistance;
-            set
-            {
-                _jumpResistance = value;
-                Update();
-            }
+            get => _releaseSpeed;
+            set { _releaseSpeed = value; Update(); }
         }
-
-        private float _currentReduction = 0f;
 
         public override Task Enter(Player player)
         {
@@ -67,19 +61,27 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         public override PlayerStateKind? Run(Player player)
         {
-            if (!player.JumpHolding && !player.Jumping)
+            if (!player.JumpHolding && !player.Jumping && _ticksJumping >= _minTicks)
             {
+                player.VelY = -_releaseSpeed;
                 return PlayerStateKind.InAir;
             }
 
             TickJumpState(player);
 
-            if ((player.Jumping || player.JumpHolding || _ticksJumping < _minTicks)
+            GD.Print($"In 'Jumping' state. Ticks: {_ticksJumping}/{_minTicks}. VelY: {player.VelY}");
+            if (_ticksJumping < _minTicks)
+            {
+                return null;
+            }
+
+            if ((player.Jumping || player.JumpHolding)
                 && player.VelY < 0)
             {
                 return null;
             }
 
+            player.VelY = -_releaseSpeed;
             return PlayerStateKind.InAir;
         }
 
@@ -87,13 +89,25 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private void TickJumpState(Player player)
         {
             player.VelX = player.HorizontalUnit * _inAirSpeed;
-            float velYDelta = _initialImpulse - _currentReduction;
-            player.VelY -= Mathf.Max(0, velYDelta);
+            float newVelY;
+            if (_ticksJumping < 3)
+            {
+                newVelY = _initialSpeed;
+            }
+            else
+            {
+                newVelY = _holdingSpeed - _currentReduction;
+            }
+
+            player.VelY = Mathf.Min(0, -newVelY);
 
             player.Move();
-            player.ApplyGravity(_jumpResistance);
+            player.ApplyGravity(0);
 
-            _currentReduction += _reductionPerTick;
+            if (_ticksJumping > 10)
+            {
+                _currentReduction += _reductionPerTick;
+            }
             _ticksJumping++;
         }
 
@@ -111,36 +125,19 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             var collisionBox = player.GetNode<CollisionShape2D>("BodyCollisionBox");
             Vector2 startPos = player.Position;
 
-            // Simulate vertical jump height
-            Enter(player);
-            TickJumpState(player);
-
-            List<Vector2> upFrames = new List<Vector2>();
-            while (player.VelY < 0)
-            {
-                upFrames.Add(player.Position);
-                TickJumpState(player);
-            }
-
-            // Back to start before simulating forward
-            Exit(player);
-            player.VelY = 0f;
-            player.Position = startPos;
-
             // Simulate vertical + forward jump distance
             Enter(player);
             player.HorizontalUnit = 1;
             TickJumpState(player);
+            GD.Print($"PlayerPosY: {player.Position.y}");
 
             List<Vector2> forwardJumpFrames = new List<Vector2>();
-            while (player.Position.y < startPos.y)
+            while (player.VelY < 0)
             {
                 forwardJumpFrames.Add(player.Position);
                 TickJumpState(player);
+                GD.Print($"PlayerPosY: {player.Position.y}");
             }
-
-            // One last frame to get them back to the ground
-            forwardJumpFrames.Add(player.Position);
 
             // Back to idle and where we started
             Exit(player);
@@ -168,10 +165,8 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 adjustedJumpFrames.Add(adjustedJumpFrames[i] + diff);
             }
 
-            // Line for vertical jumps            
-            Vector2 upStart = new Vector2(0, collisionBottomY);
-            Vector2 upDiff = new Vector2(upFrames.Last() - upFrames.First());
-            DrawLine(upStart, upStart + upDiff, new Color(1, 0, 0), 1, true);
+            // Line for vertical jumps                                    
+            DrawLine(new Vector2(0, adjustedJumpFrames.First().y), new Vector2(0, adjustedJumpFrames.Last().y), new Color(1, 0, 0), 1, true);
             // Arc for forward jumps
             DrawPolyline(adjustedJumpFrames.ToArray(), new Color(1, 0, 0), 1, true);
         }

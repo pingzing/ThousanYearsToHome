@@ -14,7 +14,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         [Export] private string _defaultAnimation = "InAir";
         public override string DefaultAnimation => _defaultAnimation;
 
-        [Export] private float _inAirSpeed = 200f;
+        private float _inAirSpeed = 175;
 
         public override async Task Enter(Player player)
         {

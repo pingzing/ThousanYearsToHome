@@ -13,15 +13,14 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         public override PlayerStateKind? Run(Player player)
         {
-            if (player.VelY > 0)
+            if (Mathf.Abs(player.VelY) > 0)
             {
                 player.VelY = 0f;
             }
 
-            if (player.HorizontalUnit == 0 && player.VerticalUnit > 0)
+            if (Mathf.Abs(player.VelX) > 0)
             {
-                player.ApplyGravity(Player.IdleGravity);
-                player.Move();
+                player.VelX = 0;
             }
 
             if (player.Grounded != true)

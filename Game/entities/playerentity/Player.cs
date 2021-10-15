@@ -43,7 +43,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private int _verticalUnit = 0;
         public int VerticalUnit => _verticalUnit;
 
-        public const float IdleGravity = 50f;
+        public const float IdleGravity = 30f;
 
         private float _velX;
         public float VelX
@@ -78,7 +78,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             set => _velY = value;
         }
 
-        private float _fallGravity = 40f;
+        private float _fallGravity = 30f;
         [Export]
         public float FallGravity
         {
@@ -90,7 +90,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
         }
 
-        private float _maxFallSpeed = 450f;
+        private float _maxFallSpeed = 425f;
         [Export]
         public float MaxFallSpeed
         {
@@ -224,6 +224,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                         }
                     }
 
+                    // Slope stuff
                     // Cancel out the downward velocity from sliding on slopes
                     if (isOnFloor && collision.Normal.y > -1.0 && VelX != 0)
                     {
