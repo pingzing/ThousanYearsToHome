@@ -69,7 +69,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
             TickJumpState(player);
 
-            GD.Print($"In 'Jumping' state. Ticks: {_ticksJumping}/{_minTicks}. VelY: {player.VelY}");
             if (_ticksJumping < _minTicks)
             {
                 return null;

@@ -17,17 +17,15 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         [Export] private float StartingAccelPerTick = 25f;
         [Export] private float TurningAccel = 35f;
         [Export] private float MaxSpeed = 175f;
-        [Export] private float SlopeSpeedMultiplier = 2f;
+        // If we want the player to maintain normal speed, they need to move at 2x up our slopes
+        // Use 1.5x to slow them down a little
+        // For a more dynamic solution, we'd probably want to multiply by the actual slope angle somehow
+        // For now, we only have one slope angle, so this is good enough
+        [Export] private float SlopeClimbSpeedMultiplier = 1.5f;
 
         // Gets called once per physics tick by _PhysicsProcess.
         public override PlayerStateKind? Run(Player player)
         {
-            // Player is pressing up or down
-            if (player.VerticalUnit > 0)
-            {
-                // example does some layer shenanigans for 1-way platforms
-            }
-
             // No player input, and we're not moving
             if (player.HorizontalUnit == 0 && player.VelX == 0)
             {
@@ -102,7 +100,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                     if ((player.HorizontalUnit > 0 && isRightSlope && velX > 0)
                         || (player.HorizontalUnit < 0 && !isRightSlope && velX < 0))
                     {
-                        velX *= SlopeSpeedMultiplier;
+                        velX *= SlopeClimbSpeedMultiplier;
                     }
                 }
             }

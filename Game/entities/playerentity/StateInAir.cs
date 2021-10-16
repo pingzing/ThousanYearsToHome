@@ -15,25 +15,30 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public override string DefaultAnimation => _defaultAnimation;
 
         private float _inAirSpeed = 175;
+        private uint _ticksInAir = 0;
+        private uint _ticksTillAnimate = 5;
 
         public override async Task Enter(Player player)
         {
+            _ticksInAir = 0;
             if (player.CurrentAnimationName == "Jump")
             {
                 await player.WaitForCurrentPoseAnimationFinished();
-                // TODO: wait for animation to finish then call base.Enter()
-            }
-            else
-            {
                 await base.Enter(player);
             }
         }
 
         public override PlayerStateKind? Run(Player player)
         {
+            // This will allow short falls to not flicker into the "falling" animation.
+            if (_ticksInAir > _ticksTillAnimate)
+            {
+                player.AnimatePose(DefaultAnimation);
+            }
+
             player.VelX = player.HorizontalUnit * _inAirSpeed;
             player.ApplyGravity(player.FallGravity);
-            player.Move();
+            player.Move(forceSnap: false);
 
             if (player.IsOnFloor())
             {
@@ -47,6 +52,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 return PlayerStateKind.Jumping;
             }
 
+            _ticksInAir++;
             return null;
         }
     }

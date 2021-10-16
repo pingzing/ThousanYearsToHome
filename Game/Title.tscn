@@ -7,7 +7,7 @@
 
 [sub_resource type="ParticlesMaterial" id=1]
 emission_shape = 2
-emission_box_extents = Vector3( 1, 100, 1 )
+emission_box_extents = Vector3( 1, 135, 1 )
 flag_disable_z = true
 direction = Vector3( -1, 0, 0 )
 spread = 8.0
@@ -21,7 +21,7 @@ linear_accel = 0.17
 
 [sub_resource type="ParticlesMaterial" id=2]
 emission_shape = 2
-emission_box_extents = Vector3( 1, 100, 1 )
+emission_box_extents = Vector3( 1, 135, 1 )
 flag_disable_z = true
 direction = Vector3( -1, 0, 0 )
 spread = 8.0
@@ -198,19 +198,19 @@ __meta__ = {
 }
 
 [node name="MainParticles" type="Particles2D" parent="."]
-position = Vector2( 386, 108 )
+position = Vector2( 480.266, 135.375 )
 amount = 500
-lifetime = 5.5
+lifetime = 7.0
 preprocess = 5.0
-visibility_rect = Rect2( -386, -108, 384, 216 )
+visibility_rect = Rect2( -480, -135, 480, 270 )
 process_material = SubResource( 1 )
 
 [node name="SecondaryParticles" type="Particles2D" parent="."]
-position = Vector2( 386, 108 )
+position = Vector2( 479.892, 135 )
 emitting = false
 amount = 300
 lifetime = 2.0
-visibility_rect = Rect2( -386, -108, 384, 216 )
+visibility_rect = Rect2( -480, -135, 480, 270 )
 process_material = SubResource( 2 )
 
 [node name="TitleLabel" type="Label" parent="."]
@@ -239,7 +239,7 @@ __meta__ = {
 }
 
 [node name="StartGame" type="Button" parent="MenuVBox"]
-margin_right = 384.0
+margin_right = 480.0
 margin_bottom = 16.0
 mouse_filter = 2
 custom_fonts/font = ExtResource( 4 )
@@ -249,7 +249,7 @@ text = "Start"
 
 [node name="StageSelect" type="Button" parent="MenuVBox"]
 margin_top = 20.0
-margin_right = 384.0
+margin_right = 480.0
 margin_bottom = 36.0
 mouse_filter = 2
 shortcut_in_tooltip = false
@@ -258,7 +258,7 @@ text = "Stage Select"
 
 [node name="ContinueGame" type="Button" parent="MenuVBox"]
 margin_top = 40.0
-margin_right = 384.0
+margin_right = 480.0
 margin_bottom = 56.0
 mouse_filter = 2
 custom_fonts/font = ExtResource( 4 )
@@ -268,7 +268,7 @@ text = "Continue"
 
 [node name="QuitGame" type="Button" parent="MenuVBox"]
 margin_top = 60.0
-margin_right = 384.0
+margin_right = 480.0
 margin_bottom = 76.0
 mouse_filter = 2
 custom_fonts/font = ExtResource( 4 )

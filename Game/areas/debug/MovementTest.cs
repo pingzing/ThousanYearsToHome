@@ -23,10 +23,11 @@ namespace ThousandYearsHome.Areas.Debug
             //_cameraTarget.Position = new Vector2(_player.Position.x + 50, _cameraTarget.Position.y);
         }
 
-        public void OnPlayerDebugUpdateState(PlayerStateKind newState, float velX, float velY)
+        public void OnPlayerDebugUpdateState(PlayerStateKind newState, float velX, float velY, Vector2 position)
         {
             _hud.Debug_SetStateLabel(newState);
             _hud.Debug_SetVelocity(new Vector2(velX, velY));
+            _hud.Debug_SetPosition(position);
         }
 
     }

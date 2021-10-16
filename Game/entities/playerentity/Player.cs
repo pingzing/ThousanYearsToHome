@@ -1,5 +1,6 @@
 using Godot;
 using System.Collections.Generic;
+using System.Drawing.Text;
 using System.Linq;
 using System.Threading.Tasks;
 using ThousandYearsHome.Extensions;
@@ -26,7 +27,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private Timer _oneWayPlatformTimer = null!;
 
         private bool _flipH = false;
-        private Vector2 _snapVector = Vector2.Down * 24; // 24 is player's collision box height. Should this be dynamic?
+        private Vector2 _snapVector = Vector2.Down * 30; // 36 is player's collision box height. Should this be dynamic?
 
         public string CurrentAnimationName => _poseAnimator.CurrentAnimation;
 
@@ -104,7 +105,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
 
         [Export] public bool InputLocked = false;
-        [Signal] public delegate void DebugUpdateState(PlayerStateKind newState, float xVel, float yVel);
+        [Signal] public delegate void DebugUpdateState(PlayerStateKind newState, float xVel, float yVel, Vector2 position);
 
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
@@ -137,7 +138,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             {
                 UpdateFromInput(delta);
                 var newState = _stateMachine.Run();
-                EmitSignal(nameof(DebugUpdateState), _stateMachine.CurrentState.StateKind, VelX, VelY);
+                EmitSignal(nameof(DebugUpdateState), _stateMachine.CurrentState.StateKind, VelX, VelY, Position);
             }
         }
 
@@ -146,7 +147,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         {
             GlobalPosition = pos;
             Show();
-            GetNode<CollisionShape2D>("BodyCollisionBox").Disabled = false;
+            _bodyCollisionBox.Disabled = false;
 
             // Make sure the initial state and collisions are taken care of.
             _stateMachine.Run();
@@ -179,23 +180,12 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         }
 
         // Called by the state machine.
-        public void Move()
+        public void Move(bool forceSnap = false)
         {
-            // Nail player to the ground when on a slope, but allow jumping
-            Vector2 velocity;
-            if (IsOnSlope)
-            {
-                Vector2 snapVector = _snapVector;
-                if (_stateMachine.CurrentState.StateKind == PlayerStateKind.Jumping)
-                {
-                    snapVector = Vector2.Zero;
-                }
-                velocity = MoveAndSlideWithSnap(new Vector2(VelX, VelY), snapVector, Vector2.Up, true, 4, 1.22173f); // Approx 70 degrees
-            }
-            else
-            {
-                velocity = MoveAndSlide(new Vector2(VelX, VelY), Vector2.Up, true, 4, 1.22173f);
-            }
+            bool previousFlipH = _flipH;
+            var previousVelocity = new Vector2(VelX, VelY);
+
+            Vector2 velocity = RunMovement(shouldSnap: forceSnap || IsOnSlope);
             VelX = velocity.x;
             VelY = velocity.y;
             IsOnOneWayPlatform = false;
@@ -208,29 +198,11 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 for (int i = 0; i < slideCount; i++)
                 {
                     KinematicCollision2D collision = GetSlideCollision(i);
-
-                    // One-way platform handling
-                    if (collision.Collider is TileMap tilemap)
-                    {
-                        int collidedTileIndex = tilemap.GetCellv(tilemap.WorldToMap(collision.Position));
-                        if (collidedTileIndex != -1 && (
-                            // TODO: Make lookup tables for each tilset and all of its one-way platform tiles instead of this silly hardcoding
-                            collidedTileIndex == 10
-                            || collidedTileIndex == 11
-                            || collidedTileIndex == 12
-                        ))
-                        {
-                            IsOnOneWayPlatform = true;
-                        }
-                    }
-
-                    // Slope stuff
-                    // Cancel out the downward velocity from sliding on slopes
-                    if (isOnFloor && collision.Normal.y > -1.0 && VelX != 0)
-                    {
-                        VelY = collision.Normal.y * -1;
-                        IsOnSlope = true;
-                    }
+                    IsOnOneWayPlatform = GetIsOnOneWayPlatform(collision);
+                    (float? newVelY, float? newVelX, bool isOnSlope) = GetSlopeAdjustment(previousFlipH, previousVelocity, isOnFloor, collision);
+                    if (newVelY != null) { VelY = newVelY.Value; }
+                    if (newVelX != null) { VelX = newVelX.Value; }
+                    IsOnSlope = isOnSlope;
                 }
             }
 
@@ -238,6 +210,91 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             {
                 IsOnSlope = true;
             }
+
+            if (isOnFloor)
+            {
+                // Snap position to whole pixel coordinates to avoid jitter
+                // but only when on the floor--it's only noticeable when moving slowly,
+                // which doesn't really happen in the air.
+                Position = new Vector2(Mathf.Round(Position.x), Mathf.Round(Position.y));
+            }
+        }
+
+        private (float? velY, float? velX, bool isOnSlope) GetSlopeAdjustment(bool previousFlipH, Vector2 previousVelocity, bool isOnFloor, KinematicCollision2D collision)
+        {
+            // Slope stuff
+            // Cancel out the downward velocity from sliding on slopes
+            float? newVelY = null;
+            float? newVelX = null;
+            bool newOnSlope = false;
+            if (isOnFloor && collision.Normal.y > -1.0 && VelX != 0)
+            {
+                newVelY = collision.Normal.y * -1;
+
+                // Undo slopes turning players around if they land on them straight down
+                if (previousVelocity.x == 0)
+                {
+                    if (previousFlipH != _flipH)
+                    {
+                        if (previousFlipH) // Player was facing left
+                        {
+                            newVelX = -.1f;
+                        }
+                        else // Player was facing right
+                        {
+                            newVelX = .1f;
+                        }
+                    }
+                }
+                else
+                {
+                    newVelX = previousVelocity.x;
+                }
+
+                newOnSlope = true;
+            }
+            return (newVelY, newVelX, newOnSlope);
+        }
+
+        private bool GetIsOnOneWayPlatform(KinematicCollision2D collision)
+        {
+            // One-way platform handling
+            if (collision.Collider is TileMap tilemap)
+            {
+                int collidedTileIndex = tilemap.GetCellv(tilemap.WorldToMap(collision.Position));
+                if (collidedTileIndex != -1 && (
+                    // TODO: Make lookup tables for each tilset and all of its one-way platform tiles instead of this silly hardcoding
+                    collidedTileIndex == 10
+                    || collidedTileIndex == 11
+                    || collidedTileIndex == 12
+                ))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private Vector2 RunMovement(bool shouldSnap)
+        {
+            // Nail player to the ground when on a slope, but allow jumping
+            Vector2 velocity;
+            if (shouldSnap)
+            {
+                Vector2 snapVector = _snapVector;
+                if (_stateMachine.CurrentState.StateKind == PlayerStateKind.Jumping)
+                {
+                    snapVector = Vector2.Zero;
+                }
+                velocity = MoveAndSlideWithSnap(new Vector2(VelX, VelY), snapVector, Vector2.Up, true, 4, 1.22173f); // Approx 70 degrees
+            }
+            else
+            {
+                velocity = MoveAndSlide(new Vector2(VelX, VelY), Vector2.Up, true, 4, 1.22173f);
+            }
+
+            return velocity;
         }
 
         // Called by the state machine.

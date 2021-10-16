@@ -38,3 +38,22 @@ margin_top = 20.0
 margin_right = 78.0
 margin_bottom = 36.0
 text = "YVel: -888.88"
+
+[node name="DEBUG_PositionContainer" type="VBoxContainer" parent="."]
+margin_left = 82.0
+margin_right = 160.0
+margin_bottom = 16.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DEBUG_XPosLabel" type="Label" parent="DEBUG_PositionContainer"]
+margin_right = 78.0
+margin_bottom = 16.0
+text = "X: -888.88"
+
+[node name="DEBUG_YPosLabel" type="Label" parent="DEBUG_PositionContainer"]
+margin_top = 20.0
+margin_right = 78.0
+margin_bottom = 36.0
+text = "Y: -888.88"

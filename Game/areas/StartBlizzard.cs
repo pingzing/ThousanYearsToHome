@@ -22,7 +22,6 @@ namespace ThousandYearsHome.Areas
         private HUD _hud = null!;
         private Camera2D _playerCamera = null!;
         private Camera2D _cinematicCamera = null!;
-        private CollisionShape2D _leftEdge = null!;
 
         public bool SkipIntro { get; set; }
 
@@ -42,7 +41,6 @@ namespace ThousandYearsHome.Areas
             _hud = GetNode<HUD>("UICanvas/HUD");
             _playerCamera = GetNode<Camera2D>("Player/CameraTarget/Camera2D");
             _cinematicCamera = GetNode<Camera2D>("CinematicCamera");
-            _leftEdge = GetNode<CollisionShape2D>("Terrain/LeftEdge");
 
             Vector2 startPos = GetNode<Position2D>("StartPosition").Position;
             _player.Spawn(startPos);
@@ -50,6 +48,10 @@ namespace ThousandYearsHome.Areas
             if (!SkipIntro)
             {
                 _player.InputLocked = true;
+            }
+            else
+            {
+                _playerCamera.Current = true;
             }
         }
 
@@ -59,19 +61,19 @@ namespace ThousandYearsHome.Areas
 
         }
 
-        public void OnPlayerDebugUpdateState(PlayerStateKind newState, float xVel, float yVel)
+        public void OnPlayerDebugUpdateState(PlayerStateKind newState, float xVel, float yVel, Vector2 position)
         {
             _hud.Debug_SetStateLabel(newState);
             _hud.Debug_SetVelocity(new Vector2(xVel, yVel));
+            _hud.Debug_SetPosition(position);
         }
 
         public async void WaitStartTimerTimeout()
         {
             if (!SkipIntro)
             {
-                float playerCamCenterY = (int)_playerCamera.GetViewportRect().End.y / 2 + 1;
                 // Initial camera Pan
-                _tweener.InterpolateProperty(_cinematicCamera, "global_position", null, new Vector2(_cinematicCamera.GlobalPosition.x, playerCamCenterY), 6.5f, Tween.TransitionType.Cubic, Tween.EaseType.InOut);
+                _tweener.InterpolateProperty(_cinematicCamera, "global_position", null, new Vector2(190, 82), 6.5f, Tween.TransitionType.Cubic, Tween.EaseType.InOut);
                 _tweener.Start();
                 await this.ToSignalWithArgs(_tweener, "tween_completed", 0, _cinematicCamera);
 
@@ -92,7 +94,6 @@ namespace ThousandYearsHome.Areas
 
                 _cinematicCamera.Current = false;
                 _playerCamera.Current = true;
-                _leftEdge.Disabled = false;
 
                 // A lot of this can probably be reused for the cutscene after we find the frozen keeper
 
