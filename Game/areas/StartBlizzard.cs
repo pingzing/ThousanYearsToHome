@@ -17,11 +17,11 @@ namespace ThousandYearsHome.Areas
         private Particles2D _snowParticles = null!;
         private ColorRect _fader = null!;
         private DialogueBox _dialogueBox = null!;
-        private PackedScene _powerBallScene = null!;
-        private Position2D _ballSpawnPoint = null!;
         private HUD _hud = null!;
         private Camera2D _playerCamera = null!;
         private Camera2D _cinematicCamera = null!;
+
+        private Area2D _firstFallDialogueTrigger = null!;
 
         public bool SkipIntro { get; set; }
 
@@ -36,14 +36,14 @@ namespace ThousandYearsHome.Areas
             _animator = GetNode<AnimationPlayer>("AnimationPlayer");
             _fadeAnimator = GetNode<AnimationPlayer>("UICanvas/FadePlayer");
             _tweener = GetNode<Tween>("Tweener");
-            _powerBallScene = GD.Load<PackedScene>("res://entities/PowerBall.tscn");
-            _ballSpawnPoint = GetNode<Position2D>("BallSpawnPoint");
             _hud = GetNode<HUD>("UICanvas/HUD");
             _playerCamera = GetNode<Camera2D>("Player/CameraTarget/Camera2D");
             _cinematicCamera = GetNode<Camera2D>("CinematicCamera");
+            _firstFallDialogueTrigger = GetNode<Area2D>("FirstFallDialogueTrigger");
 
             Vector2 startPos = GetNode<Position2D>("StartPosition").Position;
             _player.Spawn(startPos);
+
             // Lock player's input, because we're gonna animate them cutscene style
             if (!SkipIntro)
             {
@@ -51,6 +51,7 @@ namespace ThousandYearsHome.Areas
             }
             else
             {
+                _cinematicCamera.Current = false;
                 _playerCamera.Current = true;
             }
         }
@@ -86,9 +87,9 @@ namespace ThousandYearsHome.Areas
                 _player.AnimatePose("Idle");
 
                 await _dialogueBox.Open();
-                _dialogueBox.LoadText("* ...good. ", .08f);
+                _dialogueBox.LoadText("* I think I'm finally getting close... ", .03f);
                 _dialogueBox.LoadBreak();
-                _dialogueBox.LoadText("Nearing the source. Not far now.", .03f);
+                _dialogueBox.LoadText("Not long now, one way or the other.", .03f);
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, "DialogueBoxClosed");
 
@@ -129,13 +130,29 @@ namespace ThousandYearsHome.Areas
             }
         }
 
-        public void OnBallSpawnTimerTimeout()
+        private bool _firstFallTriggered = false;
+        public async void OnFirstFallDialogueEntered(Node body)
         {
-            GD.Print("Spawning ball...");
-            PowerBall ball = _powerBallScene.Instance<PowerBall>();
-            float randomY = Numerology.RandRange(_ballSpawnPoint.Position.y - 60, _ballSpawnPoint.Position.y);
-            ball.Position = new Vector2(_ballSpawnPoint.Position.x, randomY);
-            AddChild(ball);
+            if (body.Name == "Player" && !_firstFallTriggered)
+            {
+                _firstFallTriggered = true;
+                _firstFallDialogueTrigger.QueueFree();
+
+                _player.InputLocked = true;
+
+                // TODO: Play faceplant animation
+                await _dialogueBox.Open();
+                _dialogueBox.LoadText("* ...ow.", .1f);
+                _dialogueBox.LoadBreak();
+                // TODO: Return to standing animation
+                _dialogueBox.LoadText(" Silver lining--no one was around to see that.", 0.05f);
+                _dialogueBox.LoadBreak();
+                _dialogueBox.LoadText(" Must be getting tired if that gave me trouble, though. Better wrap this up...", 0.05f);
+                await _dialogueBox.Run();
+                await ToSignal(_dialogueBox, "DialogueBoxClosed");
+
+                _player.InputLocked = false;
+            }
         }
     }
 }
