@@ -1,9 +1,4 @@
 using Godot;
-using System.Collections.Generic;
-using System.Drawing.Text;
-using System.Linq;
-using System.Threading.Tasks;
-using ThousandYearsHome.Extensions;
 
 namespace ThousandYearsHome.Entities.PlayerEntity
 {
@@ -130,16 +125,21 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 return;
             }
 
-            if (InputLocked)
+            if (!InputLocked)
             {
-                // Do nothing. Used to prevent player input during cutscenes, etc.
+                UpdateFromInput(delta);
             }
             else
             {
-                UpdateFromInput(delta);
-                var newState = _stateMachine.Run();
-                EmitSignal(nameof(DebugUpdateState), _stateMachine.CurrentState.StateKind, VelX, VelY, Position);
+                // Zero out any lingering inputs.
+                HorizontalUnit = 0;
+                _verticalUnit = 0;
+                if (IsOnFloor()) { _floorTimer.Start(); }
             }
+
+            var newState = _stateMachine.Run();
+            EmitSignal(nameof(DebugUpdateState), _stateMachine.CurrentState.StateKind, VelX, VelY, Position);
+
         }
 
         // Places the player at pos, enables their collision, and initializes their state machine.

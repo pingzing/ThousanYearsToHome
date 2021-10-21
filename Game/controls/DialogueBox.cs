@@ -56,11 +56,13 @@ namespace ThousandYearsHome.Controls
             if (name == "Show")
             {
                 _showCompletionSource?.SetResult("Show");
+                _isOpen = true;
                 EmitSignal(nameof(DialogueBoxOpened));
             }
             if (name == "Hide")
             {
                 _hideCompletionSource?.SetResult("Hide");
+                _isOpen = false;
                 EmitSignal(nameof(DialogueBoxClosed));
                 _dialgoueBoxWrapper.Reset();
             }
@@ -93,7 +95,6 @@ namespace ThousandYearsHome.Controls
 
         public Task Open()
         {
-            _isOpen = true;
             _showCompletionSource = new TaskCompletionSource<string>();
             _animator.Play("Show");
             return _showCompletionSource.Task;
@@ -101,7 +102,6 @@ namespace ThousandYearsHome.Controls
 
         public Task Close()
         {
-            _isOpen = false;
             _hideCompletionSource = new TaskCompletionSource<string>();
             _animator.Play("Hide");
             return _hideCompletionSource.Task;

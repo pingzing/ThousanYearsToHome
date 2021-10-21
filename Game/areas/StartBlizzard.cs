@@ -20,8 +20,15 @@ namespace ThousandYearsHome.Areas
         private HUD _hud = null!;
         private Camera2D _playerCamera = null!;
         private Camera2D _cinematicCamera = null!;
+        private TileMap _midgroundTiles = null!;
 
         private Area2D _firstFallDialogueTrigger = null!;
+        private Area2D _vistaPointTrigger = null!;
+        private Area2D _collapseTrigger = null!;
+        private Position2D _collapseTopLeft = null!;
+        private Position2D _collapseBottomRight = null!;
+        private Position2D _fallTeleportTop = null!;
+        private Area2D _fallTeleportBottomArea = null!;
 
         public bool SkipIntro { get; set; }
 
@@ -39,7 +46,17 @@ namespace ThousandYearsHome.Areas
             _hud = GetNode<HUD>("UICanvas/HUD");
             _playerCamera = GetNode<Camera2D>("Player/CameraTarget/Camera2D");
             _cinematicCamera = GetNode<Camera2D>("CinematicCamera");
+            _midgroundTiles = GetNode<TileMap>("MidgroundTiles");
+
             _firstFallDialogueTrigger = GetNode<Area2D>("FirstFallDialogueTrigger");
+            _vistaPointTrigger = GetNode<Area2D>("VistaPointDialogueTrigger");
+
+            _collapseTrigger = GetNode<Area2D>("CollapseTriggerArea");
+            _collapseTopLeft = GetNode<Position2D>("CollapsePositions/CollapseTopLeft");
+            _collapseBottomRight = GetNode<Position2D>("CollapsePositions/CollapseBottomRight");
+
+            _fallTeleportTop = GetNode<Position2D>("FallTeleportTop");
+            _fallTeleportBottomArea = GetNode<Area2D>("FallTeleportBottomArea");
 
             Vector2 startPos = GetNode<Position2D>("StartPosition").Position;
             _player.Spawn(startPos);
@@ -149,9 +166,77 @@ namespace ThousandYearsHome.Areas
                 _dialogueBox.LoadBreak();
                 _dialogueBox.LoadText(" Must be getting tired if that gave me trouble, though. Better wrap this up...", 0.05f);
                 await _dialogueBox.Run();
-                await ToSignal(_dialogueBox, "DialogueBoxClosed");
+                await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
                 _player.InputLocked = false;
+            }
+        }
+
+        private bool _vistaPointTriggered = false;
+        public async void OnVistaPointEntered(Node body)
+        {
+            if (body.Name == "Player" && !_vistaPointTriggered)
+            {
+                _vistaPointTriggered = true;
+                _vistaPointTrigger.QueueFree();
+
+                _player.InputLocked = true;
+                await _dialogueBox.Open();
+                _dialogueBox.LoadText("* I'll talk about that weird thing in the distance here.", 0.01f);
+                await _dialogueBox.Run();
+                await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
+
+                _player.InputLocked = false;
+            }
+        }
+
+        private bool _collapseTriggered = false;
+        public async void CollapseTriggerAreaEntered(Node body)
+        {
+            if (body.Name == "Player" && !_collapseTriggered)
+            {
+                _collapseTriggered = true;
+                _collapseTrigger.QueueFree();
+
+                _player.InputLocked = true;
+                await _dialogueBox.Open();
+                _dialogueBox.LoadText("* Oh no, things are collapsing dialogue here!", 0.01f);
+                await _dialogueBox.Run();
+                await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
+
+                // Remove cells so that player falls.
+                var topLeftCell = _midgroundTiles.WorldToMap(_collapseTopLeft.Position);
+                var bottomRightCell = _midgroundTiles.WorldToMap(_collapseBottomRight.Position);
+                for (int x = (int)topLeftCell.x; x <= bottomRightCell.x; x++)
+                {
+                    for (int y = (int)topLeftCell.y; y <= bottomRightCell.y; y++)
+                    {
+                        _midgroundTiles.SetCellv(new Vector2(x, y), TileMap.InvalidCell);
+                    }
+                }
+
+                _midgroundTiles.UpdateDirtyQuadrants();
+                _player.MoveAndSlide(new Vector2(0, 0), Vector2.Down); // Force a position update to make the player begin to fall.
+
+                // falling dialogue
+                _snowParticles.Emitting = false; // no snow inside caves!
+                await _dialogueBox.Open();
+                _playerCamera.DragMarginVEnabled = false; // force camera to stay vertically snapped to player to sell the illusion of the infinte fall
+                _dialogueBox.LoadText("* Oh even more no! Falling dialogue here!", 0.01f);
+                await _dialogueBox.Run();
+                await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
+
+                _playerCamera.DragMarginVEnabled = true;
+                _fallTeleportBottomArea.QueueFree();
+                _player.InputLocked = false;
+            }
+        }
+
+        public void OnFallTeleportBottomAreaEntered(Node body)
+        {
+            if (body.Name == "Player")
+            {
+                _player.Position = new Vector2(_player.Position.x, _fallTeleportTop.Position.y);
             }
         }
     }
