@@ -220,6 +220,27 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
         }
 
+        private Vector2 RunMovement(bool shouldSnap)
+        {
+            // Nail player to the ground when on a slope, but allow jumping
+            Vector2 velocity;
+            if (shouldSnap)
+            {
+                Vector2 snapVector = _snapVector;
+                if (_stateMachine.CurrentState.StateKind == PlayerStateKind.Jumping)
+                {
+                    snapVector = Vector2.Zero;
+                }
+                velocity = MoveAndSlideWithSnap(new Vector2(VelX, VelY), snapVector, Vector2.Up, true, 4, 1.42173f); // Approx 70 degrees
+            }
+            else
+            {
+                velocity = MoveAndSlide(new Vector2(VelX, VelY), Vector2.Up, true, 4, 1.42173f);
+            }
+
+            return velocity;
+        }
+
         private (float? velY, float? velX, bool isOnSlope) GetSlopeAdjustment(bool previousFlipH, Vector2 previousVelocity, bool isOnFloor, KinematicCollision2D collision)
         {
             // Slope stuff
@@ -264,9 +285,9 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 int collidedTileIndex = tilemap.GetCellv(tilemap.WorldToMap(collision.Position));
                 if (collidedTileIndex != -1 && (
                     // TODO: Make lookup tables for each tilset and all of its one-way platform tiles instead of this silly hardcoding
-                    collidedTileIndex == 10
-                    || collidedTileIndex == 11
-                    || collidedTileIndex == 12
+                    collidedTileIndex == 12
+                    || collidedTileIndex == 13
+                    || collidedTileIndex == 14
                 ))
                 {
                     return true;
@@ -274,27 +295,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
 
             return false;
-        }
-
-        private Vector2 RunMovement(bool shouldSnap)
-        {
-            // Nail player to the ground when on a slope, but allow jumping
-            Vector2 velocity;
-            if (shouldSnap)
-            {
-                Vector2 snapVector = _snapVector;
-                if (_stateMachine.CurrentState.StateKind == PlayerStateKind.Jumping)
-                {
-                    snapVector = Vector2.Zero;
-                }
-                velocity = MoveAndSlideWithSnap(new Vector2(VelX, VelY), snapVector, Vector2.Up, true, 4, 1.22173f); // Approx 70 degrees
-            }
-            else
-            {
-                velocity = MoveAndSlide(new Vector2(VelX, VelY), Vector2.Up, true, 4, 1.22173f);
-            }
-
-            return velocity;
         }
 
         // Called by the state machine.
