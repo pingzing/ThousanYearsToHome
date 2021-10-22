@@ -1,4 +1,5 @@
 using Godot;
+using System;
 
 namespace ThousandYearsHome.Entities.PlayerEntity
 {
@@ -20,12 +21,16 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private Timer _floorTimer = null!;
         private Timer _jumpHoldTimer = null!;
         private Timer _oneWayPlatformTimer = null!;
+        private Timer _wallJumpAvailableTimer = null!;
+        private Timer _wallJumpLockoutTimer = null!;
+        private RayCast2D _leftRaycast = null!;
+        private RayCast2D _rightRaycast = null!;
 
-        private bool _flipH = false;
         private Vector2 _snapVector = Vector2.Down * 30; // 36 is player's collision box height. Should this be dynamic?
 
         public string CurrentAnimationName => _poseAnimator.CurrentAnimation;
 
+        public bool FlipH { get; private set; } = false;
         public bool Grounded => !_floorTimer.IsStopped();
         public bool Jumping => !_jumpTimer.IsStopped();
         public bool JumpHolding => !_jumpHoldTimer.IsStopped();
@@ -33,6 +38,11 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public bool JumpAvailable { get; set; }
         public bool IsOnOneWayPlatform { get; private set; } = false;
         public bool IsOnSlope { get; private set; } = false;
+        public bool IsTouchingWall { get; private set; } = false;
+        public bool IsWallJumpAvailable => !_wallJumpAvailableTimer.IsStopped();
+        public bool IsWallJumpLocked => !_wallJumpLockoutTimer.IsStopped();
+        public RayCast2D LeftRaycast => _leftRaycast;
+        public RayCast2D RightRaycast => _rightRaycast;
 
         public int HorizontalUnit { get; set; } = 0;
 
@@ -49,14 +59,16 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             {
                 if (value != 0)
                 {
-                    bool oldFlip = _flipH;
-                    _flipH = value < 0;
-                    if (_flipH != oldFlip)
+                    bool oldFlip = FlipH;
+                    FlipH = value < 0;
+                    if (FlipH != oldFlip)
                     {
                         _sprite.Scale = new Vector2(_sprite.Scale.x * -1, 1);
                         // We can't flip the entire player object, as collision doesn't function properly with negative scales.
                         // So instead, just negate the collision boxes' x-values
                         _bodyCollisionBox.Position = new Vector2(_bodyCollisionBox.Position.x * -1, _bodyCollisionBox.Position.y);
+                        _leftRaycast.Position = new Vector2(_leftRaycast.Position.x * -1, _leftRaycast.Position.y);
+                        _rightRaycast.Position = new Vector2(_rightRaycast.Position.x * -1, _rightRaycast.Position.y);
 
                         // Immediately update animation state if we've changed direction,
                         // so we don't have one frame of the old facing while moving in reverse.
@@ -98,7 +110,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
         }
 
-
         [Export] public bool InputLocked = false;
         [Signal] public delegate void DebugUpdateState(PlayerStateKind newState, float xVel, float yVel, Vector2 position);
 
@@ -115,6 +126,10 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _floorTimer = GetNode<Timer>("FloorTimer");
             _jumpHoldTimer = GetNode<Timer>("JumpHoldTimer");
             _oneWayPlatformTimer = GetNode<Timer>("OneWayPlatformTimer");
+            _wallJumpAvailableTimer = GetNode<Timer>("WallJumpAvailableTimer");
+            _wallJumpLockoutTimer = GetNode<Timer>("WallJumpLockoutTimer");
+            _leftRaycast = GetNode<RayCast2D>("LeftRaycast");
+            _rightRaycast = GetNode<RayCast2D>("RightRaycast");
             _stateMachine.Init(this);
         }
 
@@ -161,7 +176,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
             if (Input.IsActionJustPressed("ui_accept"))
             {
-                // Initial jump
                 _jumpTimer.Start();
             }
 
@@ -177,12 +191,17 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 // Allows for jumping a little bit after running off an edge.
                 _floorTimer.Start();
             }
+
+            if (IsTouchingWall)
+            {
+                _wallJumpAvailableTimer.Start();
+            }
         }
 
         // Called by the state machine.
         public void Move(bool forceSnap = false)
         {
-            bool previousFlipH = _flipH;
+            bool previousFlipH = FlipH;
             var previousVelocity = new Vector2(VelX, VelY);
 
             Vector2 velocity = RunMovement(shouldSnap: forceSnap || IsOnSlope);
@@ -190,6 +209,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             VelY = velocity.y;
             IsOnOneWayPlatform = false;
             IsOnSlope = false;
+            IsTouchingWall = CheckWallRaycasts();
 
             int slideCount = GetSlideCount();
             bool isOnFloor = IsOnFloor();
@@ -241,6 +261,21 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             return velocity;
         }
 
+        private bool CheckWallRaycasts()
+        {
+            if (_leftRaycast.IsColliding() || _rightRaycast.IsColliding())
+            {
+                Vector2 leftCollNormal = _leftRaycast.GetCollisionNormal();
+                Vector2 rightCollNormal = _rightRaycast.GetCollisionNormal();
+                if (leftCollNormal != Vector2.Zero || rightCollNormal != Vector2.Zero)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private (float? velY, float? velX, bool isOnSlope) GetSlopeAdjustment(bool previousFlipH, Vector2 previousVelocity, bool isOnFloor, KinematicCollision2D collision)
         {
             // Slope stuff
@@ -255,7 +290,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 // Undo slopes turning players around if they land on them straight down
                 if (previousVelocity.x == 0)
                 {
-                    if (previousFlipH != _flipH)
+                    if (previousFlipH != FlipH)
                     {
                         if (previousFlipH) // Player was facing left
                         {
@@ -366,6 +401,22 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         {
             _jumpTimer.Stop();
             _oneWayPlatformTimer.Start();
+        }
+
+        /// <summary>
+        /// Starts the timer that allows a brief window to wall-jump after contacting a wall.
+        /// </summary>
+        public void StartWallJumpAvailableTimer()
+        {
+            _wallJumpAvailableTimer.Start();
+        }
+
+        /// <summary>
+        /// Starts the timer that prevents player input momentarily after wall-jumping.
+        /// </summary>
+        public void StartWallJumpLockoutTimer()
+        {
+            _wallJumpLockoutTimer.Start();
         }
 
         public void OnOneWayPlatformTimerTimeout()

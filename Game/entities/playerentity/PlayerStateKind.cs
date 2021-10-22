@@ -7,5 +7,6 @@
         InAir,
         Jumping,
         Crouching,
+        WallJumping,
     }
 }

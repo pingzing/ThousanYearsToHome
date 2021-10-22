@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://Entities/PlayerEntity/Player.cs" type="Script" id=1]
 [ext_resource path="res://art/PonyWalk2.png" type="Texture" id=2]
@@ -8,6 +8,7 @@
 [ext_resource path="res://Entities/PlayerEntity/StateInAir.cs" type="Script" id=6]
 [ext_resource path="res://Entities/PlayerEntity/StateJumping.cs" type="Script" id=7]
 [ext_resource path="res://Entities/PlayerEntity/StateCrouch.cs" type="Script" id=8]
+[ext_resource path="res://entities/playerentity/StateWallJumping.cs" type="Script" id=9]
 
 [sub_resource type="Animation" id=1]
 resource_name = "Crouch"
@@ -305,20 +306,47 @@ script = ExtResource( 6 )
 [node name="StateCrouch" type="Node2D" parent="PlayerStateMachine"]
 script = ExtResource( 8 )
 
+[node name="StateWallJumping" type="Node2D" parent="PlayerStateMachine"]
+script = ExtResource( 9 )
+
+[node name="RightRaycast" type="RayCast2D" parent="."]
+position = Vector2( 4, 3 )
+enabled = true
+cast_to = Vector2( 13, 0 )
+
+[node name="LeftRaycast" type="RayCast2D" parent="."]
+position = Vector2( 4, 3 )
+enabled = true
+cast_to = Vector2( -13, 0 )
+
 [node name="JumpTimer" type="Timer" parent="."]
+process_mode = 0
 wait_time = 0.06
 one_shot = true
 
 [node name="FloorTimer" type="Timer" parent="."]
+process_mode = 0
 wait_time = 0.1
 one_shot = true
 
 [node name="JumpHoldTimer" type="Timer" parent="."]
+process_mode = 0
 wait_time = 0.06
 one_shot = true
 
 [node name="OneWayPlatformTimer" type="Timer" parent="."]
+process_mode = 0
 wait_time = 0.2
+one_shot = true
+
+[node name="WallJumpAvailableTimer" type="Timer" parent="."]
+process_mode = 0
+wait_time = 0.3
+one_shot = true
+
+[node name="WallJumpLockoutTimer" type="Timer" parent="."]
+process_mode = 0
+wait_time = 0.24
 one_shot = true
 
 [connection signal="timeout" from="OneWayPlatformTimer" to="." method="OnOneWayPlatformTimerTimeout"]
