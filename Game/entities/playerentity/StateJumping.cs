@@ -80,7 +80,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 return null;
             }
 
-            if (player.IsWallJumpAvailable && player.Jumping && player.IsTouchingWall)
+            if (player.Jumping && player.IsTouchingWall)
             {
                 return PlayerStateKind.WallJumping;
             }

@@ -18,7 +18,7 @@ public class StateWallJumping : PlayerStateBase
         player.StartWallJumpLockoutTimer();
         int sign = player.FlipH ? 1 : -1; // todo: make this smarter so we go away from the collision point instead of opposite of player facing
         player.VelX = 250 * sign;
-        player.VelY = -300f;
+        player.VelY = -225f;
         return base.Enter(player);
     }
 

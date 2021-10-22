@@ -21,7 +21,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private Timer _floorTimer = null!;
         private Timer _jumpHoldTimer = null!;
         private Timer _oneWayPlatformTimer = null!;
-        private Timer _wallJumpAvailableTimer = null!;
         private Timer _wallJumpLockoutTimer = null!;
         private RayCast2D _leftRaycast = null!;
         private RayCast2D _rightRaycast = null!;
@@ -39,7 +38,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public bool IsOnOneWayPlatform { get; private set; } = false;
         public bool IsOnSlope { get; private set; } = false;
         public bool IsTouchingWall { get; private set; } = false;
-        public bool IsWallJumpAvailable => !_wallJumpAvailableTimer.IsStopped();
         public bool IsWallJumpLocked => !_wallJumpLockoutTimer.IsStopped();
         public RayCast2D LeftRaycast => _leftRaycast;
         public RayCast2D RightRaycast => _rightRaycast;
@@ -126,7 +124,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _floorTimer = GetNode<Timer>("FloorTimer");
             _jumpHoldTimer = GetNode<Timer>("JumpHoldTimer");
             _oneWayPlatformTimer = GetNode<Timer>("OneWayPlatformTimer");
-            _wallJumpAvailableTimer = GetNode<Timer>("WallJumpAvailableTimer");
             _wallJumpLockoutTimer = GetNode<Timer>("WallJumpLockoutTimer");
             _leftRaycast = GetNode<RayCast2D>("LeftRaycast");
             _rightRaycast = GetNode<RayCast2D>("RightRaycast");
@@ -190,11 +187,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 // Makes us be "on the floor" for 0.1s after leaving the ground. Refreshes every frame we're on the ground.
                 // Allows for jumping a little bit after running off an edge.
                 _floorTimer.Start();
-            }
-
-            if (IsTouchingWall)
-            {
-                _wallJumpAvailableTimer.Start();
             }
         }
 
@@ -401,14 +393,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         {
             _jumpTimer.Stop();
             _oneWayPlatformTimer.Start();
-        }
-
-        /// <summary>
-        /// Starts the timer that allows a brief window to wall-jump after contacting a wall.
-        /// </summary>
-        public void StartWallJumpAvailableTimer()
-        {
-            _wallJumpAvailableTimer.Start();
         }
 
         /// <summary>

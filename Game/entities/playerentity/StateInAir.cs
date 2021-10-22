@@ -52,7 +52,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 return PlayerStateKind.Jumping;
             }
 
-            if (player.IsWallJumpAvailable && player.Jumping && player.IsTouchingWall)
+            if (player.Jumping && player.IsTouchingWall)
             {
                 return PlayerStateKind.WallJumping;
             }
