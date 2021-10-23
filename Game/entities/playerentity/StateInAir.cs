@@ -21,6 +21,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public override async Task Enter(Player player)
         {
             _ticksInAir = 0;
+            // todo: Check to see if this actually works
             if (player.CurrentAnimationName == "Jump")
             {
                 await player.WaitForCurrentPoseAnimationFinished();
@@ -38,7 +39,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
             player.VelX = player.HorizontalUnit * _inAirSpeed;
             player.ApplyGravity(player.FallGravity);
-            player.Move(forceSnap: false);
+            player.Move();
 
             if (player.IsOnFloor())
             {
@@ -54,7 +55,11 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
             if (player.Jumping && player.IsTouchingWall)
             {
-                return PlayerStateKind.WallJumping;
+                if ((!player.FlipH && player.RightRaycast.IsColliding() && player.HorizontalUnit > 0)
+                    || (player.FlipH && player.LeftRaycast.IsColliding() && player.HorizontalUnit < 0))
+                {
+                    return PlayerStateKind.WallJumping;
+                }
             }
 
             _ticksInAir++;

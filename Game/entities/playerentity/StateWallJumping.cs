@@ -12,13 +12,16 @@ public class StateWallJumping : PlayerStateBase
     [Export] private string _defaultAnimation = "WallJump";
     public override string DefaultAnimation => _defaultAnimation;
 
-    // TODO: Prevent single-wall climbing, somehow
+    [Export] public float WallJumpVelX { get; set; } = 270;
+    [Export] public float WallJumpVelY { get; set; } = -325f;
+    [Export] public float WallJumpGravity { get; set; } = 10f;
+    
     public override Task Enter(Player player)
     {
         player.StartWallJumpLockoutTimer();
-        int sign = player.FlipH ? 1 : -1; // todo: make this smarter so we go away from the collision point instead of opposite of player facing
-        player.VelX = 250 * sign;
-        player.VelY = -225f;
+        int sign = -player.HorizontalUnit;
+        player.VelX = WallJumpVelX * sign;
+        player.VelY = WallJumpVelY;
         return base.Enter(player);
     }
 
@@ -30,7 +33,7 @@ public class StateWallJumping : PlayerStateBase
             return PlayerStateKind.InAir;
         }
 
-        player.ApplyGravity(0);
+        player.ApplyGravity(WallJumpGravity);
         return null;
     }
 }

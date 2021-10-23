@@ -82,7 +82,11 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
             if (player.Jumping && player.IsTouchingWall)
             {
-                return PlayerStateKind.WallJumping;
+                if ((!player.FlipH && player.RightRaycast.IsColliding() && player.HorizontalUnit > 0)
+                    || (player.FlipH && player.LeftRaycast.IsColliding() && player.HorizontalUnit < 0))
+                {
+                    return PlayerStateKind.WallJumping;
+                }
             }
 
             player.VelY = -_releaseSpeed;
