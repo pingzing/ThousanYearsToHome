@@ -31,9 +31,9 @@ namespace ThousandYearsHome.Controls.DialogueEngine
         private bool _insideClosingTag = false;
         private StringBuilder _textBuilder = new StringBuilder();
         private StringBuilder _tagBuilder = new StringBuilder();
-        public IEnumerable<DialogueSubstring> GetStringWidths(string text)
+        public List<DialogueSegment> SegmentText(string text)
         {
-            List<DialogueSubstring> stringSegments = new List<DialogueSubstring>();
+            List<DialogueSegment> stringSegments = new List<DialogueSegment>();
 
             int startIndex = -1;
             int endIndex = -1;
@@ -54,7 +54,7 @@ namespace ThousandYearsHome.Controls.DialogueEngine
                     {
                         startIndex = -1;
                         endIndex = -1;
-                        stringSegments.Add(new DialogueSubstring
+                        stringSegments.Add(new DialogueSegment
                         {
                             StartIndex = startIndex,
                             EndIndex = endIndex,
@@ -123,6 +123,15 @@ namespace ThousandYearsHome.Controls.DialogueEngine
                 previousChar = curr;
             }
 
+            // Any text outside of a tag at the very end.
+            stringSegments.Add(new DialogueSegment
+            {
+                StartIndex = startIndex,
+                EndIndex = endIndex,
+                Text = _textBuilder.ToString(),
+                Tags = _tagStack.Count > 0 ? _tagStack.ToList() : null,
+            });
+
             foreach (var segment in stringSegments)
             {
                 float width = _dialogueBoxFont.GetStringSize(segment.Text).x;
@@ -136,7 +145,7 @@ namespace ThousandYearsHome.Controls.DialogueEngine
         }
     }
 
-    public class DialogueSubstring
+    public class DialogueSegment
     {
         public float DisplayWidth { get; set; }
         public string Text { get; set; } = null!;
@@ -148,9 +157,9 @@ namespace ThousandYearsHome.Controls.DialogueEngine
         /// </summary>
         public List<BBTag>? Tags { get; set; }
 
-        public DialogueSubstring() { }
+        public DialogueSegment() { }
 
-        public DialogueSubstring(int startIndex, int endIndex, string text)
+        public DialogueSegment(int startIndex, int endIndex, string text)
         {
             StartIndex = startIndex;
             EndIndex = endIndex;

@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://areas/debug/DialogueTest.cs" type="Script" id=1]
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=2]
+[ext_resource path="res://controls/dialogueengine/DialogueEngine.tscn" type="PackedScene" id=3]
 
 [node name="DialogueTest" type="Node2D"]
 script = ExtResource( 1 )
@@ -51,6 +52,14 @@ text = "Clear Text"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="DialogueEngine" parent="." instance=ExtResource( 3 )]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = 175.0
+margin_top = 2.0
+margin_right = 477.0
+margin_bottom = 97.0
 
 [connection signal="pressed" from="AddButton" to="." method="AddTextPressed"]
 [connection signal="pressed" from="ClearButton" to="." method="ClearTextPressed"]
