@@ -8,7 +8,7 @@
 script = ExtResource( 1 )
 
 [node name="ColorRect" type="ColorRect" parent="."]
-margin_right = 144.0
+margin_right = 240.0
 margin_bottom = 50.0
 color = Color( 0, 0, 0, 1 )
 __meta__ = {
@@ -16,7 +16,7 @@ __meta__ = {
 }
 
 [node name="RichTextLabel" type="RichTextLabel" parent="ColorRect"]
-margin_right = 144.0
+margin_right = 240.0
 margin_bottom = 50.0
 theme = ExtResource( 2 )
 text = "Default text."
@@ -56,10 +56,10 @@ __meta__ = {
 [node name="DialogueEngine" parent="." instance=ExtResource( 3 )]
 anchor_left = 1.0
 anchor_right = 1.0
-margin_left = 175.0
-margin_top = 2.0
-margin_right = 477.0
-margin_bottom = 97.0
+margin_left = 240.0
+margin_right = 480.0
+margin_bottom = 50.0
+theme = ExtResource( 2 )
 
 [connection signal="pressed" from="AddButton" to="." method="AddTextPressed"]
 [connection signal="pressed" from="ClearButton" to="." method="ClearTextPressed"]

@@ -11,6 +11,8 @@ __meta__ = {
 [node name="Label" type="RichTextLabel" parent="."]
 margin_right = 40.0
 margin_bottom = 40.0
+visible_characters = 0
+percent_visible = 0.0
 
 [node name="CharacterTickTimer" type="Timer" parent="."]
 

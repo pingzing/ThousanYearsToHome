@@ -15,10 +15,6 @@ namespace ThousandYearsHome.Controls.DialogueEngine
     /// </summary>
     public class DialogueParser
     {
-        private static Regex _bbCodeRegex = new Regex(@"\[*.\b[^][]*\]", RegexOptions.Compiled);
-        private static Regex _bbCodeOpen = new Regex(@"\[([^\/].*?)\]", RegexOptions.Compiled);
-        private static Regex _bbCodeClose = new Regex(@"\[\/(.*?)\b\]", RegexOptions.Compiled);
-
         private readonly Font _dialogueBoxFont;
         private Stack<BBTag> _tagStack = new Stack<BBTag>();
 
@@ -31,36 +27,26 @@ namespace ThousandYearsHome.Controls.DialogueEngine
         private bool _insideClosingTag = false;
         private StringBuilder _textBuilder = new StringBuilder();
         private StringBuilder _tagBuilder = new StringBuilder();
-        public List<DialogueSegment> SegmentText(string text)
+        // TODO: This is mangling BBCode tags, somehow. [center] is one particular culprit.
+        public IEnumerable<DialogueSegment> SegmentText(string text)
         {
-            List<DialogueSegment> stringSegments = new List<DialogueSegment>();
-
-            int startIndex = -1;
-            int endIndex = -1;
             string? previousChar = null;
+            int startIndex = -1;
 
-            // Iterate through the string saving, each chunk of non-tag text into a separate DialogueSubstring.
+            // Iterate through the string, saving each chunk of non-tag text into a separate DialogueSegment.
             var stringEnumerator = StringInfo.GetTextElementEnumerator(text);
             while (stringEnumerator.MoveNext())
             {
                 string curr = stringEnumerator.GetTextElement();
                 if (curr == "[")
                 {
-                    endIndex = stringEnumerator.ElementIndex - 1;
                     // This could be either an opening tag or a closing tag, we don't know yet.
 
                     // Save in-progress string, if any
                     if (_textBuilder.Length > 0)
                     {
+                        yield return CreateSegment(_textBuilder, _tagStack, startIndex);
                         startIndex = -1;
-                        endIndex = -1;
-                        stringSegments.Add(new DialogueSegment
-                        {
-                            StartIndex = startIndex,
-                            EndIndex = endIndex,
-                            Text = _textBuilder.ToString(),
-                            Tags = _tagStack.Count > 0 ? _tagStack.ToList() : null,
-                        });
                         _textBuilder.Clear();
                     }
 
@@ -114,57 +100,55 @@ namespace ThousandYearsHome.Controls.DialogueEngine
                     continue;
                 }
 
-                if (previousChar == "]")
+                // If the last char was a space or a newline, yield return what we've built up so far, because we've built a full word.
+                if (previousChar == " " || previousChar == "\n")
+                {
+                    yield return CreateSegment(_textBuilder, _tagStack, startIndex);
+                    startIndex = -1;
+                    _textBuilder.Clear();
+                }
+                if (startIndex == -1)
                 {
                     startIndex = stringEnumerator.ElementIndex;
                 }
-
                 _textBuilder.Append(curr);
                 previousChar = curr;
             }
 
-            // Any text outside of a tag at the very end.
-            stringSegments.Add(new DialogueSegment
+            // Yield return one last time for anything outside of BBCode at the end.
+            if (_textBuilder.Length > 0)
             {
-                StartIndex = startIndex,
-                EndIndex = endIndex,
-                Text = _textBuilder.ToString(),
-                Tags = _tagStack.Count > 0 ? _tagStack.ToList() : null,
-            });
-
-            foreach (var segment in stringSegments)
-            {
-                float width = _dialogueBoxFont.GetStringSize(segment.Text).x;
-                segment.DisplayWidth = width;
+                yield return CreateSegment(_textBuilder, _tagStack, startIndex);
             }
 
             _tagBuilder.Clear();
             _textBuilder.Clear();
             _tagStack.Clear();
-            return stringSegments;
+        }
+
+        private DialogueSegment CreateSegment(StringBuilder textBuilder, Stack<BBTag> tags, int startIndex)
+        {
+            string text = textBuilder.ToString();
+            return new DialogueSegment
+            {
+                Text = text,
+                Tags = tags.Count > 0 ? tags.ToList() : null,
+                DisplayWidth = _dialogueBoxFont.GetStringSize(text).x,
+                StartIndex = startIndex
+            };
         }
     }
 
     public class DialogueSegment
     {
+        public int StartIndex { get; set; }
         public float DisplayWidth { get; set; }
         public string Text { get; set; } = null!;
-        public int StartIndex { get; set; }
-        public int EndIndex { get; set; }
 
         /// <summary>
         /// The list of tags that apply to this substring, in order from innermost to outermost.
         /// </summary>
         public List<BBTag>? Tags { get; set; }
-
-        public DialogueSegment() { }
-
-        public DialogueSegment(int startIndex, int endIndex, string text)
-        {
-            StartIndex = startIndex;
-            EndIndex = endIndex;
-            Text = text;
-        }
     }
 
     public class BBTag

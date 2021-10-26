@@ -18,7 +18,6 @@ namespace ThousandYearsHome.Controls.DialogueEngine
         private List<IDialoguePayload> _buffer = new List<IDialoguePayload>();
         private DialogueEngineState _currState = DialogueEngineState.Waiting;
         private bool _isBreak = false;
-        private bool _isPayloadAtStart = true;
         private uint _maxLines = 0;
         private int _currentCharacterCount = 0;
 
@@ -86,6 +85,8 @@ namespace ThousandYearsHome.Controls.DialogueEngine
             SetPhysicsProcess(true);
             SetProcessInput(true);
             _label = GetNode<RichTextLabel>("Label");
+            _label.ScrollActive = false;
+            _label.ScrollFollowing = false;
             _characterTickTimer = GetNode<Timer>("CharacterTickTimer");
 
             if (Font != null)
@@ -98,7 +99,7 @@ namespace ThousandYearsHome.Controls.DialogueEngine
             }
 
             float fontHeight = Font.GetHeight();
-            _maxLines = (uint)Mathf.Floor(RectSize.y / fontHeight + _label.GetConstant("line_separation"));
+            _maxLines = (uint)Mathf.Floor(RectSize.y / (fontHeight + _label.GetConstant("line_separation")));
             _lineSpaceRemaining = new float[_maxLines];
             _label.RectSize = RectSize;
             for (int i = 0; i < _lineSpaceRemaining.Length; i++)
@@ -237,7 +238,6 @@ namespace ThousandYearsHome.Controls.DialogueEngine
                 _lineSpaceRemaining[i] = _label.RectSize.x;
             }
 
-            _isPayloadAtStart = true;
             Turbo = false;
         }
 
@@ -271,6 +271,8 @@ namespace ThousandYearsHome.Controls.DialogueEngine
         public override void _Input(InputEvent @event)
         {
             // TODO: If we're on a Break, listen for the break key.
+            // When hit, we need to clear the label's contents, reset its state,
+            // then resume processing payloads.
             base._Input(@event);
         }
 
@@ -308,15 +310,9 @@ namespace ThousandYearsHome.Controls.DialogueEngine
 
         private void ProcessTextPayload(DialogueTextPayload text)
         {
-            if (text.Tag != "" && _isPayloadAtStart)
+            if (text.Tag != "")
             {
                 EmitSignal(nameof(TagEncountered), text.Tag);
-            }
-
-            // Hide all characters before we begin filling up the textbox.
-            if (_isPayloadAtStart)
-            {
-                _label.VisibleCharacters = 0;
             }
 
             if (Turbo)
@@ -339,11 +335,11 @@ namespace ThousandYearsHome.Controls.DialogueEngine
 
         private void ProcessBreakPayload(DialogueBreakPayload brk)
         {
-            if (brk.Tag != null && _isPayloadAtStart)
+            if (brk.Tag != null)
             {
                 EmitSignal(nameof(TagEncountered), brk.Tag);
             }
-            _isPayloadAtStart = false;
+
             if (Turbo)
             {
                 // Ignore the break if we're in turbo.
@@ -361,34 +357,27 @@ namespace ThousandYearsHome.Controls.DialogueEngine
             _label.VisibleCharacters += 1;
             if (_label.PercentVisible >= 1.0)
             {
+                // Once we've processed the payload in its entirety, remove it from the queue, and stop ticking.
+                _buffer.RemoveAt(0);
                 _characterTickTimer.Stop();
             }
         }
 
         private void AddToLabel(string text, float speed)
         {
-            // TODO: Get length of each word (not counting length of BBCode tags)
-            // Check to see if it will fit on the line
-            // If not, bump it to the next line
-            // If we're out of lines, insert a Break, and a text payload with what remains
-            // (any remaining spillover can be handled on the next payload process)
-            // If we're forced to split in the middle of a BBCode tag, add a closing tag to the
-            // end of what we can fit, and an opening tag to the beginning of the new payload we insert after
-            // the break.
-            // TODO: Do this one segment at a time instead of all at once, then all at once again.
-            var textSegments = _parser.SegmentText(text);
             List<DialogueSegment> segmentsToShow = new List<DialogueSegment>();
-            for (int i = 0; i < textSegments.Count; i++)
+            var segmentsEnumerable = _parser.SegmentText(text);
+            foreach (var segment in segmentsEnumerable)
             {
-                bool lineAdded = TryAddDialogueSubstring(segmentsToShow, textSegments[i]);
+                bool lineAdded = TryIncldeDialogueSegment(segmentsToShow, segment);
                 if (!lineAdded)
                 {
                     _currentLineIndex++;
                     if (_currentLineIndex >= _maxLines)
                     {
                         // We're overflowing to the next page. Cut things where needed, and make sure we glue up sliced-in-half BBCode tags.
-                        List<DialogueSegment> nextPageSubstrings = segmentsToShow.GetRange(i, segmentsToShow.Count - i);
-                        var prevSubstring = segmentsToShow.Last();
+                        string remainderText = text.Substring(segment.StartIndex);
+                        var prevSubstring = segmentsToShow.Last(); // TODO: segments to show might be empty here, if this is the first piece of a new payload that doesn't fit.
                         if (prevSubstring.Tags != null && prevSubstring.Tags.Any())
                         {
                             StringBuilder openingTags = new StringBuilder();
@@ -398,26 +387,36 @@ namespace ThousandYearsHome.Controls.DialogueEngine
                                 openingTags.Insert(0, $"[{tag.FullTagText}]");
                                 closingTags.Append($"[/{tag.TagName}]");
                             }
-                            nextPageSubstrings.First().Text += openingTags.ToString();
                             prevSubstring.Text += closingTags.ToString();
+                            remainderText = openingTags.ToString() + remainderText;
                         }
 
                         // Insert a break, and then whatever segments we couldn't fit.
                         QueueBreak(pushFront: true);
-                        var overflowText = string.Join("", nextPageSubstrings);
-                        QueueText(overflowText, speed, pushFront: true);
+                        QueueText(remainderText, speed, pushFront: true);
+
+                        break;
                     }
-                    else
+                    else // Move on to the next line
                     {
                         // If we've moved to a new line, but not beyond the last line, 
-                        // glue on a newline, to ensure that the RichTextLabel *actually* breaks where we want it to.
-                        segmentsToShow.Last().Text += "\n";
+                        // then glue on a newline, to ensure that the RichTextLabel breaks where *we* want it to.
+                        if (segmentsToShow.Any())
+                        {
+                            // If we're in the middle of cutting up a text payload, glue it on to the previous segment.
+                            segmentsToShow.Last().Text += "\n";
+                        }
+                        else
+                        {
+                            // Otherwise, if this is the first segment, glue it onto whatever already exists.
+                            _label.Newline();
+                        }
 
-                        lineAdded = TryAddDialogueSubstring(segmentsToShow, textSegments[i]);
+                        lineAdded = TryIncldeDialogueSegment(segmentsToShow, segment);
                         if (!lineAdded)
                         {
                             // If we've still failed, we somehow have a segment that's longer than an entire line. We have nowhere sane to break it. Just blow up.
-                            throw new Exception($"Failed to find space for the text segment '{textSegments[i].Text}', in the overall dialogue text: '{text}'");
+                            throw new Exception($"Failed to find space for the text segment '{segment.Text}', in the overall dialogue text: '{text}'");
                         }
                     }
                 }
@@ -429,16 +428,16 @@ namespace ThousandYearsHome.Controls.DialogueEngine
             }
         }
 
-        private bool TryAddDialogueSubstring(List<DialogueSegment> toShow, DialogueSegment substring)
+        private bool TryIncldeDialogueSegment(List<DialogueSegment> toShow, DialogueSegment segment)
         {
             float spaceRemaining = _lineSpaceRemaining[_currentLineIndex];
-            if (substring.DisplayWidth > spaceRemaining)
+            if (segment.DisplayWidth > spaceRemaining)
             {
                 return false;
             }
 
-            _lineSpaceRemaining[_currentLineIndex] -= substring.DisplayWidth;
-            toShow.Add(substring);
+            _lineSpaceRemaining[_currentLineIndex] -= segment.DisplayWidth;
+            toShow.Add(segment);
             return true;
         }
     }
