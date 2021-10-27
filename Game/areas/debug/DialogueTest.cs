@@ -25,7 +25,7 @@ namespace ThousandYearsHome.Areas.Debug
             string text = _inputBox.Text;
 
             _label.AppendBbcode(text);
-            _dialogueEngine.QueueText(_inputBox.Text, 0.1f);
+            _dialogueEngine.QueueText(_inputBox.Text, 0.02f);
             _dialogueEngine.SetState(DialogueEngineState.Outputting);
 
             _inputBox.Clear();
@@ -34,6 +34,7 @@ namespace ThousandYearsHome.Areas.Debug
         public void ClearTextPressed()
         {
             _label.BbcodeText = "";
+            _dialogueEngine.ClearText();
         }
     }
 }

@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -19,7 +20,8 @@ namespace ThousandYearsHome.Controls.DialogueEngine
         private DialogueEngineState _currState = DialogueEngineState.Waiting;
         private bool _isBreak = false;
         private uint _maxLines = 0;
-        private int _currentCharacterCount = 0;
+        private bool _dialogueBoxFull = false;
+        private bool _printingText = false;
 
         private int _currentLineIndex = 0;
         private float[] _lineSpaceRemaining = null!;
@@ -221,7 +223,13 @@ namespace ThousandYearsHome.Controls.DialogueEngine
         public void ClearText()
         {
             _label.BbcodeText = "";
-            _label.VisibleCharacters = -1;
+            _label.VisibleCharacters = 0;
+            _currentLineIndex = 0;
+            for (int i = 0; i < _lineSpaceRemaining.Length; i++)
+            {
+                _lineSpaceRemaining[i] = _label.RectSize.x;
+            }
+            _dialogueBoxFull = false;
         }
 
         /// <summary>
@@ -268,19 +276,31 @@ namespace ThousandYearsHome.Controls.DialogueEngine
 
         // Internal methods
 
-        public override void _Input(InputEvent @event)
+        public override void _Input(InputEvent evt)
         {
+            if (!(evt is InputEventKey keyEvt))
+            {
+                return;
+            }
+
             // TODO: If we're on a Break, listen for the break key.
             // When hit, we need to clear the label's contents, reset its state,
             // then resume processing payloads.
-            base._Input(@event);
+            if (_currState == DialogueEngineState.Outputting
+                && _isBreak
+                && keyEvt.Scancode == (uint)BreakKey)
+            {
+                EmitSignal(nameof(BreakExited));
+                _buffer.RemoveAt(0);
+                _isBreak = false;
+            }
         }
 
         public override void _PhysicsProcess(float delta)
         {
-            if (!_characterTickTimer.IsStopped())
+            if (_printingText || _isBreak)
             {
-                // Currently printing, don't process any payloads.
+                // Either printing, or waiting for player input. Do nothing.
                 return;
             }
             if (_currState == DialogueEngineState.Outputting)
@@ -310,6 +330,11 @@ namespace ThousandYearsHome.Controls.DialogueEngine
 
         private void ProcessTextPayload(DialogueTextPayload text)
         {
+            if (_dialogueBoxFull)
+            {
+                ClearText();
+            }
+
             if (text.Tag != "")
             {
                 EmitSignal(nameof(TagEncountered), text.Tag);
@@ -325,11 +350,21 @@ namespace ThousandYearsHome.Controls.DialogueEngine
             {
                 AddToLabel(text.PayloadString, 0);
                 _label.VisibleCharacters = -1;
+                _buffer.RemoveAt(0);
             }
             else
             {
-                AddToLabel(text.PayloadString, text.Speed);
-                _characterTickTimer.Start(text.Speed); // TODO: Handle speeds faster than per-frame by adding more characters per-frame.
+                bool payloadAdded = AddToLabel(text.PayloadString, text.Speed);
+                if (payloadAdded)
+                {
+                    _printingText = true;
+                    _characterTickTimer.Start(text.Speed); // TODO: Handle speeds faster than per-frame by adding more characters per-frame.
+                }
+                else
+                {
+                    // If no part of our payload got printed, remove the payload without waiting for the timer.
+                    _buffer.RemoveAt(0);
+                }
             }
         }
 
@@ -360,10 +395,11 @@ namespace ThousandYearsHome.Controls.DialogueEngine
                 // Once we've processed the payload in its entirety, remove it from the queue, and stop ticking.
                 _buffer.RemoveAt(0);
                 _characterTickTimer.Stop();
+                _printingText = false;
             }
         }
 
-        private void AddToLabel(string text, float speed)
+        private bool AddToLabel(string text, float speed)
         {
             List<DialogueSegment> segmentsToShow = new List<DialogueSegment>();
             var segmentsEnumerable = _parser.SegmentText(text);
@@ -375,25 +411,39 @@ namespace ThousandYearsHome.Controls.DialogueEngine
                     _currentLineIndex++;
                     if (_currentLineIndex >= _maxLines)
                     {
-                        // We're overflowing to the next page. Cut things where needed, and make sure we glue up sliced-in-half BBCode tags.
+                        _dialogueBoxFull = true;
+                        // We're overflowing to the next page.
                         string remainderText = text.Substring(segment.StartIndex);
-                        var prevSubstring = segmentsToShow.Last(); // TODO: segments to show might be empty here, if this is the first piece of a new payload that doesn't fit.
-                        if (prevSubstring.Tags != null && prevSubstring.Tags.Any())
+
+                        if (segmentsToShow.Any()) // If we have some text already in the box, make sure we wrap up our tag situation
                         {
-                            StringBuilder openingTags = new StringBuilder();
-                            StringBuilder closingTags = new StringBuilder();
-                            foreach (BBTag tag in prevSubstring.Tags)
+                            // Close up any tags on the last segment to make it into this page.
+                            var prevSegment = segmentsToShow.Last();
+                            if (prevSegment.Tags != null)
                             {
-                                openingTags.Insert(0, $"[{tag.FullTagText}]");
-                                closingTags.Append($"[/{tag.TagName}]");
+                                StringBuilder closingTags = new StringBuilder();
+                                foreach (BBTag tag in prevSegment.Tags)
+                                {
+                                    closingTags.Append($"[/{tag.TagName}]");
+                                }
+                                prevSegment.Text += closingTags.ToString();
                             }
-                            prevSubstring.Text += closingTags.ToString();
-                            remainderText = openingTags.ToString() + remainderText;
+
+                            // And add opening tags to the segment that DIDN'T make the cut.
+                            if (segment.Tags != null)
+                            {
+                                StringBuilder openingTags = new StringBuilder();
+                                foreach (BBTag tag in segment.Tags)
+                                {
+                                    openingTags.Insert(0, $"[{tag.FullTagText}]");
+                                }
+                                remainderText = openingTags.ToString() + remainderText;
+                            }
                         }
 
-                        // Insert a break, and then whatever segments we couldn't fit.
-                        QueueBreak(pushFront: true);
-                        QueueText(remainderText, speed, pushFront: true);
+                        // Insert a break, and then whatever segments we couldn't fit just after the current payload.
+                        _buffer.Insert(1, new DialogueTextPayload { PayloadString = remainderText, Speed = speed, Tag = "" });
+                        _buffer.Insert(1, new DialogueBreakPayload());
 
                         break;
                     }
@@ -422,10 +472,14 @@ namespace ThousandYearsHome.Controls.DialogueEngine
                 }
             }
 
-            foreach (var segment in segmentsToShow)
+            if (!segmentsToShow.Any())
             {
-                _label.AppendBbcode(segment.Text);
+                return false;
             }
+
+            string processedText = string.Join("", segmentsToShow.Select(x => x.Text));
+            _label.AppendBbcode(processedText);
+            return true;
         }
 
         private bool TryIncldeDialogueSegment(List<DialogueSegment> toShow, DialogueSegment segment)
@@ -449,30 +503,30 @@ namespace ThousandYearsHome.Controls.DialogueEngine
 
     public class DialogueTextPayload : IDialoguePayload
     {
-        public string Tag { get; set; } = null!;
+        public string Tag { get; set; } = "";
         public string PayloadString { get; set; } = null!;
         public float Speed { get; set; }
     }
 
     public class DialogueSilencePayload : IDialoguePayload
     {
-        public string Tag { get; set; } = null!;
+        public string Tag { get; set; } = "";
         public float Length { get; set; }
     }
 
     public class DialogueBreakPayload : IDialoguePayload
     {
-        public string Tag { get; set; } = null!;
+        public string Tag { get; set; } = "";
     }
 
     public class DialogueInputPayload : IDialoguePayload
     {
-        public string Tag { get; set; } = null!;
+        public string Tag { get; set; } = "";
     }
 
     public class DialogueClearPayload : IDialoguePayload
     {
-        public string Tag { get; set; } = null!;
+        public string Tag { get; set; } = "";
     }
 
     public enum DialogueEngineState
