@@ -1,14 +1,11 @@
 ﻿using Godot;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace ThousandYearsHome.Controls.DialogueEngine
+namespace ThousandYearsHome.Controls.Dialogue
 {
     /// <summary>
     /// Class in charge of parsing Dialogue with game directives stripped from it,
@@ -16,6 +13,7 @@ namespace ThousandYearsHome.Controls.DialogueEngine
     /// </summary>
     public class DialogueParser
     {
+        private static char[] _openingTagArgSepartors = new[] { ' ', '=' };
         private readonly Font _dialogueBoxFont;
         private Stack<BBTag> _tagStack = new Stack<BBTag>();
 
@@ -91,7 +89,7 @@ namespace ThousandYearsHome.Controls.DialogueEngine
                         BBTag tag = new BBTag
                         {
                             FullTagText = tagText,
-                            TagName = tagText.Split(' ', '=')[0],
+                            TagName = tagText.Split(_openingTagArgSepartors)[0],
                         };
 
                         _tagBuilder.Clear();

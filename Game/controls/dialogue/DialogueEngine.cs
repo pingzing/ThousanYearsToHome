@@ -1,21 +1,18 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 
-namespace ThousandYearsHome.Controls.DialogueEngine
+namespace ThousandYearsHome.Controls.Dialogue
 {
+    /// <summary>
+    /// The core of the dialogue engine that wraps the RichTextLabel, that processes
+    /// payloads, provides word-wrapping and automatic paging.
+    /// </summary>
     public class DialogueEngine : ReferenceRect
     {
         // Members
-
-        private static Regex _bbCodeRegex = new Regex(@"\[*.\b[^][]*\]", RegexOptions.Compiled);
-        private static Regex _bbCodeOpen = new Regex(@"\[([^\/]*?)\b\]", RegexOptions.Compiled);
-        private static Regex _bbCodeClose = new Regex(@"\[\/(.*?)\b\]", RegexOptions.Compiled);
-
         private List<IDialoguePayload> _buffer = new List<IDialoguePayload>();
         private DialogueEngineState _currState = DialogueEngineState.Waiting;
         private bool _isBreak = false;
@@ -283,9 +280,6 @@ namespace ThousandYearsHome.Controls.DialogueEngine
                 return;
             }
 
-            // TODO: If we're on a Break, listen for the break key.
-            // When hit, we need to clear the label's contents, reset its state,
-            // then resume processing payloads.
             if (_currState == DialogueEngineState.Outputting
                 && _isBreak
                 && keyEvt.Scancode == (uint)BreakKey)
@@ -402,8 +396,7 @@ namespace ThousandYearsHome.Controls.DialogueEngine
         private bool AddToLabel(string text, float speed)
         {
             List<DialogueSegment> segmentsToShow = new List<DialogueSegment>();
-            var segmentsEnumerable = _parser.SegmentText(text);
-            foreach (var segment in segmentsEnumerable)
+            foreach (var segment in _parser.SegmentText(text))
             {
                 bool lineAdded = TryIncldeDialogueSegment(segmentsToShow, segment);
                 if (!lineAdded)

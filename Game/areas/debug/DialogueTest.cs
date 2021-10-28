@@ -1,15 +1,14 @@
 using Godot;
-using System;
-using ThousandYearsHome.Controls.DialogueEngine;
+using ThousandYearsHome.Controls.Dialogue;
 
 namespace ThousandYearsHome.Areas.Debug
 {
     public class DialogueTest : Node2D
     {
-        private RichTextLabel _label;
-        private LineEdit _inputBox;
+        private RichTextLabel _label = null!;
+        private LineEdit _inputBox = null!;
 
-        private DialogueEngine _dialogueEngine;
+        private DialogueEngine _dialogueEngine = null!;
 
         public override void _Ready()
         {

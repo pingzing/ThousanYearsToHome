@@ -1,9 +1,9 @@
 [gd_scene load_steps=8 format=2]
 
-[ext_resource path="res://addons/GodotTIE/text_interface_engine.gd" type="Script" id=1]
-[ext_resource path="res://fonts/Equipment-base.tres" type="DynamicFont" id=2]
-[ext_resource path="res://Controls/DialogueBox.cs" type="Script" id=3]
-[ext_resource path="res://art/DownArrow.png" type="Texture" id=4]
+[ext_resource path="res://controls/dialogue/DialogueBox.cs" type="Script" id=1]
+[ext_resource path="res://art/DownArrow.png" type="Texture" id=2]
+[ext_resource path="res://controls/dialogue/DialogueEngine.tscn" type="PackedScene" id=3]
+[ext_resource path="res://art/BaseTheme.tres" type="Theme" id=4]
 
 [sub_resource type="Animation" id=1]
 resource_name = "Hide"
@@ -39,7 +39,7 @@ tracks/0/keys = {
 
 [sub_resource type="Animation" id=3]
 resource_name = "BlinkArrow"
-length = 2.0
+length = 1.6
 loop = true
 tracks/0/type = "value"
 tracks/0/path = NodePath("NextArrow:visible")
@@ -48,17 +48,18 @@ tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
 tracks/0/keys = {
-"times": PoolRealArray( 0, 1 ),
+"times": PoolRealArray( 0, 0.8 ),
 "transitions": PoolRealArray( 1, 1 ),
 "update": 1,
-"values": [ false, true ]
+"values": [ true, false ]
 }
 
-[node name="Node2D" type="Control"]
+[node name="DialogueBox" type="Control"]
 modulate = Color( 1, 1, 1, 0 )
 margin_right = 20.0
 margin_bottom = 20.0
-script = ExtResource( 3 )
+theme = ExtResource( 4 )
+script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -82,6 +83,14 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="DialogueEngine" parent="." instance=ExtResource( 3 )]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 2.0
+margin_top = 2.0
+margin_right = -2.0
+margin_bottom = -2.0
+
 [node name="NextArrow" type="TextureRect" parent="."]
 visible = false
 anchor_left = 1.0
@@ -92,24 +101,10 @@ margin_left = -11.0
 margin_top = -7.0
 margin_right = -4.0
 margin_bottom = -3.0
-texture = ExtResource( 4 )
+texture = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="TextInterfaceEngine" type="ReferenceRect" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 3.0
-margin_right = -4.0
-margin_bottom = -3.0
-script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-FONT = ExtResource( 2 )
-BLINKING_INPUT = false
 
 [node name="DialogueBoxAnimator" type="AnimationPlayer" parent="."]
 anims/Hide = SubResource( 1 )
@@ -118,8 +113,8 @@ anims/Show = SubResource( 2 )
 [node name="NextArrowAnimator" type="AnimationPlayer" parent="."]
 anims/BlinkArrow = SubResource( 3 )
 
-[connection signal="buff_end" from="TextInterfaceEngine" to="." method="OnTextInterfaceEngineBufferEnd"]
-[connection signal="enter_break" from="TextInterfaceEngine" to="." method="OnTextInterfaceEngineBreak"]
-[connection signal="resume_break" from="TextInterfaceEngine" to="." method="OnTextInterfaceEngineBreakResume"]
-[connection signal="tag_buff" from="TextInterfaceEngine" to="." method="OnTextInterfaceEngineTagFound"]
+[connection signal="BreakEntered" from="DialogueEngine" to="." method="DialogueEngineBreakEntered"]
+[connection signal="BreakExited" from="DialogueEngine" to="." method="DialogueEngineBreakExited"]
+[connection signal="BufferEmptied" from="DialogueEngine" to="." method="DialogueEngineBufferEmptied"]
+[connection signal="TagEncountered" from="DialogueEngine" to="." method="DialogueEngineTagEncountered"]
 [connection signal="animation_finished" from="DialogueBoxAnimator" to="." method="OnAnimationFinished"]

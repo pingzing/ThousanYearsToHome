@@ -1,16 +1,18 @@
 using Godot;
 using System.Threading.Tasks;
-using ThousandYearsHome.Extensions;
 
-namespace ThousandYearsHome.Controls
+namespace ThousandYearsHome.Controls.Dialogue
 {
+    /// <summary>
+    /// The wrapper that make the DialogueEngine look good.
+    /// Provides borders, backgrounds, portraits, and convenience methods.
+    /// </summary>
     public class DialogueBox : Control
     {
         [Signal] public delegate void DialogueBoxOpened();
         [Signal] public delegate void DialogueBoxClosed();
 
-        private Node _textInterfaceEngine = null!;
-        private TextInterfaceEngineShim _dialgoueBoxWrapper = null!;
+        private DialogueEngine _dialogueEngine = null!;
         private TextureRect _nextArrow = null!;
         private AnimationPlayer _animator = null!;
         private AnimationPlayer _nextArrowAnimator = null!;
@@ -27,10 +29,9 @@ namespace ThousandYearsHome.Controls
 
         public override void _Ready()
         {
-            _textInterfaceEngine = GetNode("TextInterfaceEngine");
             _nextArrow = GetNode<TextureRect>("NextArrow");
-            _dialgoueBoxWrapper = new TextInterfaceEngineShim(_textInterfaceEngine);
-            _dialgoueBoxWrapper.SetBreakKeyScancode(KeyList.Z); // Unconditonally set the break key to "Z", because that's our confirm button.
+            _dialogueEngine = GetNode<DialogueEngine>("DialogueEngine");
+            _dialogueEngine.BreakKey = KeyList.Z; // TODO: Make this user-configurable, I guess.
             _animator = GetNode<AnimationPlayer>("DialogueBoxAnimator");
             _nextArrowAnimator = GetNode<AnimationPlayer>("NextArrowAnimator");
         }
@@ -64,21 +65,22 @@ namespace ThousandYearsHome.Controls
                 _hideCompletionSource?.SetResult("Hide");
                 _isOpen = false;
                 EmitSignal(nameof(DialogueBoxClosed));
-                _dialgoueBoxWrapper.Reset();
+                _dialogueEngine.Reset();
             }
         }
 
-        public void OnTextInterfaceEngineBreak()
+        public void DialogueEngineBreakEntered()
         {
             _nextArrowAnimator.Play("BlinkArrow");
         }
 
-        public void OnTextInterfaceEngineBreakResume()
+        public void DialogueEngineBreakExited()
         {
             _nextArrowAnimator.Stop(reset: true);
+            _nextArrow.Visible = false;
         }
 
-        public void OnTextInterfaceEngineTagFound(string tag)
+        public void DialogueEngineTagEncountered(string tag)
         {
             if (tag == EndSinglePage)
             {
@@ -86,7 +88,7 @@ namespace ThousandYearsHome.Controls
             }
         }
 
-        public void OnTextInterfaceEngineBufferEnd()
+        public void DialogueEngineBufferEmptied()
         {
             _nextArrowAnimator.Play("BlinkArrow");
             _bufferEmptied = true;
@@ -115,28 +117,28 @@ namespace ThousandYearsHome.Controls
         {
             _singlePageCompletionSource = new TaskCompletionSource<string>();
             _bufferEmptied = false;
-            _dialgoueBoxWrapper.BufferText(text, secondsPerChar);
-            _dialgoueBoxWrapper.BufferBreak(EndSinglePage);
-            _dialgoueBoxWrapper.SetState(TextInterfaceEngineState.StateOutput);
+            _dialogueEngine.QueueText(text, secondsPerChar);
+            _dialogueEngine.QueueBreak(EndSinglePage);
+            _dialogueEngine.SetState(DialogueEngineState.Outputting);
             return _singlePageCompletionSource.Task;
         }
 
-        public void LoadText(string text, float velocity = 0, string tag = "", bool pushFront = false)
+        public void QueueText(string text, float velocity = 0, string tag = "", bool pushFront = false)
         {
             _bufferEmptied = false;
-            _dialgoueBoxWrapper.BufferText(text, velocity, tag, pushFront);
+            _dialogueEngine.QueueText(text, velocity, tag, pushFront);
         }
 
-        public void LoadSilence(float lengthSeconds, string tag = "", bool pushFront = false)
+        public void QueueSilence(float lengthSeconds, string tag = "", bool pushFront = false)
         {
             _bufferEmptied = false;
-            _dialgoueBoxWrapper.BufferSilence(lengthSeconds, tag, pushFront);
+            _dialogueEngine.QueueSilence(lengthSeconds, tag, pushFront);
         }
 
-        public void LoadBreak(string tag = "", bool pushFront = false)
+        public void QueueBreak(string tag = "", bool pushFront = false)
         {
             _bufferEmptied = false;
-            _dialgoueBoxWrapper.BufferBreak(tag, pushFront);
+            _dialogueEngine.QueueBreak(tag, pushFront);
         }
 
         /// <summary>
@@ -152,7 +154,7 @@ namespace ThousandYearsHome.Controls
             }
 
             _bufferEndCompletionSource = new TaskCompletionSource<string>();
-            _dialgoueBoxWrapper.SetState(TextInterfaceEngineState.StateOutput);
+            _dialogueEngine.SetState(DialogueEngineState.Outputting);
             return _bufferEndCompletionSource.Task;
         }
     }

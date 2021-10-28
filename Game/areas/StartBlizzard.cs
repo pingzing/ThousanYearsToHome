@@ -1,7 +1,6 @@
 using Godot;
-using System.Threading.Tasks;
 using ThousandYearsHome.Controls;
-using ThousandYearsHome.Entities;
+using ThousandYearsHome.Controls.Dialogue;
 using ThousandYearsHome.Entities.PlayerEntity;
 using ThousandYearsHome.Extensions;
 
@@ -104,9 +103,9 @@ namespace ThousandYearsHome.Areas
                 _player.AnimatePose("Idle");
 
                 await _dialogueBox.Open();
-                _dialogueBox.LoadText("* I think I'm finally getting close... ", .03f);
-                _dialogueBox.LoadBreak();
-                _dialogueBox.LoadText("Not long now, one way or the other.", .03f);
+                _dialogueBox.QueueText("* I think I'm finally getting close... ", .03f);
+                _dialogueBox.QueueBreak();
+                _dialogueBox.QueueText("Not long now, one way or the other.", .03f);
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, "DialogueBoxClosed");
 
@@ -133,9 +132,9 @@ namespace ThousandYearsHome.Areas
 
                 //// Dialogue
                 //await _dialogueBox.Open();
-                //_dialogueBox.LoadText("* ...o close!\n", 0.2f);
+                //_dialogueBox.QueueText("* ...o close!\n", 0.2f);
                 //_dialogueBox.LoadSilence(0.5f);
-                //_dialogueBox.LoadText("Just... ...ittle furth...", 0.1f);
+                //_dialogueBox.QueueText("Just... ...ittle furth...", 0.1f);
                 //await _dialogueBox.Run();
 
                 //// Wait for the dialogue box to close, then restore the player and snow and stuff
@@ -159,12 +158,12 @@ namespace ThousandYearsHome.Areas
 
                 // TODO: Play faceplant animation
                 await _dialogueBox.Open();
-                _dialogueBox.LoadText("* ...ow.", .1f);
-                _dialogueBox.LoadBreak();
+                _dialogueBox.QueueText("* ...ow.", .1f);
+                _dialogueBox.QueueBreak();
                 // TODO: Return to standing animation
-                _dialogueBox.LoadText(" Silver lining--no one was around to see that.", 0.05f);
-                _dialogueBox.LoadBreak();
-                _dialogueBox.LoadText(" Must be getting tired if that gave me trouble, though. Better wrap this up...", 0.05f);
+                _dialogueBox.QueueText(" Silver lining--no one was around to see that.", 0.05f);
+                _dialogueBox.QueueBreak();
+                _dialogueBox.QueueText(" Must be getting tired if that gave me trouble, though. Better wrap this up...", 0.05f);
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
@@ -182,7 +181,7 @@ namespace ThousandYearsHome.Areas
 
                 _player.InputLocked = true;
                 await _dialogueBox.Open();
-                _dialogueBox.LoadText("* I'll talk about that weird thing in the distance here.", 0.01f);
+                _dialogueBox.QueueText("* I'll talk about that weird thing in the distance here.", 0.01f);
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
@@ -200,7 +199,7 @@ namespace ThousandYearsHome.Areas
 
                 _player.InputLocked = true;
                 await _dialogueBox.Open();
-                _dialogueBox.LoadText("* Oh no, things are collapsing dialogue here!", 0.01f);
+                _dialogueBox.QueueText("* Oh no, things are collapsing dialogue here!", 0.01f);
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
@@ -222,7 +221,7 @@ namespace ThousandYearsHome.Areas
                 _snowParticles.Emitting = false; // no snow inside caves!
                 await _dialogueBox.Open();
                 _playerCamera.DragMarginVEnabled = false; // force camera to stay vertically snapped to player to sell the illusion of the infinte fall
-                _dialogueBox.LoadText("* Oh even more no! Falling dialogue here!", 0.01f);
+                _dialogueBox.QueueText("* Oh even more no! Falling dialogue here!", 0.01f);
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
