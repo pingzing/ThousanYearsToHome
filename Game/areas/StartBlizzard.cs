@@ -160,32 +160,16 @@ namespace ThousandYearsHome.Areas
 
                 _player.InputLocked = true;
 
-                // DEBUG REMOVE AHH
-                string secondLine = _firstFallTriggered ? "* Okay, this time it might have been nice to have someone see me. That [i]hurt[/i]." : "* Oh, great, now I've got snow in my saddlebags. Augh, that [i]hurt[/i].";
+                // TODO: Play faceplant animation
                 await _dialogueBox.Open();
-                _dialogueBox.QueueText("* Ow.\n")
-                    .QueueSilence(2.0f)
-                    .QueueText(secondLine, 0.05f)
-                    .QueueBreak();
-                await _dialogueBox.Run();
-
-                _player.AnimatePose("Stand"); // TODO: Replace this with crouch once the above is replaced by faceplant.
-                _dialogueBox.QueueText("\n* Looks like I fell a pretty long way. I can barely even see the top from here...", 0.05f)
-                    .QueueBreak()
-                    .QueueText("\n* No choice but to push forward, then. Hopefully there's a way out somewhere ahead.", 0.05f);
+                _dialogueBox.QueueText("* ...ow.", .1f);
+                _dialogueBox.QueueBreak();
+                // TODO: Return to standing animation
+                _dialogueBox.QueueText(" Silver lining--no one was around to see that.", 0.05f);
+                _dialogueBox.QueueBreak();
+                _dialogueBox.QueueText(" Must be getting tired if that gave me trouble, though. Better wrap this up...", 0.05f);
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
-
-                //// TODO: Play faceplant animation
-                //await _dialogueBox.Open();
-                //_dialogueBox.QueueText("* ...ow.", .1f);
-                //_dialogueBox.QueueBreak();
-                //// TODO: Return to standing animation
-                //_dialogueBox.QueueText(" Silver lining--no one was around to see that.", 0.05f);
-                //_dialogueBox.QueueBreak();
-                //_dialogueBox.QueueText(" Must be getting tired if that gave me trouble, though. Better wrap this up...", 0.05f);
-                //await _dialogueBox.Run();
-                //await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
                 _player.InputLocked = false;
             }
