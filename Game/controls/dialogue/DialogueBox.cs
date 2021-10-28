@@ -123,22 +123,32 @@ namespace ThousandYearsHome.Controls.Dialogue
             return _singlePageCompletionSource.Task;
         }
 
-        public void QueueText(string text, float velocity = 0, string tag = "", bool pushFront = false)
+        public DialogueBox QueueText(string text, float velocity = 0, string tag = "", bool pushFront = false)
         {
             _bufferEmptied = false;
             _dialogueEngine.QueueText(text, velocity, tag, pushFront);
+            return this;
         }
 
-        public void QueueSilence(float lengthSeconds, string tag = "", bool pushFront = false)
+        public DialogueBox QueueSilence(float lengthSeconds, string tag = "", bool pushFront = false)
         {
             _bufferEmptied = false;
             _dialogueEngine.QueueSilence(lengthSeconds, tag, pushFront);
+            return this;
         }
 
-        public void QueueBreak(string tag = "", bool pushFront = false)
+        public DialogueBox QueueBreak(string tag = "", bool pushFront = false)
         {
             _bufferEmptied = false;
             _dialogueEngine.QueueBreak(tag, pushFront);
+            return this;
+        }
+
+        public DialogueBox QueueClear(string tag = "", bool pushFront = false)
+        {
+            _bufferEmptied = false;
+            _dialogueEngine.QueueClear(tag, pushFront);
+            return this;
         }
 
         /// <summary>

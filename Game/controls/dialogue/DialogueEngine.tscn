@@ -16,4 +16,9 @@ percent_visible = 0.0
 
 [node name="CharacterTickTimer" type="Timer" parent="."]
 
+[node name="SilenceTimer" type="Timer" parent="."]
+wait_time = 0.001
+one_shot = true
+
 [connection signal="timeout" from="CharacterTickTimer" to="." method="CharacterTickTimeout"]
+[connection signal="timeout" from="SilenceTimer" to="." method="SilenceTimerTimeout"]

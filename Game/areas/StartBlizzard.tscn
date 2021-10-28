@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=2]
+[gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://Entities/PlayerEntity/Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Areas/StartBlizzard.cs" type="Script" id=2]
@@ -20,7 +20,10 @@ extents = Vector2( 70, 52 )
 [sub_resource type="RectangleShape2D" id=4]
 extents = Vector2( 91, 16 )
 
-[sub_resource type="Animation" id=5]
+[sub_resource type="RectangleShape2D" id=5]
+extents = Vector2( 225, 10 )
+
+[sub_resource type="Animation" id=6]
 length = 4.0
 tracks/0/type = "value"
 tracks/0/path = NodePath("Player/Sprite:frame")
@@ -35,7 +38,7 @@ tracks/0/keys = {
 "values": [ 5, 6 ]
 }
 
-[sub_resource type="Animation" id=6]
+[sub_resource type="Animation" id=7]
 length = 0.64
 step = 0.02
 tracks/0/type = "value"
@@ -51,7 +54,7 @@ tracks/0/keys = {
 "values": [ Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( -1, 0 ), Vector2( 1, 0 ), Vector2( 0, 0 ) ]
 }
 
-[sub_resource type="Animation" id=7]
+[sub_resource type="Animation" id=8]
 length = 7.0
 step = 0.02
 tracks/0/type = "value"
@@ -79,12 +82,12 @@ tracks/1/keys = {
 "values": [ 1, 0, 2, 0, 3, 0, 4 ]
 }
 
-[sub_resource type="Animation" id=8]
+[sub_resource type="Animation" id=9]
 
-[sub_resource type="RectangleShape2D" id=9]
+[sub_resource type="RectangleShape2D" id=10]
 extents = Vector2( 21.2091, 145.175 )
 
-[sub_resource type="ParticlesMaterial" id=10]
+[sub_resource type="ParticlesMaterial" id=11]
 emission_shape = 2
 emission_box_extents = Vector3( 1, 135, 1 )
 flag_disable_z = true
@@ -101,7 +104,7 @@ linear_accel_random = 1.0
 scale = 1.25
 scale_random = 1.0
 
-[sub_resource type="Animation" id=11]
+[sub_resource type="Animation" id=12]
 length = 7.0
 tracks/0/type = "value"
 tracks/0/path = NodePath("Fader:color")
@@ -214,6 +217,13 @@ position = Vector2( 3057, -448 )
 position = Vector2( 3144, -320 )
 shape = SubResource( 4 )
 
+[node name="CollapseLandingTriggerArea" type="Area2D" parent="."]
+position = Vector2( 3144, -230 )
+
+[node name="CollapseLandingShape" type="CollisionShape2D" parent="CollapseLandingTriggerArea"]
+position = Vector2( 120, 340 )
+shape = SubResource( 5 )
+
 [node name="Player" parent="." instance=ExtResource( 1 )]
 position = Vector2( -28, 137 )
 
@@ -242,10 +252,10 @@ editor_draw_limits = true
 editor_draw_drag_margin = true
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-anims/PassOut = SubResource( 5 )
-anims/Shiver = SubResource( 6 )
-anims/StaggerForward = SubResource( 7 )
-anims/TrotIntoFrame = SubResource( 8 )
+anims/PassOut = SubResource( 6 )
+anims/Shiver = SubResource( 7 )
+anims/StaggerForward = SubResource( 8 )
+anims/TrotIntoFrame = SubResource( 9 )
 
 [node name="WaitStartTimer" type="Timer" parent="."]
 wait_time = 4.5
@@ -257,7 +267,7 @@ visible = false
 
 [node name="BallKillBox" type="CollisionShape2D" parent="BallKillArea"]
 position = Vector2( -22.8627, 84 )
-shape = SubResource( 9 )
+shape = SubResource( 10 )
 
 [node name="Tweener" type="Tween" parent="."]
 
@@ -282,7 +292,7 @@ amount = 800
 lifetime = 1.75
 preprocess = 1.5
 visibility_rect = Rect2( -480, -135, 480, 270 )
-process_material = SubResource( 10 )
+process_material = SubResource( 11 )
 
 [node name="HUD" parent="UICanvas" instance=ExtResource( 6 )]
 
@@ -298,15 +308,16 @@ __meta__ = {
 margin_left = 16.0
 margin_top = 39.0
 margin_right = 464.0
-margin_bottom = 84.0
+margin_bottom = 94.0
 
 [node name="FadePlayer" type="AnimationPlayer" parent="UICanvas"]
-anims/FadeScene = SubResource( 11 )
+anims/FadeScene = SubResource( 12 )
 
 [connection signal="body_entered" from="FirstFallDialogueTrigger" to="." method="OnFirstFallDialogueEntered"]
 [connection signal="body_entered" from="VistaPointDialogueTrigger" to="." method="OnVistaPointEntered"]
 [connection signal="body_entered" from="CollapseTriggerArea" to="." method="CollapseTriggerAreaEntered"]
 [connection signal="body_exited" from="FallTeleportBottomArea" to="." method="OnFallTeleportBottomAreaEntered"]
+[connection signal="body_entered" from="CollapseLandingTriggerArea" to="." method="CollapseBaseAreaEntered"]
 [connection signal="DebugUpdateState" from="Player" to="." method="OnPlayerDebugUpdateState"]
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="OnAnimationFinished"]
 [connection signal="animation_started" from="AnimationPlayer" to="." method="OnAnimationStarted"]
@@ -314,4 +325,3 @@ anims/FadeScene = SubResource( 11 )
 [connection signal="animation_finished" from="UICanvas/FadePlayer" to="." method="OnFadePlayerAnimationFinished"]
 
 [editable path="Player"]
-[editable path="UICanvas/DialogueBox"]

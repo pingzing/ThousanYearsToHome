@@ -56,8 +56,8 @@ tracks/0/keys = {
 
 [node name="DialogueBox" type="Control"]
 modulate = Color( 1, 1, 1, 0 )
-margin_right = 20.0
-margin_bottom = 20.0
+margin_right = 176.0
+margin_bottom = 103.0
 theme = ExtResource( 4 )
 script = ExtResource( 1 )
 __meta__ = {
@@ -86,8 +86,8 @@ __meta__ = {
 [node name="DialogueEngine" parent="." instance=ExtResource( 3 )]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 2.0
-margin_top = 2.0
+margin_left = 4.0
+margin_top = 3.0
 margin_right = -2.0
 margin_bottom = -2.0
 
