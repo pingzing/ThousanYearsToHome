@@ -37,6 +37,7 @@ amount = 75
 lifetime = 0.4
 one_shot = true
 explosiveness = 0.8
+visibility_rect = Rect2( -30, -20, 60, 55 )
 process_material = SubResource( 2 )
 
 [node name="TouchedTimer" type="Timer" parent="."]

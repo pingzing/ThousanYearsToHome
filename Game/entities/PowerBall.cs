@@ -21,7 +21,7 @@ namespace ThousandYearsHome.Entities
 
         // In degrees, for easier Editor-ing.
         private float _directionAngle = 180;
-        [Export(PropertyHint.Range, "0, 359")]
+        [Export(PropertyHint.Range, "0, 359, 1")]
         public float DirectionAngle
         {
             get => _directionAngle;
@@ -32,8 +32,23 @@ namespace ThousandYearsHome.Entities
             }
         }
 
+        private Vector2 _startPosition;
+        [Export]
+        public Vector2 StartPosition
+        {
+            get => _startPosition;
+            set
+            {
+                if (_startPosition != value)
+                {
+                    _startPosition = value;
+                    if (Engine.EditorHint) { Position = value; PropertyListChangedNotify(); }
+                }
+            }
+        }
 
-        [Signal] public delegate void FreeQueued(PowerBall ball);
+        // TODO: Add an arg that describes if this was collected or hit a cleanup-zone
+        [Signal] public delegate void Hidden(PowerBall ball);
 
         private bool _active = false;
 
@@ -41,6 +56,7 @@ namespace ThousandYearsHome.Entities
         {
             if (Engine.EditorHint)
             {
+                SetNotifyTransform(true);
                 return;
             }
 
@@ -86,18 +102,29 @@ namespace ThousandYearsHome.Entities
 
             if (area.Name == "BallKillArea")
             {
-                QueueFree();
-                EmitSignal(nameof(FreeQueued), this);
+                Hide();
+                _active = false;
+                EmitSignal(nameof(Hidden), this);
             }
         }
 
         public void OnTouchedTimerTimeout()
         {
-            QueueFree();
-            EmitSignal(nameof(FreeQueued), this);
+            Hide();
+            _active = false;
+            EmitSignal(nameof(Hidden), this);
         }
 
         // ---Tool stuff---
+
+        public override void _Notification(int what)
+        {
+            // Make dragging the node around in the editor change its start position.            
+            if (what == NotificationTransformChanged)
+            {
+                StartPosition = Position;
+            }
+        }
 
         public override void _Draw()
         {

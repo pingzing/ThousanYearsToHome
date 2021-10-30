@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using System.Threading.Tasks;
 using ThousandYearsHome.Controls;
 using ThousandYearsHome.Controls.Dialogue;
@@ -249,7 +250,7 @@ namespace ThousandYearsHome.Areas
         private bool _collapseLanded = false;
         public async void CollapseBaseAreaEntered(Node body)
         {
-            if (body.Name == "Player" && !_collapseLanded)
+            if (body is Player && !_collapseLanded)
             {
                 _collapseLanded = true;
                 _playerCamera.DragMarginVEnabled = true; // Stop force-centering the player in the camera vertically
@@ -291,7 +292,7 @@ namespace ThousandYearsHome.Areas
         private bool _keeperCutscenePlayed = false;
         public async void KeeperCutsceneAreaEntered(Node body)
         {
-            if (body.Name == "Player" && !_keeperCutscenePlayed)
+            if (body is Player && !_keeperCutscenePlayed)
             {
                 _keeperCutscenePlayed = true;
 
@@ -299,7 +300,7 @@ namespace ThousandYearsHome.Areas
 
                 await _dialogueBox.Open();
                 _dialogueBox.QueueText("* A-ha, there's an exit up ahead!", 0.04f)
-                    .QueueBreak().QueueText(" ...hey, ").QueueSilence(0.1f).QueueText("what's that?");
+                    .QueueBreak().QueueText(" ...hey, ", 0.04f).QueueSilence(0.1f).QueueText("what's that?", 0.04f);
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
@@ -318,6 +319,7 @@ namespace ThousandYearsHome.Areas
 
                 using (_player.DisableStateMachine())
                 {
+                    _player.ResetPoseAnimation();
                     _player.AnimatePose("Walk");
                     _tweener.InterpolateProperty(_player, "position", null, new Vector2(walkEnd.Position.x, _player.Position.y), 3.0f, Tween.TransitionType.Quad, Tween.EaseType.Out);
                     _tweener.Start();
@@ -330,6 +332,13 @@ namespace ThousandYearsHome.Areas
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
+                var playerCameraPos = _player.Position + _playerCamera.GetParent<Node2D>().Position;
+                _cinematicCamera.SmoothingEnabled = false;
+                _tweener.InterpolateProperty(_cinematicCamera, "position", null, playerCameraPos, 1.0f, Tween.TransitionType.Quad, Tween.EaseType.Out);
+                _tweener.Start();
+                await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
+
+                _playerCamera.Current = true;
                 _keeperCutsceneTriggerArea.QueueFree();
                 _player.InputLocked = false;
             }

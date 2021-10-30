@@ -9,45 +9,17 @@ namespace ThousandYearsHome.Entities
     [Tool]
     public class PowerBallSet : Node2D
     {
-        private Shape2D? _triggerShape;
-        [Export]
-        public Shape2D? TriggerShape
-        {
-            get => _triggerShape;
-            set
-            {
-                _triggerShape = value;
-                if (_triggerCollisionShape2D != null)
-                {
-                    _triggerCollisionShape2D.Shape = value;
-                }
-            }
-        }
-
-        private Area2D _triggerArea = null!;
-        private CollisionShape2D _triggerCollisionShape2D = null!;
         private Node2D _bulletHolder = null!;
-        private List<PowerBall> _powerBalls;
+        private List<PowerBall> _powerBalls = null!;
 
         private bool _triggered = false;
 
         public override void _Ready()
         {
-            _triggerArea = GetNode<Area2D>("TriggerArea");
-            _triggerCollisionShape2D = GetNode<CollisionShape2D>("TriggerArea/TriggerShape");
             _bulletHolder = GetNode<Node2D>("Bullets");
-
-            if (Engine.EditorHint)
-            {
-                ToolReady();
-            }
 
             // Both readies
             _powerBalls = _bulletHolder.GetChildren().Cast<PowerBall>().ToList();
-            foreach (var ball in _powerBalls)
-            {
-                ball.Connect("FreeQueued", this, nameof(OnBallFreed));
-            }
         }
 
         public void OnTriggerAreaBodyEntered(Node node)
@@ -67,16 +39,6 @@ namespace ThousandYearsHome.Entities
             }
         }
 
-        public void OnBallFreed(PowerBall ball)
-        {
-            _powerBalls.Remove(ball);
-            ball = null!;
-            if (!_powerBalls.Any())
-            {
-                QueueFree();
-            }
-        }
-
         // ---Tool stuff---
 
         public override string _GetConfigurationWarning()
@@ -84,7 +46,7 @@ namespace ThousandYearsHome.Entities
             var bulletChildren = _bulletHolder.GetChildren();
             if (bulletChildren.Count == 0)
             {
-                return "Bullets must have at least one child.";
+                return "The 'Bullets' node must have at least one child.";
             }
 
             foreach (var child in bulletChildren.Cast<Node2D>())
@@ -98,14 +60,5 @@ namespace ThousandYearsHome.Entities
             return "";
 
         }
-
-        private void ToolReady()
-        {
-            if (TriggerShape == null)
-            {
-                TriggerShape = new RectangleShape2D();
-            }
-        }
-
     }
 }
