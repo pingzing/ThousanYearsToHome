@@ -30,6 +30,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public PlayerStateKind Run()
         {
             PlayerStateKind? nextStateKind = _currentState?.Run(_player);
+
             if (nextStateKind != null)
             {
                 PlayerStateBase? nextState = _states[nextStateKind.Value];

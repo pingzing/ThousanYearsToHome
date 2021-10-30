@@ -6,7 +6,7 @@ namespace ThousandYearsHome.Extensions
 {
     public static class NodeExtensions
     {
-        public static async Task ToSignalWithArgs<T>(
+        public static async Task ToSignalWithArg<T>(
             this Node node,
             Object source,
             string signalName,

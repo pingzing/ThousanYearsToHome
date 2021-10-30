@@ -25,6 +25,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private RayCast2D _leftRaycast = null!;
         private RayCast2D _rightRaycast = null!;
 
+        private PlayerStateDisableToken? _stateProcessingDisableToken = null;
         private Vector2 _snapVector = Vector2.Down * 30; // 36 is player's collision box height. Should this be dynamic?
 
         public string CurrentAnimationName => _poseAnimator.CurrentAnimation;
@@ -146,12 +147,20 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 // Zero out any lingering inputs.
                 HorizontalUnit = 0;
                 _verticalUnit = 0;
-                if (IsOnFloor()) { _floorTimer.Start(); }
             }
 
-            var newState = _stateMachine.Run();
-            EmitSignal(nameof(DebugUpdateState), _stateMachine.CurrentState.StateKind, VelX, VelY, Position);
+            if (IsOnFloor())
+            {
+                // Makes us be "on the floor" for 0.1s after leaving the ground. Refreshes every frame we're on the ground.
+                // Allows for jumping a little bit after running off an edge.
+                _floorTimer.Start();
+            }
 
+            if (_stateProcessingDisableToken == null)
+            {
+                var newState = _stateMachine.Run();
+            }
+            EmitSignal(nameof(DebugUpdateState), _stateMachine.CurrentState.StateKind, VelX, VelY, Position);
         }
 
         // Places the player at pos, enables their collision, and initializes their state machine.
@@ -180,13 +189,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             {
                 // Holding the jump button for more air
                 _jumpHoldTimer.Start();
-            }
-
-            if (IsOnFloor())
-            {
-                // Makes us be "on the floor" for 0.1s after leaving the ground. Refreshes every frame we're on the ground.
-                // Allows for jumping a little bit after running off an edge.
-                _floorTimer.Start();
             }
         }
 
@@ -339,6 +341,34 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             VelY = Mathf.Clamp(velocity.y, -1000f, MaxFallSpeed);
         }
 
+        /// <summary>
+        /// Triggers the "just dropped off a one-way platform" state.
+        /// Also immediately ends the jumping state.
+        /// </summary>
+        public void StartOneWayPlatformTimer()
+        {
+            _jumpTimer.Stop();
+            _oneWayPlatformTimer.Start();
+        }
+
+        /// <summary>
+        /// Starts the timer that prevents player input momentarily after wall-jumping.
+        /// </summary>
+        public void StartWallJumpLockoutTimer()
+        {
+            _wallJumpLockoutTimer.Start();
+        }
+
+        public void OnOneWayPlatformTimerTimeout()
+        {
+            // One-way platforms are only on Layer 2. The player normally occupies 1 AND 2.
+            // When passing through one-way platforms, they only occupy Layer 1.
+            // Once the timer expires, this puts them back on both layers.
+            CollisionLayer = 1 | 2;
+        }
+
+        // Methods primarily meant to allow external callers to manipulate the Player
+
         public void AnimatePose(string animationName, float animationSpeed = 1.0f)
         {
             if (_poseAnimator.CurrentAnimation == animationName)
@@ -383,32 +413,32 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public void OnHornTouched(PowerBall ball)
         {
             // TODO: Increase stamina meter, make player glow
+            // Maybe make more generic somehow
         }
 
         /// <summary>
-        /// Triggers the "just dropped off a one-way platform" state.
-        /// Also immediately ends the jumping state.
+        ///  Disable all state processing until the returned token is disposed.
         /// </summary>
-        public void StartOneWayPlatformTimer()
+        /// <returns>A token that, when disposed, will reenable state processing.
+        /// It can also be manually passed to <see cref="ReenableStateMachine(PlayerStateDisableToken)"/> to
+        /// resume state processing.</returns>
+        public PlayerStateDisableToken DisableStateMachine()
         {
-            _jumpTimer.Stop();
-            _oneWayPlatformTimer.Start();
+            var token = new PlayerStateDisableToken(this);
+            _stateProcessingDisableToken = token;
+            return token;
         }
 
-        /// <summary>
-        /// Starts the timer that prevents player input momentarily after wall-jumping.
-        /// </summary>
-        public void StartWallJumpLockoutTimer()
+        public void ReenableStateMachine(PlayerStateDisableToken token)
         {
-            _wallJumpLockoutTimer.Start();
-        }
-
-        public void OnOneWayPlatformTimerTimeout()
-        {
-            // One-way platforms are only on Layer 2. The player normally occupies 1 AND 2.
-            // When passing through one-way platforms, they only occupy Layer 1.
-            // Once the timer expires, this puts them back on both layers.
-            CollisionLayer = 1 | 2;
+            if (token == _stateProcessingDisableToken)
+            {
+                _stateProcessingDisableToken = null;
+            }
+            else
+            {
+                GD.PrintErr("Attempted to unforce state with a token other than the one holding the state lock!");
+            }
         }
     }
 }

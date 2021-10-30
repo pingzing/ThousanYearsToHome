@@ -30,6 +30,8 @@ namespace ThousandYearsHome.Areas
         private Position2D _fallTeleportTop = null!;
         private Area2D _fallTeleportBottomArea = null!;
         private Area2D _collapseLandingTriggerArea = null!;
+        private Area2D _keeperCutsceneTriggerArea = null!;
+        private Position2D _keeperCutsceneCameraPosition = null!;
 
         public bool SkipIntro { get; set; }
 
@@ -60,6 +62,8 @@ namespace ThousandYearsHome.Areas
             _fallTeleportBottomArea = GetNode<Area2D>("FallTeleportBottomArea");
 
             _collapseLandingTriggerArea = GetNode<Area2D>("CollapseLandingTriggerArea");
+
+            _keeperCutsceneTriggerArea = GetNode<Area2D>("KeeperCutsceneTriggerArea");
 
             Vector2 startPos = GetNode<Position2D>("StartPosition").Position;
             _player.Spawn(startPos);
@@ -96,14 +100,14 @@ namespace ThousandYearsHome.Areas
                 // Initial camera Pan
                 _tweener.InterpolateProperty(_cinematicCamera, "global_position", null, new Vector2(190, 82), 6.5f, Tween.TransitionType.Cubic, Tween.EaseType.InOut);
                 _tweener.Start();
-                await this.ToSignalWithArgs(_tweener, "tween_completed", 0, _cinematicCamera);
+                await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
 
                 // Blue walks on and talks
                 _player.ResetPoseAnimation();
                 _player.AnimatePose("Walk");
                 _tweener.InterpolateProperty(_player, "position", null, new Vector2(_player.Position.x + 100, _player.Position.y), 3.3f, Tween.TransitionType.Quad, Tween.EaseType.Out);
                 _tweener.Start();
-                await this.ToSignalWithArgs(_tweener, "tween_completed", 0, _player);
+                await this.ToSignalWithArg(_tweener, "tween_completed", 0, _player);
                 _player.AnimatePose("Idle");
 
                 await _dialogueBox.Open();
@@ -233,6 +237,14 @@ namespace ThousandYearsHome.Areas
                 _player.InputLocked = false;
             }
         }
+        public void OnFallTeleportBottomAreaEntered(Node body)
+        {
+            // Continually teleport the player back up to the top of the fall area to simulate an infinite fall
+            if (body.Name == "Player")
+            {
+                _player.Position = new Vector2(_player.Position.x, _fallTeleportTop.Position.y);
+            }
+        }
 
         private bool _collapseLanded = false;
         public async void CollapseBaseAreaEntered(Node body)
@@ -244,22 +256,30 @@ namespace ThousandYearsHome.Areas
 
                 _player.InputLocked = true;
 
-                await Task.Delay(500); // TODO: testing to see if waiting for the landing state is enough...
-                _player.AnimatePose("Crouch"); // TODO: Make this the faceplant animation
-                await Task.Delay(2000);
+                using (_player.DisableStateMachine())
+                {
+                    _player.AnimatePose("Crouch");
+
+                    await Task.Delay(1000);
+                    await _dialogueBox.Open();
+                    _dialogueBox.QueueText("* Ow.\n").QueueSilence(2.0f);
+                    await _dialogueBox.Run();
+                }
+
+                _player.AnimatePose("Idle"); // TODO: Replace this with crouch once the above is replaced by faceplant.
 
                 string secondLine = _firstFallTriggered ? "* Okay, this time it might have been nice to have someone see me. That [i]hurt[/i]." : "* Oh, great, now I've got snow in my saddlebags. Augh, that [i]hurt[/i].";
-                await _dialogueBox.Open();
-                _dialogueBox.QueueText("* Ow.\n")
-                    .QueueSilence(2.0f)
-                    .QueueText(secondLine, 0.05f)
+                _dialogueBox.QueueText(secondLine, 0.04f)
+                        .QueueBreak();
+                await _dialogueBox.Run();
+
+                // TODO: Animate pose into "looking up"
+                _dialogueBox.QueueText("\n* Looks like I fell a pretty long way. I can barely even see the top from here...", 0.04f)
                     .QueueBreak();
                 await _dialogueBox.Run();
 
-                _player.AnimatePose("Stand"); // TODO: Replace this with crouch once the above is replaced by faceplant.
-                _dialogueBox.QueueText("\n* Looks like I fell a pretty long way. I can barely even see the top from here...", 0.05f)
-                    .QueueBreak()
-                    .QueueText("\n* No choice but to push forward, then. Hopefully there's a way out somewhere ahead.", 0.05f);
+                // TODO: animate pose back to idle
+                _dialogueBox.QueueText("\n* No choice but to push forward, then. Hopefully there's a way out somewhere ahead.", 0.04f);
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
@@ -268,12 +288,50 @@ namespace ThousandYearsHome.Areas
             }
         }
 
-        public void OnFallTeleportBottomAreaEntered(Node body)
+        private bool _keeperCutscenePlayed = false;
+        public async void KeeperCutsceneAreaEntered(Node body)
         {
-            // Continually teleport the player back up to the top of the fall area to simulate an infinite fall
-            if (body.Name == "Player")
+            if (body.Name == "Player" && !_keeperCutscenePlayed)
             {
-                _player.Position = new Vector2(_player.Position.x, _fallTeleportTop.Position.y);
+                _keeperCutscenePlayed = true;
+
+                _player.InputLocked = true;
+
+                await _dialogueBox.Open();
+                _dialogueBox.QueueText("* A-ha, there's an exit up ahead!", 0.04f)
+                    .QueueBreak().QueueText(" ...hey, ").QueueSilence(0.1f).QueueText("what's that?");
+                await _dialogueBox.Run();
+                await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
+
+                _cinematicCamera.LimitBottom = _playerCamera.LimitBottom;
+                _cinematicCamera.LimitTop = _playerCamera.LimitTop;
+                _cinematicCamera.LimitRight = _playerCamera.LimitRight;
+                _cinematicCamera.LimitLeft = _playerCamera.LimitLeft;
+                _cinematicCamera.Position = _player.Position + _playerCamera.Position;
+
+                _cinematicCamera.SmoothingEnabled = true;
+                _cinematicCamera.Current = true;
+                _keeperCutsceneCameraPosition = GetNode<Position2D>("KeeperCutsceneCameraPosition");
+                _cinematicCamera.Position = _keeperCutsceneCameraPosition.Position; // let Smoothing do the panning work here
+
+                var walkEnd = GetNode<Position2D>("KeeperCutsceneWalkEndPosition");
+
+                using (_player.DisableStateMachine())
+                {
+                    _player.AnimatePose("Walk");
+                    _tweener.InterpolateProperty(_player, "position", null, new Vector2(walkEnd.Position.x, _player.Position.y), 3.0f, Tween.TransitionType.Quad, Tween.EaseType.Out);
+                    _tweener.Start();
+                    await this.ToSignalWithArg(_tweener, "tween_completed", 0, _player);
+                    _player.AnimatePose("Idle");
+                }
+
+                await _dialogueBox.Open();
+                _dialogueBox.QueueText("This is where the keeper cutscene will happen! Zappy horns, big scary flashy, glowy balls, stamia meter!");
+                await _dialogueBox.Run();
+                await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
+
+                _keeperCutsceneTriggerArea.QueueFree();
+                _player.InputLocked = false;
             }
         }
     }
