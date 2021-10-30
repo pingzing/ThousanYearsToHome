@@ -1,9 +1,7 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=11 format=2]
 
-[ext_resource path="res://fonts/Xolonium-Regular.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://Title.cs" type="Script" id=2]
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=3]
-[ext_resource path="res://fonts/Equipment-base.tres" type="DynamicFont" id=4]
 
 [sub_resource type="ParticlesMaterial" id=1]
 emission_shape = 2
@@ -36,11 +34,15 @@ linear_accel_random = 1.0
 scale = 1.25
 scale_random = 1.0
 
-[sub_resource type="DynamicFont" id=3]
-size = 24
-font_data = ExtResource( 1 )
+[sub_resource type="DynamicFontData" id=3]
+antialiased = false
+font_path = "res://fonts/EquipmentPro.ttf"
 
-[sub_resource type="Animation" id=4]
+[sub_resource type="DynamicFont" id=4]
+size = 40
+font_data = SubResource( 3 )
+
+[sub_resource type="Animation" id=5]
 length = 0.5
 tracks/0/type = "value"
 tracks/0/path = NodePath("MenuVBox:modulate")
@@ -55,7 +57,7 @@ tracks/0/keys = {
 "values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 1 ) ]
 }
 
-[sub_resource type="Animation" id=5]
+[sub_resource type="Animation" id=6]
 length = 0.5
 tracks/0/type = "value"
 tracks/0/path = NodePath("TitleLabel:self_modulate")
@@ -70,8 +72,7 @@ tracks/0/keys = {
 "values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 1 ) ]
 }
 
-[sub_resource type="Animation" id=6]
-resource_name = "Fade Out Screen"
+[sub_resource type="Animation" id=7]
 length = 2.5
 tracks/0/type = "value"
 tracks/0/path = NodePath("MenuVBox:modulate")
@@ -98,8 +99,7 @@ tracks/1/keys = {
 "values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
 }
 
-[sub_resource type="Animation" id=7]
-resource_name = "Speed Up Snow"
+[sub_resource type="Animation" id=8]
 length = 3.0
 tracks/0/type = "value"
 tracks/0/path = NodePath("MainParticles:process_material:gravity")
@@ -217,8 +217,8 @@ process_material = SubResource( 2 )
 [node name="TitleLabel" type="Label" parent="."]
 anchor_right = 1.0
 margin_top = 24.0
-margin_bottom = 54.0
-custom_fonts/font = SubResource( 3 )
+margin_bottom = 32.0
+custom_fonts/font = SubResource( 4 )
 custom_colors/font_color = Color( 0, 0.0196078, 1, 1 )
 text = "Thousand Years To Home"
 align = 1
@@ -243,7 +243,6 @@ __meta__ = {
 margin_right = 480.0
 margin_bottom = 16.0
 mouse_filter = 2
-custom_fonts/font = ExtResource( 4 )
 shortcut_in_tooltip = false
 button_mask = 0
 text = "Start"
@@ -262,7 +261,6 @@ margin_top = 40.0
 margin_right = 480.0
 margin_bottom = 56.0
 mouse_filter = 2
-custom_fonts/font = ExtResource( 4 )
 shortcut_in_tooltip = false
 button_mask = 0
 text = "Continue"
@@ -272,7 +270,6 @@ margin_top = 60.0
 margin_right = 480.0
 margin_bottom = 76.0
 mouse_filter = 2
-custom_fonts/font = ExtResource( 4 )
 shortcut_in_tooltip = false
 button_mask = 0
 text = "Quit"
@@ -312,10 +309,10 @@ one_shot = true
 autostart = true
 
 [node name="FadeAnimator" type="AnimationPlayer" parent="."]
-"anims/Fade In Menu" = SubResource( 4 )
-"anims/Fade In Title" = SubResource( 5 )
-"anims/Fade Out Screen" = SubResource( 6 )
-"anims/Speed Up Snow" = SubResource( 7 )
+"anims/Fade In Menu" = SubResource( 5 )
+"anims/Fade In Title" = SubResource( 6 )
+"anims/Fade Out Screen" = SubResource( 7 )
+"anims/Speed Up Snow" = SubResource( 8 )
 
 [connection signal="pressed" from="MenuVBox/StartGame" to="." method="OnStartGamePressed"]
 [connection signal="pressed" from="MenuVBox/StageSelect" to="." method="OnStageSelectPressed"]

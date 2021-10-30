@@ -13,6 +13,9 @@ margin_right = 40.0
 margin_bottom = 40.0
 visible_characters = 0
 percent_visible = 0.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="CharacterTickTimer" type="Timer" parent="."]
 
