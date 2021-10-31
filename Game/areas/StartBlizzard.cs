@@ -103,8 +103,7 @@ namespace ThousandYearsHome.Areas
                 _tweener.Start();
                 await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
 
-                // Blue walks on and talks
-                _player.ResetPoseAnimation();
+                // Blue walks on and talks                
                 _player.AnimatePose("Walk");
                 _tweener.InterpolateProperty(_player, "position", null, new Vector2(_player.Position.x + 100, _player.Position.y), 3.3f, Tween.TransitionType.Quad, Tween.EaseType.Out);
                 _tweener.Start();
@@ -167,16 +166,15 @@ namespace ThousandYearsHome.Areas
 
                 using (_player.DisableStateMachine())
                 {
-                    _player.ResetPoseAnimation();
                     _player.AnimatePose("Crouch"); // TODO: Replace with faceplant animation.                    
                     await _dialogueBox.Open();
                     _dialogueBox.QueueText("You become intimiately acquainted with the densely-packed snow of this gulch's floor.", .02f)
                         .QueueBreak()
                         .QueueClear()
-                        .QueueText("Ow. ", .02f)
+                        .QueueText("* Ow. ", .02f)
                         .QueueBreak();
                     await _dialogueBox.Run();
-                    _player.ResetPoseAnimation();
+
                     _player.AnimatePose("Idle");
                     _dialogueBox.QueueText("\n* Come on, ", 0.02f).QueueSilence(0.1f).QueueText("just a little further...", 0.02f);
                     await _dialogueBox.Run();
@@ -346,7 +344,6 @@ namespace ThousandYearsHome.Areas
 
                 using (_player.DisableStateMachine())
                 {
-                    _player.ResetPoseAnimation();
                     _player.AnimatePose("Walk");
                     _tweener.InterpolateProperty(_player, "position", null, new Vector2(walkEnd.Position.x, _player.Position.y), 4.0f, Tween.TransitionType.Quad, Tween.EaseType.Out);
                     _tweener.Start();

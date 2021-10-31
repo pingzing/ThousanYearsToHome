@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=2]
+[gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://Entities/PlayerEntity/Player.cs" type="Script" id=1]
 [ext_resource path="res://art/PonyWalk2.png" type="Texture" id=2]
@@ -9,6 +9,7 @@
 [ext_resource path="res://Entities/PlayerEntity/StateJumping.cs" type="Script" id=7]
 [ext_resource path="res://Entities/PlayerEntity/StateCrouch.cs" type="Script" id=8]
 [ext_resource path="res://entities/playerentity/StateWallJumping.cs" type="Script" id=9]
+[ext_resource path="res://entities/playerentity/PlayerInputService.cs" type="Script" id=10]
 
 [sub_resource type="Animation" id=1]
 resource_name = "Crouch"
@@ -287,6 +288,9 @@ shape = SubResource( 8 )
 [node name="BodyCollisionBox" type="CollisionShape2D" parent="."]
 position = Vector2( 4, 3 )
 shape = SubResource( 9 )
+
+[node name="PlayerInputService" type="Node2D" parent="."]
+script = ExtResource( 10 )
 
 [node name="PlayerStateMachine" parent="." instance=ExtResource( 4 )]
 

@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace ThousandYearsHome.Entities.PlayerEntity
 {
@@ -15,6 +16,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private AnimationPlayer _colorAnimator = null!;
         private Sprite _sprite = null!;
         private PlayerStateMachine _stateMachine = null!;
+        private PlayerInputService _inputService = null!;
         private CollisionShape2D _bodyCollisionBox = null!;
         private CollisionShape2D _hornBoxCollisionShape = null!;
         private Timer _jumpTimer = null!;
@@ -34,7 +36,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public bool Grounded => !_floorTimer.IsStopped();
         public bool Jumping => !_jumpTimer.IsStopped();
         public bool JumpHolding => !_jumpHoldTimer.IsStopped();
-        public bool Crouching => _verticalUnit == -1 && Grounded;
+        public bool Crouching => VerticalUnit == -1 && Grounded;
         public bool JumpAvailable { get; set; }
         public bool IsOnOneWayPlatform { get; private set; } = false;
         public bool IsOnSlope { get; private set; } = false;
@@ -45,8 +47,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         public int HorizontalUnit { get; set; } = 0;
 
-        private int _verticalUnit = 0;
-        public int VerticalUnit => _verticalUnit;
+        public int VerticalUnit { get; set; } = 0;
 
         public const float IdleGravity = 30f;
 
@@ -109,7 +110,23 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
         }
 
-        [Export] public bool InputLocked = false;
+        [Export]
+        public bool InputLocked
+        {
+            get => _inputService.InputLocked;
+            set
+            {
+                _inputService.InputLocked = value;
+                if (_inputService.InputLocked)
+                {
+                    _inputService.ClearInputs();
+                    // Zero out any lingering inputs.
+                    HorizontalUnit = 0;
+                    VerticalUnit = 0;
+                }
+            }
+        }
+
         [Signal] public delegate void DebugUpdateState(PlayerStateKind newState, float xVel, float yVel, Vector2 position);
 
         // Called when the node enters the scene tree for the first time.
@@ -119,6 +136,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _colorAnimator = GetNode<AnimationPlayer>("Sprite/ColorAnimator");
             _sprite = GetNode<Sprite>("Sprite");
             _stateMachine = GetNode<PlayerStateMachine>("PlayerStateMachine");
+            _inputService = GetNode<PlayerInputService>("PlayerInputService");
             _bodyCollisionBox = GetNode<CollisionShape2D>("BodyCollisionBox");
             _hornBoxCollisionShape = GetNode<CollisionShape2D>("Sprite/HornBox/HornBoxCollisionShape");
             _jumpTimer = GetNode<Timer>("JumpTimer");
@@ -138,16 +156,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 return;
             }
 
-            if (!InputLocked)
-            {
-                UpdateFromInput(delta);
-            }
-            else
-            {
-                // Zero out any lingering inputs.
-                HorizontalUnit = 0;
-                _verticalUnit = 0;
-            }
+            UpdateFromInput(delta);
 
             if (IsOnFloor())
             {
@@ -177,15 +186,15 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         private void UpdateFromInput(float delta)
         {
-            HorizontalUnit = (Input.IsActionPressed("ui_right") ? 1 : 0) - (Input.IsActionPressed("ui_left") ? 1 : 0);
-            _verticalUnit = (Input.IsActionPressed("ui_up") ? 1 : 0) - (Input.IsActionPressed("ui_down") ? 1 : 0);
+            HorizontalUnit = (_inputService.IsPressed(PlayerInputAction.Right) ? 1 : 0) - (_inputService.IsPressed(PlayerInputAction.Left) ? 1 : 0);
+            VerticalUnit = (_inputService.IsPressed(PlayerInputAction.Up) ? 1 : 0) - (_inputService.IsPressed(PlayerInputAction.Down) ? 1 : 0);
 
-            if (Input.IsActionJustPressed("ui_accept"))
+            if (_inputService.IsJustPressed(PlayerInputAction.Accept))
             {
                 _jumpTimer.Start();
             }
 
-            if (Input.IsActionPressed("ui_accept"))
+            if (_inputService.IsPressed(PlayerInputAction.Accept))
             {
                 // Holding the jump button for more air
                 _jumpHoldTimer.Start();
@@ -375,6 +384,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             {
                 return;
             }
+            ResetPoseAnimation();
             _poseAnimator.Play(animationName, animationSpeed);
         }
 

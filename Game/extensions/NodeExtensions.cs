@@ -10,7 +10,7 @@ namespace ThousandYearsHome.Extensions
             this Node node,
             Object source,
             string signalName,
-            int index,
+            int argIndex,
             T argToWaitFor,
             int signalsToCheck = 3)
         {
@@ -18,9 +18,9 @@ namespace ThousandYearsHome.Extensions
             while (signalsChecked < signalsToCheck)
             {
                 object[] args = await node.ToSignal(source, signalName);
-                if (args.Length - 1 >= index)
+                if (args.Length - 1 >= argIndex)
                 {
-                    object objArg = args[index];
+                    object objArg = args[argIndex];
                     if (objArg is T arg && arg.Equals(argToWaitFor))
                     {
                         return;
