@@ -96,7 +96,7 @@ namespace ThousandYearsHome.Entities
                 var particlesNode = GetNode<Particles2D>("ExplosionParticles");
                 var touchedTimer = GetNode<Timer>("TouchedTimer");
                 touchedTimer.WaitTime = particlesNode.Lifetime;
-                particlesNode.Emitting = true;
+                particlesNode.Emitting = true;                
                 touchedTimer.Start(); // Begin a countdown that lasts as long as the explosion particles.
             }
 

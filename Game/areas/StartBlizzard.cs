@@ -365,6 +365,10 @@ namespace ThousandYearsHome.Areas
                 _playerCamera.Current = true;
                 _keeperCutsceneTriggerArea.QueueFree();
                 _player.InputLocked = false;
+
+                _snowParticles.Amount = 1600;
+                (_snowParticles.ProcessMaterial as ParticlesMaterial).InitialVelocity = 680f;
+                _snowParticles.Emitting = true;
             }
         }
     }

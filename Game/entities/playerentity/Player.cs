@@ -113,16 +113,19 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         [Export]
         public bool InputLocked
         {
-            get => _inputService.InputLocked;
+            get => _inputService?.InputLocked ?? false;
             set
             {
-                _inputService.InputLocked = value;
-                if (_inputService.InputLocked)
+                if (_inputService != null)
                 {
-                    _inputService.ClearInputs();
-                    // Zero out any lingering inputs.
-                    HorizontalUnit = 0;
-                    VerticalUnit = 0;
+                    _inputService.InputLocked = value;
+                    if (_inputService.InputLocked)
+                    {
+                        _inputService.ClearInputs();
+                        // Zero out any lingering inputs.
+                        HorizontalUnit = 0;
+                        VerticalUnit = 0;
+                    }
                 }
             }
         }

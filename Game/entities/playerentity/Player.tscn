@@ -262,6 +262,7 @@ extents = Vector2( 12, 23 )
 collision_layer = 3
 collision/safe_margin = 0.1
 script = ExtResource( 1 )
+InputLocked = false
 
 [node name="Sprite" type="Sprite" parent="."]
 texture = ExtResource( 2 )
@@ -290,6 +291,7 @@ position = Vector2( 4, 3 )
 shape = SubResource( 9 )
 
 [node name="PlayerInputService" type="Node2D" parent="."]
+process_priority = -1
 script = ExtResource( 10 )
 
 [node name="PlayerStateMachine" parent="." instance=ExtResource( 4 )]

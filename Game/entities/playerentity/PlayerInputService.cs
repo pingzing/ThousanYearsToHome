@@ -8,6 +8,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
     /// and simulated input. Allows disabling of user input, while
     /// still honoring simulated input.
     /// </summary>
+    [Tool]
     public class PlayerInputService : Node
     {
         private readonly Dictionary<string, PlayerInputAction> _inputMapToPlayerInput = new Dictionary<string, PlayerInputAction>
