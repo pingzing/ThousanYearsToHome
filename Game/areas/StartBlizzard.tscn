@@ -176,7 +176,7 @@ __meta__ = {
 }
 
 [node name="StartPosition" type="Position2D" parent="."]
-position = Vector2( 5683, 508 )
+position = Vector2( -26, 136 )
 
 [node name="JumpTutorialSign" type="Sprite" parent="."]
 position = Vector2( 512, 89 )
@@ -215,12 +215,13 @@ position = Vector2( 3065, -741 )
 position = Vector2( 3225, -614 )
 
 [node name="FallTeleportTop" type="Position2D" parent="."]
-position = Vector2( 3054, 240 )
+position = Vector2( 3054, 192 )
 
 [node name="FallTeleportBottomArea" type="Area2D" parent="."]
+position = Vector2( 0, -10 )
 
 [node name="FallTeleportBottomShape" type="CollisionShape2D" parent="FallTeleportBottomArea"]
-position = Vector2( 3144, 448 )
+position = Vector2( 3144, 426 )
 shape = SubResource( 4 )
 
 [node name="CollapseLandingTriggerArea" type="Area2D" parent="."]
@@ -231,7 +232,7 @@ position = Vector2( -3, 16 )
 shape = SubResource( 5 )
 
 [node name="KeeperCutsceneTriggerArea" type="Area2D" parent="."]
-position = Vector2( 6026, 505 )
+position = Vector2( 5976, 505 )
 
 [node name="KeeperCutsceneTriggerShape" type="CollisionShape2D" parent="KeeperCutsceneTriggerArea"]
 position = Vector2( 8, -43 )
@@ -273,33 +274,39 @@ editor_draw_drag_margin = true
 [node name="PowerBallSet" parent="." instance=ExtResource( 9 )]
 position = Vector2( 6886, 523 )
 
+[node name="TriggerArea" parent="PowerBallSet" index="0"]
+position = Vector2( -239, 0 )
+
 [node name="TriggerShape" parent="PowerBallSet/TriggerArea" index="0"]
 position = Vector2( 0, -81 )
 shape = SubResource( 7 )
 
 [node name="PowerBall" parent="PowerBallSet/Bullets" index="0" instance=ExtResource( 10 )]
 position = Vector2( 111, -62 )
-StartPosition = Vector2( 111, -62 )
 DirectionAngle = 135.0
+StartPosition = Vector2( 111, -62 )
 Speed = 10.0
 
 [node name="PowerBall2" parent="PowerBallSet/Bullets" index="1" instance=ExtResource( 10 )]
 position = Vector2( 188, -135 )
-StartPosition = Vector2( 188, -135 )
 DirectionAngle = 135.0
+StartPosition = Vector2( 188, -135 )
 Speed = 10.0
 
 [node name="PowerBall3" parent="PowerBallSet/Bullets" index="2" instance=ExtResource( 10 )]
 position = Vector2( 272, -216 )
-StartPosition = Vector2( 272, -216 )
 DirectionAngle = 135.0
+StartPosition = Vector2( 272, -216 )
 Speed = 10.0
 
 [node name="PowerBallSet2" parent="." instance=ExtResource( 9 )]
 position = Vector2( 7303, 248 )
 
+[node name="TriggerArea" parent="PowerBallSet2" index="0"]
+position = Vector2( -60, 14 )
+
 [node name="TriggerShape" parent="PowerBallSet2/TriggerArea" index="0"]
-position = Vector2( 0, -81 )
+position = Vector2( 0, -80 )
 shape = SubResource( 7 )
 
 [node name="PowerBall" parent="PowerBallSet2/Bullets" index="0" instance=ExtResource( 10 )]
@@ -308,13 +315,13 @@ StartPosition = Vector2( 143, -80 )
 Speed = 30.0
 
 [node name="PowerBall2" parent="PowerBallSet2/Bullets" index="1" instance=ExtResource( 10 )]
-position = Vector2( 292, -26 )
-StartPosition = Vector2( 292, -26 )
+position = Vector2( 292, -30 )
+StartPosition = Vector2( 292, -30 )
 Speed = 30.0
 
 [node name="PowerBall3" parent="PowerBallSet2/Bullets" index="2" instance=ExtResource( 10 )]
-position = Vector2( 473, -13 )
-StartPosition = Vector2( 473, -13 )
+position = Vector2( 473, -17 )
+StartPosition = Vector2( 473, -17 )
 Speed = 30.0
 
 [node name="CaveSnowPile" type="Sprite" parent="."]

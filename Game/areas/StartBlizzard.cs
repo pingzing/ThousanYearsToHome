@@ -165,16 +165,23 @@ namespace ThousandYearsHome.Areas
 
                 _player.InputLocked = true;
 
-                // TODO: Play faceplant animation
-                await _dialogueBox.Open();
-                _dialogueBox.QueueText("* ...ow.", .1f);
-                _dialogueBox.QueueBreak();
-                // TODO: Return to standing animation
-                _dialogueBox.QueueText(" Silver lining--no one was around to see that.", 0.05f);
-                _dialogueBox.QueueBreak();
-                _dialogueBox.QueueText(" Must be getting tired if that gave me trouble, though. Better wrap this up...", 0.05f);
-                await _dialogueBox.Run();
-                await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
+                using (_player.DisableStateMachine())
+                {
+                    _player.ResetPoseAnimation();
+                    _player.AnimatePose("Crouch"); // TODO: Replace with faceplant animation.                    
+                    await _dialogueBox.Open();
+                    _dialogueBox.QueueText("You become intimiately acquainted with the densely-packed snow of this gulch's floor.", .02f)
+                        .QueueBreak()
+                        .QueueClear()
+                        .QueueText("Ow. ", .02f)
+                        .QueueBreak();
+                    await _dialogueBox.Run();
+                    _player.ResetPoseAnimation();
+                    _player.AnimatePose("Idle");
+                    _dialogueBox.QueueText("\n* Come on, ", 0.02f).QueueSilence(0.1f).QueueText("just a little further...", 0.02f);
+                    await _dialogueBox.Run();
+                    await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
+                }
 
                 _player.InputLocked = false;
             }
@@ -190,7 +197,10 @@ namespace ThousandYearsHome.Areas
 
                 _player.InputLocked = true;
                 await _dialogueBox.Open();
-                _dialogueBox.QueueText("* I'll talk about that weird thing in the distance here.", 0.01f);
+                _dialogueBox.QueueText("In the distance, something clearly artificial gleams amongst the drifts. It's difficult to make out through the snowfall.", 0.01f)
+                    .QueueBreak()
+                    .QueueClear()
+                    .QueueText("* Could that be it?", 0.02f);
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
@@ -230,7 +240,9 @@ namespace ThousandYearsHome.Areas
                 _snowParticles.Emitting = false; // no snow inside caves!
                 await _dialogueBox.Open();
                 _playerCamera.DragMarginVEnabled = false; // force camera to stay vertically snapped to player to sell the illusion of the infinte fall
-                _dialogueBox.QueueText("* Oh even more no! Falling dialogue here!", 0.01f);
+                _dialogueBox.QueueText("You have exactly enough time to regret the choices that led you here, and to mourn your imminent death.", 0.01f)
+                    .QueueBreak()
+                    .QueueText("\nBizarrely, you mostly just find yourself hoping you don't die in a stupid-looking posiiton.", 0.01f);
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
@@ -262,25 +274,38 @@ namespace ThousandYearsHome.Areas
                     _player.AnimatePose("Crouch");
 
                     await Task.Delay(1000);
+
                     await _dialogueBox.Open();
-                    _dialogueBox.QueueText("* Ow.\n").QueueSilence(2.0f);
+                    string firstLine = _firstFallTriggered
+                        ? "You find yourself contemplating the floor of an icy pit for the second time today. You hope it isn't going to become a habit."
+                        : "You find yourself contemplating an icy floor at the bottom of a deep pit.";
+                    _dialogueBox.QueueText(firstLine, 0.01f)
+                            .QueueBreak()
+                            .QueueClear();
+                    await _dialogueBox.Run();
+
+                    _dialogueBox.QueueText("* Ow.", 0.03f)
+                        .QueueBreak()
+                        .QueueClear()
+                        .QueueText("Miraculously, you seem to have escaped without major injury. Though there's fast-melting snow in places you'd rather not contemplate.", 0.01f)
+                        .QueueBreak()
+                        .QueueClear();
                     await _dialogueBox.Run();
                 }
 
                 _player.AnimatePose("Idle"); // TODO: Replace this with crouch once the above is replaced by faceplant.
 
-                string secondLine = _firstFallTriggered ? "* Okay, this time it might have been nice to have someone see me. That [i]hurt[/i]." : "* Oh, great, now I've got snow in my saddlebags. Augh, that [i]hurt[/i].";
-                _dialogueBox.QueueText(secondLine, 0.04f)
-                        .QueueBreak();
-                await _dialogueBox.Run();
-
                 // TODO: Animate pose into "looking up"
-                _dialogueBox.QueueText("\n* Looks like I fell a pretty long way. I can barely even see the top from here...", 0.04f)
-                    .QueueBreak();
+                _dialogueBox.QueueText("You can barely see the light at the top of the hole. You're probably not getting back out the way you came in.", 0.01f)
+                    .QueueBreak()
+                    .QueueClear();
                 await _dialogueBox.Run();
 
                 // TODO: animate pose back to idle
-                _dialogueBox.QueueText("\n* No choice but to push forward, then. Hopefully there's a way out somewhere ahead.", 0.04f);
+                _dialogueBox.QueueText("* Just as my luck was turning, too...", 0.03f)
+                    .QueueBreak()
+                    .QueueText("\n* All right, come on soldier, buck up.", 0.03f)
+                    .QueueBreak();
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
@@ -299,8 +324,10 @@ namespace ThousandYearsHome.Areas
                 _player.InputLocked = true;
 
                 await _dialogueBox.Open();
-                _dialogueBox.QueueText("* A-ha, there's an exit up ahead!", 0.04f)
-                    .QueueBreak().QueueText(" ...hey, ", 0.04f).QueueSilence(0.1f).QueueText("what's that?", 0.04f);
+                _dialogueBox.QueueText("You can see light coming from an exit ahead. Except...", 0.01f)
+                    .QueueBreak()
+                    .QueueClear()
+                    .QueueText("* What in seasons' name is THAT?", 0.03f);
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
@@ -321,7 +348,7 @@ namespace ThousandYearsHome.Areas
                 {
                     _player.ResetPoseAnimation();
                     _player.AnimatePose("Walk");
-                    _tweener.InterpolateProperty(_player, "position", null, new Vector2(walkEnd.Position.x, _player.Position.y), 3.0f, Tween.TransitionType.Quad, Tween.EaseType.Out);
+                    _tweener.InterpolateProperty(_player, "position", null, new Vector2(walkEnd.Position.x, _player.Position.y), 4.0f, Tween.TransitionType.Quad, Tween.EaseType.Out);
                     _tweener.Start();
                     await this.ToSignalWithArg(_tweener, "tween_completed", 0, _player);
                     _player.AnimatePose("Idle");

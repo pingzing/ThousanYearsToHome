@@ -193,25 +193,6 @@ namespace ThousandYearsHome.Controls.Dialogue
         }
 
         /// <summary>
-        /// Enqueues a "begin taking input from player" instruction.
-        /// </summary>
-        public void QueueInput(string tag = "", bool pushFront = false)
-        {
-            var payload = new DialogueInputPayload
-            {
-                Tag = tag
-            };
-            if (pushFront)
-            {
-                _buffer.Insert(0, payload);
-            }
-            else
-            {
-                _buffer.Add(payload);
-            }
-        }
-
-        /// <summary>
         /// Enqueues a "clear all text" instruction.
         /// </summary>
         /// <param name="tag"></param>
@@ -420,6 +401,7 @@ namespace ThousandYearsHome.Controls.Dialogue
             }
 
             ClearText();
+            _buffer.RemoveAt(0);
         }
 
         public void CharacterTickTimeout()
@@ -428,7 +410,7 @@ namespace ThousandYearsHome.Controls.Dialogue
             if (_label.PercentVisible >= 1.0)
             {
                 // Once we've processed the payload in its entirety, remove it from the queue, and stop ticking.
-                _buffer.RemoveAt(0); // Danger: what if someone has called pushfront since we began processing this payload?
+                _buffer.RemoveAt(0); // TODO: Danger: what if someone has called pushfront since we began processing this payload?
                 _characterTickTimer.Stop();
                 _printingText = false;
             }
@@ -436,7 +418,7 @@ namespace ThousandYearsHome.Controls.Dialogue
 
         public void SilenceTimerTimeout()
         {
-            _buffer.RemoveAt(0); // Danger: what if someone has called pushfront since we began processing this payload?
+            _buffer.RemoveAt(0); // TODO: Danger: what if someone has called pushfront since we began processing this payload?
         }
 
         private bool AddToLabel(string text, float speed)
