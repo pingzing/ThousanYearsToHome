@@ -42,6 +42,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public bool IsOnSlope { get; private set; } = false;
         public bool IsTouchingWall { get; private set; } = false;
         public bool IsWallJumpLocked => !_wallJumpLockoutTimer.IsStopped();
+        public float IdleTime { get; private set; }
         public RayCast2D LeftRaycast => _leftRaycast;
         public RayCast2D RightRaycast => _rightRaycast;
 
@@ -172,6 +173,16 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             {
                 var newState = _stateMachine.Run();
             }
+
+            if (Grounded && _stateMachine.CurrentState.StateKind == PlayerStateKind.Idle)
+            {
+                IdleTime += delta;
+            }
+            else
+            {
+                IdleTime = 0;
+            }
+
             EmitSignal(nameof(DebugUpdateState), _stateMachine.CurrentState.StateKind, VelX, VelY, Position);
         }
 

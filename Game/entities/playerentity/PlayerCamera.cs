@@ -17,7 +17,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         // Amount visible in front of player
         private float _horizontalVisible = .6f;
-        [Export(PropertyHint.Range, "0.0, 1.0, 0.01")] 
+        [Export(PropertyHint.Range, "0.0, 1.0, 0.01")]
         public float HorizontalVisible
         {
             get => _horizontalVisible;
@@ -67,7 +67,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         /* TODOS:
          * Tween between current/desired x positions
          * Only does so if:
-         *      - Stationary for at least 1 second
+         *      - Stationary for at least 1 second OR
          *      - Currently moving in the direction of the target offset
          * X tween speed increases if player begins moving in direction of tween
          * Tweens between current/desired y position
@@ -90,18 +90,32 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             Vector2 screenSize = viewportRect.Size;
             Vector2 playerPos = _player.Position;
             var transform = viewport.CanvasTransform;
-            _targetXOffset = _player.FlipH ? _leftFacingXOffset : _rightFacingXOffset;
+            _targetXOffset = _player.FlipH ? _leftFacingXOffset : _rightFacingXOffset; // TODO: This should only change if the player crosses the drag margins
             if (_currentXOffset != _targetXOffset)
             {
-                if (_currentXOffset > _targetXOffset)
+                // The camera's current X location is not where we want it to be
+                float xPerTick = _xPerTick;
+
+                // Slowly move over if the player's been stationary.
+                if (_player.IdleTime > 1.0f || _player.HorizontalUnit != 0)
                 {
-                    _currentXOffset -= _xPerTick * delta;
+                    // If the player is in motion, speed up
+                    if (_player.HorizontalUnit != 0)
+                    {
+                        xPerTick *= 1.5f;
+                    }
+                    if (_currentXOffset > _targetXOffset)
+                    {
+                        _currentXOffset -= xPerTick * delta;
+                    }
+                    if (_currentXOffset < _targetXOffset)
+                    {
+                        _currentXOffset += xPerTick * delta;
+                    }
                 }
-                if (_currentXOffset < _targetXOffset)
-                {
-                    _currentXOffset += _xPerTick * delta;
-                }
-            }            
+
+
+            }
 
             // TODO: Don't scroll Y if we're in the air unless we a) hit about the 70% mark (i.e. below), b) hit about the 20% mark (i.e. above) or c) land on something above/below us.
             var newPosition = -playerPos + new Vector2(screenSize.x * _currentXOffset, screenSize.y * _verticalVisible);
