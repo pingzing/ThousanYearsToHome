@@ -41,6 +41,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
         }
 
+        private float _xPerTick = .20f;
         private float _targetXOffset;
         private float _currentXOffset;
 
@@ -63,6 +64,19 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _player = GetParent<Player>();
         }
 
+        /* TODOS:
+         * Tween between current/desired x positions
+         * Only does so if:
+         *      - Stationary for at least 1 second
+         *      - Currently moving in the direction of the target offset
+         * X tween speed increases if player begins moving in direction of tween
+         * Tweens between current/desired y position
+         * Only does so if:
+         *      - On the ground, and the difference is at least (???)
+         *      - In the air, and the difference is at least (???)
+         * Hard limits (i.e. level boundaries)         
+         */
+
         public override void _PhysicsProcess(float delta)
         {
             if (Engine.EditorHint)
@@ -77,7 +91,17 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             Vector2 playerPos = _player.Position;
             var transform = viewport.CanvasTransform;
             _targetXOffset = _player.FlipH ? _leftFacingXOffset : _rightFacingXOffset;
-            _currentXOffset = _targetXOffset; // TODO: If these two aren't eequal, tween between them. With lots and lots of logic.
+            if (_currentXOffset != _targetXOffset)
+            {
+                if (_currentXOffset > _targetXOffset)
+                {
+                    _currentXOffset -= _xPerTick * delta;
+                }
+                if (_currentXOffset < _targetXOffset)
+                {
+                    _currentXOffset += _xPerTick * delta;
+                }
+            }            
 
             // TODO: Don't scroll Y if we're in the air unless we a) hit about the 70% mark (i.e. below), b) hit about the 20% mark (i.e. above) or c) land on something above/below us.
             var newPosition = -playerPos + new Vector2(screenSize.x * _currentXOffset, screenSize.y * _verticalVisible);
