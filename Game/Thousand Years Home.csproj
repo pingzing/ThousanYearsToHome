@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Godot.NET.Sdk/3.3.0">
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <RootNamespace>ThousandYearsHome</RootNamespace>
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>

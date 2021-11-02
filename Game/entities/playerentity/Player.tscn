@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=21 format=2]
 
 [ext_resource path="res://Entities/PlayerEntity/Player.cs" type="Script" id=1]
 [ext_resource path="res://art/PonyWalk2.png" type="Texture" id=2]
@@ -10,6 +10,7 @@
 [ext_resource path="res://Entities/PlayerEntity/StateCrouch.cs" type="Script" id=8]
 [ext_resource path="res://entities/playerentity/StateWallJumping.cs" type="Script" id=9]
 [ext_resource path="res://entities/playerentity/PlayerInputService.cs" type="Script" id=10]
+[ext_resource path="res://entities/playerentity/PlayerCamera.tscn" type="PackedScene" id=11]
 
 [sub_resource type="Animation" id=1]
 resource_name = "Crouch"
@@ -262,7 +263,6 @@ extents = Vector2( 12, 23 )
 collision_layer = 3
 collision/safe_margin = 0.1
 script = ExtResource( 1 )
-InputLocked = false
 
 [node name="Sprite" type="Sprite" parent="."]
 texture = ExtResource( 2 )
@@ -349,5 +349,7 @@ one_shot = true
 process_mode = 0
 wait_time = 0.24
 one_shot = true
+
+[node name="PlayerCamera" parent="." instance=ExtResource( 11 )]
 
 [connection signal="timeout" from="OneWayPlatformTimer" to="." method="OnOneWayPlatformTimerTimeout"]

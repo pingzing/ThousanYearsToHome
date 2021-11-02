@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://entities/playerentity/Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Controls/HUD.tscn" type="PackedScene" id=2]
@@ -11,8 +11,6 @@
 [ext_resource path="res://fonts/Equipment-32pt.tres" type="DynamicFont" id=9]
 
 [sub_resource type="RectangleShape2D" id=1]
-
-[sub_resource type="RectangleShape2D" id=2]
 extents = Vector2( 10, 189 )
 
 [node name="MovementTest" type="Node2D"]
@@ -73,24 +71,6 @@ tile_data = PoolIntArray( 65702, 12, 0, 65703, 14, 0, 65704, 13, 0, 131240, 12, 
 [node name="Player" parent="." instance=ExtResource( 1 )]
 position = Vector2( 63, 151 )
 
-[node name="CameraTarget" type="Node2D" parent="Player"]
-position = Vector2( 27, 0.998001 )
-
-[node name="Camera2D" type="Camera2D" parent="Player/CameraTarget"]
-current = true
-limit_left = 2
-limit_top = -400
-limit_right = 4000
-limit_bottom = 217
-drag_margin_h_enabled = true
-drag_margin_v_enabled = true
-drag_margin_left = 0.1
-drag_margin_top = 0.8
-drag_margin_right = 0.0
-drag_margin_bottom = 0.5
-editor_draw_limits = true
-editor_draw_drag_margin = true
-
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="HUD" parent="CanvasLayer" instance=ExtResource( 2 )]
@@ -101,41 +81,47 @@ margin_bottom = -1.0
 
 [node name="PowerBallSet1" parent="." instance=ExtResource( 6 )]
 position = Vector2( 141, 167 )
-TriggerShape = SubResource( 1 )
 
 [node name="PowerBall" parent="PowerBallSet1/Bullets" index="0" instance=ExtResource( 7 )]
 position = Vector2( 82, -35 )
 Speed = 149.387
+StartPosition = Vector2( 82, -35 )
 
 [node name="PowerBall2" parent="PowerBallSet1/Bullets" index="1" instance=ExtResource( 7 )]
 position = Vector2( 140, -88 )
+StartPosition = Vector2( 140, -88 )
 
 [node name="PowerBall3" parent="PowerBallSet1/Bullets" index="2" instance=ExtResource( 7 )]
 position = Vector2( 114, -62 )
+StartPosition = Vector2( 114, -62 )
 
 [node name="PowerBallSet2" parent="." instance=ExtResource( 6 )]
 position = Vector2( 312, 127 )
 
 [node name="PowerBall" parent="PowerBallSet2/Bullets" index="0" instance=ExtResource( 7 )]
 position = Vector2( 145, -29 )
+StartPosition = Vector2( 145, -29 )
 
 [node name="PowerBall2" parent="PowerBallSet2/Bullets" index="1" instance=ExtResource( 7 )]
 position = Vector2( 171, -66 )
+StartPosition = Vector2( 171, -66 )
 
 [node name="PowerBallSet3" parent="." instance=ExtResource( 6 )]
 position = Vector2( 431, 103 )
 
 [node name="PowerBall" parent="PowerBallSet3/Bullets" index="0" instance=ExtResource( 7 )]
 position = Vector2( 139, -25 )
+StartPosition = Vector2( 139, -25 )
 
 [node name="PowerBall2" parent="PowerBallSet3/Bullets" index="1" instance=ExtResource( 7 )]
 position = Vector2( 196, -61 )
+StartPosition = Vector2( 196, -61 )
 
 [node name="BallKillArea" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="BallKillArea"]
 position = Vector2( -19, 88 )
-shape = SubResource( 2 )
+shape = SubResource( 1 )
 
 [node name="10TileLabel" type="Label" parent="."]
 margin_left = 2410.0
