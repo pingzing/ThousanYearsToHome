@@ -7,8 +7,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
     /// Centralized point of contact for both user-driven input,
     /// and simulated input. Allows disabling of user input, while
     /// still honoring simulated input.
-    /// </summary>
-    [Tool]
+    /// </summary>    
     public class PlayerInputService : Node
     {
         private readonly Dictionary<string, PlayerInputAction> _inputMapToPlayerInput = new Dictionary<string, PlayerInputAction>

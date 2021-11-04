@@ -137,14 +137,12 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             Enter(player);
             player.HorizontalUnit = 1;
             TickJumpState(player);
-            GD.Print($"PlayerPosY: {player.Position.y}");
 
             List<Vector2> forwardJumpFrames = new List<Vector2>();
             while (player.VelY < 0)
             {
                 forwardJumpFrames.Add(player.Position);
                 TickJumpState(player);
-                GD.Print($"PlayerPosY: {player.Position.y}");
             }
 
             // Back to idle and where we started

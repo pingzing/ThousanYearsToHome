@@ -136,11 +136,15 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
         {
+            if (!Engine.EditorHint)
+            {
+                _inputService = GetNode<PlayerInputService>("PlayerInputService");
+            }
+
             _poseAnimator = GetNode<AnimationPlayer>("Sprite/PoseAnimator");
             _colorAnimator = GetNode<AnimationPlayer>("Sprite/ColorAnimator");
             _sprite = GetNode<Sprite>("Sprite");
             _stateMachine = GetNode<PlayerStateMachine>("PlayerStateMachine");
-            _inputService = GetNode<PlayerInputService>("PlayerInputService");
             _bodyCollisionBox = GetNode<CollisionShape2D>("BodyCollisionBox");
             _hornBoxCollisionShape = GetNode<CollisionShape2D>("Sprite/HornBox/HornBoxCollisionShape");
             _jumpTimer = GetNode<Timer>("JumpTimer");
