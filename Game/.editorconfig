@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# HAA0601: Value type to reference type conversion causing boxing allocation
+dotnet_diagnostic.HAA0601.severity = suggestion

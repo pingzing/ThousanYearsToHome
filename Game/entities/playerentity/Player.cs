@@ -132,6 +132,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         }
 
         [Signal] public delegate void DebugUpdateState(PlayerStateKind newState, float xVel, float yVel, Vector2 position);
+        [Signal] public delegate void StateChanged(PlayerStateKind oldState, PlayerStateKind newState);
 
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
@@ -175,7 +176,12 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
             if (_stateProcessingDisableToken == null)
             {
+                var oldState = _stateMachine.CurrentState.StateKind;
                 var newState = _stateMachine.Run();
+                if (oldState != newState)
+                {
+                    EmitSignal(nameof(StateChanged), oldState, newState);
+                }
             }
 
             if (Grounded && _stateMachine.CurrentState.StateKind == PlayerStateKind.Idle)

@@ -12,6 +12,7 @@ namespace ThousandYearsHome.Areas
     {
         private Node _sceneRoot = null!;
         private Player _player = null!;
+        private PlayerCamera _playerCamera = null!;
         private AnimationPlayer _animator = null!;
         private AnimationPlayer _fadeAnimator = null!;
         private Tween _tweener = null!;
@@ -19,7 +20,6 @@ namespace ThousandYearsHome.Areas
         private ColorRect _fader = null!;
         private DialogueBox _dialogueBox = null!;
         private HUD _hud = null!;
-        private Camera2D _playerCamera = null!;
         private Camera2D _cinematicCamera = null!;
         private TileMap _midgroundTiles = null!;
 
@@ -48,7 +48,7 @@ namespace ThousandYearsHome.Areas
             _fadeAnimator = GetNode<AnimationPlayer>("UICanvas/FadePlayer");
             _tweener = GetNode<Tween>("Tweener");
             _hud = GetNode<HUD>("UICanvas/HUD");
-            _playerCamera = GetNode<Camera2D>("Player/CameraTarget/Camera2D");
+            _playerCamera = GetNode<PlayerCamera>("Player/PlayerCamera");
             _cinematicCamera = GetNode<Camera2D>("CinematicCamera");
             _midgroundTiles = GetNode<TileMap>("MidgroundTiles");
 
@@ -237,7 +237,10 @@ namespace ThousandYearsHome.Areas
                 // falling dialogue
                 _snowParticles.Emitting = false; // no snow inside caves!
                 await _dialogueBox.Open();
-                _playerCamera.DragMarginVEnabled = false; // force camera to stay vertically snapped to player to sell the illusion of the infinte fall
+
+                var prevRect = _playerCamera.TargetRect;
+
+                _playerCamera.TargetRect = new Rect2(prevRect.Position, prevRect.Size.x, 0f);
                 _dialogueBox.QueueText("You have exactly enough time to regret the choices that led you here, and to mourn your imminent death.", 0.01f)
                     .QueueBreak()
                     .QueueText("\nBizarrely, you mostly just find yourself hoping you don't die in a stupid-looking posiiton.", 0.01f);
@@ -263,7 +266,7 @@ namespace ThousandYearsHome.Areas
             if (body is Player && !_collapseLanded)
             {
                 _collapseLanded = true;
-                _playerCamera.DragMarginVEnabled = true; // Stop force-centering the player in the camera vertically
+                _playerCamera.TargetRect = new Rect2(64, 16, 80, 160); // Stop force-centering the player in the camera vertically
 
                 _player.InputLocked = true;
 
@@ -329,10 +332,10 @@ namespace ThousandYearsHome.Areas
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
-                _cinematicCamera.LimitBottom = _playerCamera.LimitBottom;
-                _cinematicCamera.LimitTop = _playerCamera.LimitTop;
-                _cinematicCamera.LimitRight = _playerCamera.LimitRight;
-                _cinematicCamera.LimitLeft = _playerCamera.LimitLeft;
+                _cinematicCamera.LimitBottom = _playerCamera.BottomLimit;
+                _cinematicCamera.LimitTop = _playerCamera.TopLimit;
+                _cinematicCamera.LimitRight = _playerCamera.RightLimit;
+                _cinematicCamera.LimitLeft = _playerCamera.LeftLimit;
                 _cinematicCamera.Position = _player.Position + _playerCamera.Position;
 
                 _cinematicCamera.SmoothingEnabled = true;

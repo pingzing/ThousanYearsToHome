@@ -129,52 +129,54 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 return;
             }
 
-            var player = GetParent().GetParent<Player>();
-            var collisionBox = player.GetNode<CollisionShape2D>("BodyCollisionBox");
-            Vector2 startPos = player.Position;
+            // TODO: This is super hacky, and doesn't work all that well anyway. Revisit this at some point.
 
-            // Simulate vertical + forward jump distance
-            Enter(player);
-            player.HorizontalUnit = 1;
-            TickJumpState(player);
+            //var player = GetParent().GetParent<Player>();
+            //var collisionBox = player.GetNode<CollisionShape2D>("BodyCollisionBox");
+            //Vector2 startPos = player.Position;
 
-            List<Vector2> forwardJumpFrames = new List<Vector2>();
-            while (player.VelY < 0)
-            {
-                forwardJumpFrames.Add(player.Position);
-                TickJumpState(player);
-            }
+            //// Simulate vertical + forward jump distance
+            //Enter(player);
+            //player.HorizontalUnit = 1;
+            //TickJumpState(player);
 
-            // Back to idle and where we started
-            Exit(player);
-            player.HorizontalUnit = 0;
-            player.VelY = 0f;
-            player.VelX = 0f;
-            player.Position = startPos;
+            //List<Vector2> forwardJumpFrames = new List<Vector2>();
+            //while (player.VelY < 0)
+            //{
+            //    forwardJumpFrames.Add(player.Position);
+            //    TickJumpState(player);
+            //}
 
-            float collisionBottomY = (collisionBox.Shape as RectangleShape2D)!.Extents.y + collisionBox.Position.y;
+            //// Back to idle and where we started
+            //Exit(player);
+            //player.HorizontalUnit = 0;
+            //player.VelY = 0f;
+            //player.VelX = 0f;
+            //player.Position = startPos;
 
-            // Translate arc from global pos to local pos
-            List<Vector2> adjustedJumpFrames = new List<Vector2>();
-            adjustedJumpFrames.Add(new Vector2(0, collisionBottomY));
-            for (int i = 0; i < forwardJumpFrames.Count; i++)
-            {
-                Vector2 diff;
-                if (i == 0)
-                {
-                    diff = forwardJumpFrames[i] - player.Position;
-                }
-                else
-                {
-                    diff = forwardJumpFrames[i] - forwardJumpFrames[i - 1];
-                }
-                adjustedJumpFrames.Add(adjustedJumpFrames[i] + diff);
-            }
+            //float collisionBottomY = (collisionBox.Shape as RectangleShape2D)!.Extents.y + collisionBox.Position.y;
 
-            // Line for vertical jumps                                    
-            DrawLine(new Vector2(0, adjustedJumpFrames.First().y), new Vector2(0, adjustedJumpFrames.Last().y), new Color(1, 0, 0), 1, true);
-            // Arc for forward jumps
-            DrawPolyline(adjustedJumpFrames.ToArray(), new Color(1, 0, 0), 1, true);
+            //// Translate arc from global pos to local pos
+            //List<Vector2> adjustedJumpFrames = new List<Vector2>();
+            //adjustedJumpFrames.Add(new Vector2(0, collisionBottomY));
+            //for (int i = 0; i < forwardJumpFrames.Count; i++)
+            //{
+            //    Vector2 diff;
+            //    if (i == 0)
+            //    {
+            //        diff = forwardJumpFrames[i] - player.Position;
+            //    }
+            //    else
+            //    {
+            //        diff = forwardJumpFrames[i] - forwardJumpFrames[i - 1];
+            //    }
+            //    adjustedJumpFrames.Add(adjustedJumpFrames[i] + diff);
+            //}
+
+            //// Line for vertical jumps                                    
+            //DrawLine(new Vector2(0, adjustedJumpFrames.First().y), new Vector2(0, adjustedJumpFrames.Last().y), new Color(1, 0, 0), 1, true);
+            //// Arc for forward jumps
+            //DrawPolyline(adjustedJumpFrames.ToArray(), new Color(1, 0, 0), 1, true);
         }
     }
 }
