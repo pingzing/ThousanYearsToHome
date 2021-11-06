@@ -4,5 +4,8 @@
 
 [node name="PlayerCamera" type="Node2D"]
 script = ExtResource( 1 )
-RightLimit = 0
 BottomLimit = 0
+RightLimit = 0
+
+[node name="PanningTimer" type="Timer" parent="."]
+one_shot = true

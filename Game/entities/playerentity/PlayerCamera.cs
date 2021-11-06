@@ -5,25 +5,28 @@ namespace ThousandYearsHome.Entities.PlayerEntity
     [Tool]
     public class PlayerCamera : Node2D
     {
+        // ------ Private variables ------
         // Native resolution, NOT actual physical window sizes.
         private const float ResolutionWidth = 480f;
         private const float ResolutionHeight = 270f;
-        private const string DebugCanvasGroupName = "_PlayerCameraDebugGroup";
 
         // These two group names are used to keep Camera2Ds and ParallaxBackgrounds in sync and SUPER UNDOCUMENTED
         private string _groupName = null!;
         private string _canvasGroupName = null!;
+
         private PlayerStateKind _currentPlayerState = PlayerStateKind.Idle;
         private Viewport _viewport = null!;
         private float _currentXOffset = 0;
         private float _currentYOffset = 0;
         private float _xPerSecond = 150f;
         private float _yPerSecond = 200f;
-        private Rect2 _currentRect = new Rect2(64, 32, 80, ResolutionHeight * .6f);
+        private Rect2 _currentRect = new Rect2(64, ResolutionHeight * .6f, 80, 16);
 
-        // Nodes
+        // ------ Nodes ------
         private Player _player = null!;
+        private Timer _panningTimer = null!;
 
+        // ------ Exports ------
         private int _leftLimit = 0;
         [Export] public int LeftLimit { get => _leftLimit; set { _leftLimit = value; Update(); } }
 
@@ -38,13 +41,16 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public int BottomLimit { get => _bottomLimit; set { _bottomLimit = value; Update(); } }
 
         [Export(PropertyHint.Range, "0, 480, 1")]
-        public Rect2 TargetRect = new Rect2(64, 16, 80, ResolutionHeight * .6f);
+        public Rect2 DefaultIdleRect = new Rect2(64, ResolutionHeight * .6f, 80, 16);
 
-        private bool _current = true;
+        [Export(PropertyHint.Range, "0, 480, 1")]
+        public Rect2 TargetRect = new Rect2(64, ResolutionHeight * .6f, 80, 16);
+
+        private bool _isCameraCurrent = true;
         [Export]
         public bool Current
         {
-            get => _current;
+            get => _isCameraCurrent;
             set
             {
                 if (value)
@@ -56,20 +62,22 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                     }
                     else
                     {
-                        _current = true;
+                        _isCameraCurrent = true;
                     }
                     UpdateScroll();
                 }
-                _current = value;
+                _isCameraCurrent = value;
                 Update();
             }
         }
 
-        // Overrides
+        // ------ Overrides ------
 
         public override void _Ready()
         {
             _player = GetParent<Player>();
+            _panningTimer = GetNode<Timer>("PanningTimer");
+            _prevIdleFacingRight = !_player.FlipH;
         }
 
         public override void _Process(float delta)
@@ -126,18 +134,18 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             RemoveFromGroup(_canvasGroupName);
         }
 
-        // Internal state-keeping methods
+        // ------ Internal state-keeping methods ------
 
         // Signal handler, listens for signals that can be sent by either this, or any Camera2D
         public void _make_current(Object which)
         {
             if (which == this)
             {
-                _current = true;
+                _isCameraCurrent = true;
             }
             else
             {
-                _current = false;
+                _isCameraCurrent = false;
             }
         }
 
@@ -146,25 +154,73 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _currentPlayerState = newState;
         }
 
+        private enum CameraPanState
+        {
+            NotPanning,
+            LeftToRight,
+            RightToLeft
+        }
+
+        private bool _prevIdleFacingRight = false;
+        private CameraPanState _cameraPanning = CameraPanState.NotPanning;
         private void UpdateCameraRect(PlayerStateKind current)
         {
-            bool facingRight = !_player.FlipH;
+            bool playerFacingRight = !_player.FlipH;
             bool instantX = false;
             bool instantY = false;
             bool instantWidth = false;
             bool instantHeight = false;
+
             if (current == PlayerStateKind.Jumping || current == PlayerStateKind.InAir)
             {
                 TargetRect = new Rect2(TargetRect.Position.x, 32, TargetRect.Size.x, TargetRect.Size.y + TargetRect.Position.y - 32);
                 instantHeight = true;
                 instantY = true;
             }
-            if (current == PlayerStateKind.Idle || current == PlayerStateKind.Running)
+
+            if (current == PlayerStateKind.Idle)
             {
-                // TODO: uh, everything
-                float targetX = facingRight ? 64 : ResolutionWidth - 64 - 110;
-                TargetRect = new Rect2(targetX, 110, 80, 16);
+                if (_cameraPanning != CameraPanState.NotPanning && _panningTimer.IsStopped())
+                {
+                    float targetX = playerFacingRight ? DefaultIdleRect.Position.x : ResolutionWidth - DefaultIdleRect.Position.x - DefaultIdleRect.Size.x;
+                    TargetRect = new Rect2(targetX, DefaultIdleRect.Position.y, DefaultIdleRect.Size.x, DefaultIdleRect.Size.y);
+                }
+
+                // Player turned around
+                if (playerFacingRight != _prevIdleFacingRight)
+                {
+                    if (playerFacingRight)
+                    {
+                        _cameraPanning = CameraPanState.LeftToRight;
+                    }
+                    else
+                    {
+                        _cameraPanning = CameraPanState.RightToLeft;
+                    }
+
+                    _panningTimer.Start();
+
+                    TargetRect = new Rect2(
+                        DefaultIdleRect.Position,
+                        ResolutionWidth - DefaultIdleRect.Position.x - DefaultIdleRect.Position.x,
+                        DefaultIdleRect.Size.y
+                    );
+                }
+                // Player remained facing the same way
+                else
+                {
+                    TargetRect = new Rect2(_currentRect.Position.x, DefaultIdleRect.Position.y, _currentRect.Size.x, DefaultIdleRect.Size.y);
+                }
+
+                _prevIdleFacingRight = playerFacingRight;
             }
+
+            if (current == PlayerStateKind.Running)
+            {
+                float targetX = playerFacingRight ? DefaultIdleRect.Position.x : ResolutionWidth - DefaultIdleRect.Position.x - DefaultIdleRect.Size.x;
+                TargetRect = new Rect2(targetX, DefaultIdleRect.Position.y, DefaultIdleRect.Size.x, DefaultIdleRect.Size.y);
+            }
+
 
             // TODO: other states
 
@@ -174,6 +230,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             float newY = instantY ? TargetRect.Position.y : Mathf.MoveToward(_currentRect.Position.y, TargetRect.Position.y, _yPerSecond * delta);
             float newWidth = instantWidth ? TargetRect.Size.x : Mathf.MoveToward(_currentRect.Size.x, TargetRect.Size.x, _xPerSecond * delta);
             float newHeight = instantHeight ? TargetRect.Size.y : Mathf.MoveToward(_currentRect.Size.y, TargetRect.Size.y, _yPerSecond * delta);
+
             _currentRect = new Rect2(newX, newY, newWidth, newHeight);
         }
 
@@ -207,8 +264,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             Transform2D transform = _viewport.CanvasTransform;
             Vector2 relativePlayerPos = _player.GetGlobalTransformWithCanvas().origin;
 
-            float delta = GetPhysicsProcessDeltaTime();
-
             if (relativePlayerPos.x > _currentRect.End.x)
             {
                 _currentXOffset -= (relativePlayerPos.x - _currentRect.End.x);
@@ -232,7 +287,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             return new Transform2D(transform.x, transform.y, new Vector2(_currentXOffset, _currentYOffset));
         }
 
-        // Debug drawing methods
+        // ------ Debug drawing methods ------
         public override void _Draw()
         {
             if (Engine.EditorHint || GetTree().DebugCollisionsHint)
