@@ -72,9 +72,9 @@ tile_data = PoolIntArray( 65702, 12, 0, 65703, 14, 0, 65704, 13, 0, 131240, 12, 
 position = Vector2( 59, 152 )
 
 [node name="PlayerCamera" parent="Player" index="11"]
-RightLimit = 2000
-BottomLimit = 200
 TargetRect = Rect2( 64, 110, 80, 72 )
+BottomLimit = 200
+RightLimit = 2000
 
 [node name="PowerBallSet1" parent="." instance=ExtResource( 6 )]
 position = Vector2( 141, 167 )

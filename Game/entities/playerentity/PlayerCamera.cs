@@ -20,7 +20,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private float _currentYOffset = 0;
         private float _xPerSecond = 150f;
         private float _yPerSecond = 200f;
-        private Rect2 _currentRect = new Rect2(64, ResolutionHeight * .6f, 80, 16);
+        private Rect2 _currentRect = new Rect2(64, ResolutionHeight * .6f, 40, 16);
 
         // ------ Nodes ------
         private Player _player = null!;
@@ -40,11 +40,14 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         [Export]
         public int BottomLimit { get => _bottomLimit; set { _bottomLimit = value; Update(); } }
 
-        [Export(PropertyHint.Range, "0, 480, 1")]
-        public Rect2 DefaultIdleRect = new Rect2(64, ResolutionHeight * .6f, 80, 16);
+        [Export(PropertyHint.Range, "1.0, 2.0, .01")]
+        public float MovementAccelerationCoefficient = 1.1f;
 
         [Export(PropertyHint.Range, "0, 480, 1")]
-        public Rect2 TargetRect = new Rect2(64, ResolutionHeight * .6f, 80, 16);
+        public Rect2 DefaultIdleRect = new Rect2(64, ResolutionHeight * .6f, 40, 16);
+
+        [Export(PropertyHint.Range, "0, 480, 1")]
+        public Rect2 TargetRect = new Rect2(64, ResolutionHeight * .6f, 40, 16);
 
         private bool _isCameraCurrent = true;
         [Export]
@@ -154,15 +157,8 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _currentPlayerState = newState;
         }
 
-        private enum CameraPanState
-        {
-            NotPanning,
-            LeftToRight,
-            RightToLeft
-        }
-
+        private PlayerStateKind _prevState = PlayerStateKind.Idle;
         private bool _prevIdleFacingRight = false;
-        private CameraPanState _cameraPanning = CameraPanState.NotPanning;
         private void UpdateCameraRect(PlayerStateKind current)
         {
             bool playerFacingRight = !_player.FlipH;
@@ -170,9 +166,11 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             bool instantY = false;
             bool instantWidth = false;
             bool instantHeight = false;
+            Vector2 relativePlayerPos = _player.GetGlobalTransformWithCanvas().origin;
 
             if (current == PlayerStateKind.Jumping || current == PlayerStateKind.InAir)
             {
+                // 32 pixels from the top of the screen
                 TargetRect = new Rect2(TargetRect.Position.x, 32, TargetRect.Size.x, TargetRect.Size.y + TargetRect.Position.y - 32);
                 instantHeight = true;
                 instantY = true;
@@ -180,36 +178,36 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
             if (current == PlayerStateKind.Idle)
             {
-                if (_cameraPanning != CameraPanState.NotPanning && _panningTimer.IsStopped())
+                float targetY = DefaultIdleRect.Position.y;
+                float targetHeight = DefaultIdleRect.Size.y;
+                if (_prevState == PlayerStateKind.Jumping || _prevState == PlayerStateKind.InAir)
                 {
-                    float targetX = playerFacingRight ? DefaultIdleRect.Position.x : ResolutionWidth - DefaultIdleRect.Position.x - DefaultIdleRect.Size.x;
-                    TargetRect = new Rect2(targetX, DefaultIdleRect.Position.y, DefaultIdleRect.Size.x, DefaultIdleRect.Size.y);
+                    instantHeight = true;
+                    instantY = true;
+                    targetY = relativePlayerPos.y;
+                    targetHeight = TargetRect.End.y - targetY;
                 }
 
-                // Player turned around
-                if (playerFacingRight != _prevIdleFacingRight)
+                if (_prevIdleFacingRight != playerFacingRight
+                    || !_panningTimer.IsStopped())
                 {
-                    if (playerFacingRight)
-                    {
-                        _cameraPanning = CameraPanState.LeftToRight;
-                    }
-                    else
-                    {
-                        _cameraPanning = CameraPanState.RightToLeft;
-                    }
-
-                    _panningTimer.Start();
-
+                    // If the player has either just turned around, or turned around <timer> seconds ago, 
+                    // Make TargetRect really wide so that they have a big dead zone
                     TargetRect = new Rect2(
-                        DefaultIdleRect.Position,
+                        DefaultIdleRect.Position.x,
+                        targetY,
                         ResolutionWidth - DefaultIdleRect.Position.x - DefaultIdleRect.Position.x,
-                        DefaultIdleRect.Size.y
+                        targetHeight
                     );
+                    if (_panningTimer.IsStopped())
+                    {
+                        _panningTimer.Start();
+                    }
                 }
-                // Player remained facing the same way
                 else
                 {
-                    TargetRect = new Rect2(_currentRect.Position.x, DefaultIdleRect.Position.y, _currentRect.Size.x, DefaultIdleRect.Size.y);
+                    float targetX = playerFacingRight ? DefaultIdleRect.Position.x : ResolutionWidth - DefaultIdleRect.Position.x - DefaultIdleRect.Size.x;
+                    TargetRect = new Rect2(targetX, targetY, DefaultIdleRect.Size.x, targetHeight);
                 }
 
                 _prevIdleFacingRight = playerFacingRight;
@@ -217,20 +215,39 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
             if (current == PlayerStateKind.Running)
             {
-                float targetX = playerFacingRight ? DefaultIdleRect.Position.x : ResolutionWidth - DefaultIdleRect.Position.x - DefaultIdleRect.Size.x;
-                TargetRect = new Rect2(targetX, DefaultIdleRect.Position.y, DefaultIdleRect.Size.x, DefaultIdleRect.Size.y);
+                float targetY = DefaultIdleRect.Position.y;
+                float targetHeight = DefaultIdleRect.Size.y;
+                if (_prevState == PlayerStateKind.Jumping || _prevState == PlayerStateKind.InAir)
+                {
+                    instantHeight = true;
+                    instantY = true;
+                    targetY = relativePlayerPos.y;
+                    targetHeight = TargetRect.End.y - targetY;
+                }
+
+                if (_currentRect.HasPoint(relativePlayerPos)) // If they haven't excdeed the bounds of the box, don't do anything.
+                {
+                    TargetRect = _currentRect;
+                }
+                else
+                {
+                    float targetX = playerFacingRight ? DefaultIdleRect.Position.x : ResolutionWidth - DefaultIdleRect.Position.x - DefaultIdleRect.Size.x;
+                    TargetRect = new Rect2(targetX, targetY, DefaultIdleRect.Size.x, targetHeight);
+                }
             }
 
 
-            // TODO: other states
+            // TODO: Do something about the fact that if we're changing both size AND position, the currentRect moves twice as fast.
 
             // Gradually pan _currentRect toward TargetRect
             float delta = GetPhysicsProcessDeltaTime();
-            float newX = instantX ? TargetRect.Position.x : Mathf.MoveToward(_currentRect.Position.x, TargetRect.Position.x, _xPerSecond * delta);
+            float moveAccel = _player.HorizontalUnit != 0 ? MovementAccelerationCoefficient : 1.0f;
+            float newX = instantX ? TargetRect.Position.x : Mathf.MoveToward(_currentRect.Position.x, TargetRect.Position.x, (_xPerSecond * delta) * moveAccel);
             float newY = instantY ? TargetRect.Position.y : Mathf.MoveToward(_currentRect.Position.y, TargetRect.Position.y, _yPerSecond * delta);
-            float newWidth = instantWidth ? TargetRect.Size.x : Mathf.MoveToward(_currentRect.Size.x, TargetRect.Size.x, _xPerSecond * delta);
+            float newWidth = instantWidth ? TargetRect.Size.x : Mathf.MoveToward(_currentRect.Size.x, TargetRect.Size.x, (_xPerSecond * delta) * moveAccel);
             float newHeight = instantHeight ? TargetRect.Size.y : Mathf.MoveToward(_currentRect.Size.y, TargetRect.Size.y, _yPerSecond * delta);
 
+            _prevState = current;
             _currentRect = new Rect2(newX, newY, newWidth, newHeight);
         }
 

@@ -351,7 +351,6 @@ wait_time = 0.24
 one_shot = true
 
 [node name="PlayerCamera" parent="." instance=ExtResource( 11 )]
-TargetRect = Rect2( 64, 16, 80, 160 )
 
 [connection signal="StateChanged" from="." to="PlayerCamera" method="PlayerStateChanged"]
 [connection signal="timeout" from="OneWayPlatformTimer" to="." method="OnOneWayPlatformTimerTimeout"]
