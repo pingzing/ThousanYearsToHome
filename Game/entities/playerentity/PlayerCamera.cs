@@ -162,10 +162,10 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private void UpdateCameraRect(PlayerStateKind current)
         {
             bool playerFacingRight = !_player.FlipH;
-            bool instantX = false;
-            bool instantY = false;
-            bool instantWidth = false;
-            bool instantHeight = false;
+            bool instantX = false; // Make any update to the _currentRect's Position.x instant instead of interpolated.
+            bool instantY = false; // Ditto _currentRect.Position.y
+            bool instantWidth = false; // Ditto _currentRect.Size.Width
+            bool instantHeight = false; // Ditto _currentRect.Size.Height
             Vector2 relativePlayerPos = _player.GetGlobalTransformWithCanvas().origin;
 
             if (current == PlayerStateKind.Jumping || current == PlayerStateKind.InAir)
@@ -180,6 +180,9 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             {
                 float targetY = DefaultIdleRect.Position.y;
                 float targetHeight = DefaultIdleRect.Size.y;
+
+                // Snap the Top of the rectangle to just above the player head, so that it will begin panning up immediately
+                // now that they've landed.
                 if (_prevState == PlayerStateKind.Jumping || _prevState == PlayerStateKind.InAir)
                 {
                     instantHeight = true;
@@ -188,17 +191,11 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                     targetHeight = TargetRect.End.y - targetY;
                 }
 
+                // If the player has just turned around, and is staying idle, hold camera position for one second.
                 if (_prevIdleFacingRight != playerFacingRight
                     || !_panningTimer.IsStopped())
                 {
-                    // If the player has either just turned around, or turned around <timer> seconds ago, 
-                    // Make TargetRect really wide so that they have a big dead zone
-                    TargetRect = new Rect2(
-                        DefaultIdleRect.Position.x,
-                        targetY,
-                        ResolutionWidth - DefaultIdleRect.Position.x - DefaultIdleRect.Position.x,
-                        targetHeight
-                    );
+                    TargetRect = new Rect2(_currentRect.Position.x, targetY, _currentRect.Size.x, targetHeight);
                     if (_panningTimer.IsStopped())
                     {
                         _panningTimer.Start();
@@ -207,7 +204,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 else
                 {
                     float targetX = playerFacingRight ? DefaultIdleRect.Position.x : ResolutionWidth - DefaultIdleRect.Position.x - DefaultIdleRect.Size.x;
-                    TargetRect = new Rect2(targetX, targetY, DefaultIdleRect.Size.x, targetHeight);
+                    TargetRect = new Rect2(targetX, targetY, _currentRect.Size.x, targetHeight);
                 }
 
                 _prevIdleFacingRight = playerFacingRight;
@@ -236,15 +233,13 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 }
             }
 
-
-            // TODO: Do something about the fact that if we're changing both size AND position, the currentRect moves twice as fast.
-
             // Gradually pan _currentRect toward TargetRect
             float delta = GetPhysicsProcessDeltaTime();
             float moveAccel = _player.HorizontalUnit != 0 ? MovementAccelerationCoefficient : 1.0f;
+
             float newX = instantX ? TargetRect.Position.x : Mathf.MoveToward(_currentRect.Position.x, TargetRect.Position.x, (_xPerSecond * delta) * moveAccel);
-            float newY = instantY ? TargetRect.Position.y : Mathf.MoveToward(_currentRect.Position.y, TargetRect.Position.y, _yPerSecond * delta);
             float newWidth = instantWidth ? TargetRect.Size.x : Mathf.MoveToward(_currentRect.Size.x, TargetRect.Size.x, (_xPerSecond * delta) * moveAccel);
+            float newY = instantY ? TargetRect.Position.y : Mathf.MoveToward(_currentRect.Position.y, TargetRect.Position.y, _yPerSecond * delta);
             float newHeight = instantHeight ? TargetRect.Size.y : Mathf.MoveToward(_currentRect.Size.y, TargetRect.Size.y, _yPerSecond * delta);
 
             _prevState = current;
@@ -270,10 +265,17 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
 
             var newTransform = GetCameraTransform();
-            _viewport.CanvasTransform = newTransform;
+            if (newTransform != _viewport.CanvasTransform)
+            {
+                _viewport.CanvasTransform = newTransform;
+                // Method call that ParallaxBackgrounds will hear, and scroll in response to.
+                GetTree().CallGroupFlags((int)SceneTree.GroupCallFlags.Realtime, _groupName, "_camera_moved", newTransform, Vector2.Zero);
+            }
+        }
 
-            // Method call that ParallaxBackgrounds will hear, and scroll in response to.
-            GetTree().CallGroupFlags((int)SceneTree.GroupCallFlags.Realtime, _groupName, "_camera_moved", Transform, newTransform.origin);
+        public void _camera_moved(Transform2D cameraTransform, Vector2 screenOffset)
+        {
+            GD.Print($"Heard _camera_moved! Tranform: {cameraTransform}, offset: {screenOffset}");
         }
 
         private Transform2D GetCameraTransform()

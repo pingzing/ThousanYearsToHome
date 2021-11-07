@@ -131,7 +131,7 @@ script = ExtResource( 2 )
 [node name="ParallaxBackground" type="ParallaxBackground" parent="."]
 
 [node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground"]
-motion_scale = Vector2( 0.9, 0.97 )
+motion_scale = Vector2( 0.05, 0.01 )
 motion_mirroring = Vector2( 480, 0 )
 
 [node name="TextureRect" type="TextureRect" parent="ParallaxBackground/ParallaxLayer"]
@@ -250,11 +250,11 @@ offset = Vector2( -1, 0 )
 WallJumpVelY = -275.0
 
 [node name="PlayerCamera" parent="Player" index="11"]
-TargetRect = Rect2( 64, 16, 80, 160 )
-Current = false
-BottomLimit = 1180
 TopLimit = -1500
+BottomLimit = 1180
+Current = false
 RightLimit = 11000
+TargetRect = Rect2( 64, 16, 80, 160 )
 
 [node name="PowerBallSet" parent="." instance=ExtResource( 9 )]
 position = Vector2( 6886, 523 )
