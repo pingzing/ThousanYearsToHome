@@ -1,4 +1,6 @@
 using Godot;
+using System.Threading.Tasks;
+using ThousandYearsHome.Extensions;
 
 namespace ThousandYearsHome.Entities.PlayerEntity
 {
@@ -16,15 +18,19 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         private PlayerStateKind _currentPlayerState = PlayerStateKind.Idle;
         private Viewport _viewport = null!;
+        private float? _xAxisLock = null;
+        private float? _yAxisLock = null;
         private float _currentXOffset = 0;
         private float _currentYOffset = 0;
         private float _xPerSecond = 150f;
         private float _yPerSecond = 200f;
         private Rect2 _currentRect = new Rect2(64, ResolutionHeight * .6f, 40, 16);
+        private Rect2? _overrideRect = null;
 
         // ------ Nodes ------
         private Player _player = null!;
         private Timer _panningTimer = null!;
+        private Tween _tween = null!;
 
         // ------ Exports ------
         private int _leftLimit = 0;
@@ -80,6 +86,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         {
             _player = GetParent<Player>();
             _panningTimer = GetNode<Timer>("PanningTimer");
+            _tween = GetNode<Tween>("Tween");
             _prevIdleFacingRight = !_player.FlipH;
         }
 
@@ -137,6 +144,34 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             RemoveFromGroup(_canvasGroupName);
         }
 
+        // ------  Public-facing API ------ 
+
+        public Task LockXAxis(float xCoord)
+        {
+            _xAxisLock = -_viewport.CanvasTransform.origin.x;
+            _tween.InterpolateMethod(this, nameof(AnimateXLock), _xAxisLock, xCoord, 1.0f, Tween.TransitionType.Linear, Tween.EaseType.Out);
+            _tween.Start();
+            return this.ToSignalWithArg(_tween, "tween_completed", 0, this);
+        }
+
+        private void AnimateXLock(float intermediateX)
+        {
+            _xAxisLock = intermediateX;
+        }
+
+        public void UnlockXAxis()
+        {
+            _tween.Stop(this, nameof(AnimateXLock));
+            Vector2 relativePlayerPos = _player.GetGlobalTransformWithCanvas().origin;
+            _currentRect = new Rect2(relativePlayerPos.x, _currentRect.Position.y, _currentRect.Size);
+            _xAxisLock = null;
+        }
+
+        public void OverrideTargetRect(Rect2 overrideRect)
+        {
+            _overrideRect = overrideRect;
+        }
+
         // ------ Internal state-keeping methods ------
 
         // Signal handler, listens for signals that can be sent by either this, or any Camera2D
@@ -189,6 +224,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                     instantY = true;
                     targetY = relativePlayerPos.y;
                     targetHeight = TargetRect.End.y - targetY;
+                    targetHeight = Mathf.Max(DefaultIdleRect.Size.y, targetHeight);
                 }
 
                 // If the player has just turned around, and is staying idle, hold camera position for one second.
@@ -273,25 +309,27 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
         }
 
-        public void _camera_moved(Transform2D cameraTransform, Vector2 screenOffset)
-        {
-            GD.Print($"Heard _camera_moved! Tranform: {cameraTransform}, offset: {screenOffset}");
-        }
-
         private Transform2D GetCameraTransform()
         {
             Transform2D transform = _viewport.CanvasTransform;
             Vector2 relativePlayerPos = _player.GetGlobalTransformWithCanvas().origin;
 
-            if (relativePlayerPos.x > _currentRect.End.x)
+            if (_xAxisLock == null)
             {
-                _currentXOffset -= (relativePlayerPos.x - _currentRect.End.x);
+                if (relativePlayerPos.x > _currentRect.End.x)
+                {
+                    _currentXOffset -= (relativePlayerPos.x - _currentRect.End.x);
+                }
+                if (relativePlayerPos.x < _currentRect.Position.x)
+                {
+                    _currentXOffset += (_currentRect.Position.x - relativePlayerPos.x);
+                }
+                _currentXOffset = Mathf.Clamp(_currentXOffset, -RightLimit + ResolutionWidth, -LeftLimit);
             }
-            if (relativePlayerPos.x < _currentRect.Position.x)
+            else
             {
-                _currentXOffset += (_currentRect.Position.x - relativePlayerPos.x);
+                _currentXOffset = -_xAxisLock.Value;
             }
-            _currentXOffset = Mathf.Clamp(_currentXOffset, -RightLimit, -LeftLimit);
 
             if (relativePlayerPos.y > _currentRect.End.y)
             {
@@ -301,7 +339,12 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             {
                 _currentYOffset += (_currentRect.Position.y - relativePlayerPos.y);
             }
-            _currentYOffset = Mathf.Clamp(_currentYOffset, -BottomLimit, -TopLimit);
+            _currentYOffset = Mathf.Clamp(_currentYOffset, -BottomLimit + ResolutionHeight, -TopLimit);
+
+            _currentXOffset = Mathf.Round(_currentXOffset);
+            _currentYOffset = Mathf.Round(_currentYOffset);
+
+            GD.Print($"Update offset: {_currentXOffset}, {_currentYOffset}");
 
             return new Transform2D(transform.x, transform.y, new Vector2(_currentXOffset, _currentYOffset));
         }
