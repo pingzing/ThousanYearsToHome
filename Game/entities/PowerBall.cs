@@ -7,6 +7,9 @@ namespace ThousandYearsHome.Entities
     [Tool]
     public class PowerBall : Node2D
     {
+        public const string PowerBallGroup = "PowerBallGroup";
+        public const string BallDeactivatedMethod = "BallDeactivated";
+
         private float _speed = 150f;
         [Export(PropertyHint.Range, "0, 10000, 1")]
         public float Speed
@@ -47,9 +50,7 @@ namespace ThousandYearsHome.Entities
             }
         }
 
-        // TODO: Add an arg that describes if this was collected or hit a cleanup-zone
-        [Signal] public delegate void Hidden(PowerBall ball);
-
+        private VisibilityNotifier2D _visibilityNotifier = null!;
         private bool _active = false;
 
         public override void _Ready()
@@ -60,7 +61,18 @@ namespace ThousandYearsHome.Entities
                 return;
             }
 
+            _visibilityNotifier = GetNode<VisibilityNotifier2D>("VisibilityNotifier");
             Hide();
+        }
+
+        public override void _EnterTree()
+        {
+            AddToGroup(PowerBallGroup);
+        }
+
+        public override void _ExitTree()
+        {
+            RemoveFromGroup(PowerBallGroup);
         }
 
         public override void _PhysicsProcess(float delta)
@@ -78,6 +90,7 @@ namespace ThousandYearsHome.Entities
             var directionRadians = Numerology.DegToRad(DirectionAngle);
             Vector2 direction = new Vector2(Mathf.Cos(directionRadians), Mathf.Sin(directionRadians));
             Position += direction * Speed * delta;
+            GetTree().CallGroup(PowerBallGroup, nameof(PowerBallWatcher.BallPositionUpdated), GetInstanceId(), Position);
         }
 
         public void Activate()
@@ -96,23 +109,38 @@ namespace ThousandYearsHome.Entities
                 var particlesNode = GetNode<Particles2D>("ExplosionParticles");
                 var touchedTimer = GetNode<Timer>("TouchedTimer");
                 touchedTimer.WaitTime = particlesNode.Lifetime;
-                particlesNode.Emitting = true;                
+                particlesNode.Emitting = true;
                 touchedTimer.Start(); // Begin a countdown that lasts as long as the explosion particles.
             }
 
             if (area.Name == "BallKillArea")
             {
-                Hide();
-                _active = false;
-                EmitSignal(nameof(Hidden), this);
+                Deactivate();
             }
         }
 
         public void OnTouchedTimerTimeout()
         {
+            Deactivate();
+        }
+
+        public void ScreenEntered()
+        {
+            GetTree().CallGroup(PowerBallGroup, nameof(PowerBallWatcher.BallEnteredScreen), GetInstanceId());
+        }
+
+        public void ScreenExited()
+        {
+            GetTree().CallGroup(PowerBallGroup, nameof(PowerBallWatcher.BallExitedScreen), GetInstanceId());
+        }
+
+        // --- Internal methods ---
+        private void Deactivate()
+        {
             Hide();
             _active = false;
-            EmitSignal(nameof(Hidden), this);
+            // TODO: Maybe add an arg describiing if it was hit by the player, or a cleanup area.
+            GetTree().CallGroup(PowerBallGroup, BallDeactivatedMethod, GetInstanceId());
         }
 
         // ---Tool stuff---

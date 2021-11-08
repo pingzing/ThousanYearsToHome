@@ -19,3 +19,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Performance", "HAA0601:Value type to reference type conversion causing boxing allocation", Justification = "<Pending>", Scope = "member", Target = "~M:ThousandYearsHome.Entities.PlayerEntity.PlayerCamera.UpdateScroll")]
 [assembly: SuppressMessage("Performance", "HAA0101:Array allocation for params parameter", Justification = "<Pending>", Scope = "member", Target = "~M:ThousandYearsHome.Entities.PlayerEntity.Player._PhysicsProcess(System.Single)")]
 [assembly: SuppressMessage("Performance", "HAA0101:Array allocation for params parameter", Justification = "<Pending>", Scope = "member", Target = "~P:ThousandYearsHome.Entities.PlayerEntity.PlayerCamera.Current")]
+[assembly: SuppressMessage("Performance", "HAA0101:Array allocation for params parameter", Justification = "<Pending>", Scope = "member", Target = "~M:ThousandYearsHome.Entities.PowerBall._PhysicsProcess(System.Single)")]

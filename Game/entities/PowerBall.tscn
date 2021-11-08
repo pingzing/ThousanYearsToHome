@@ -44,5 +44,9 @@ process_material = SubResource( 2 )
 wait_time = 0.4
 one_shot = true
 
+[node name="VisibilityNotifier" type="VisibilityNotifier2D" parent="."]
+
 [connection signal="area_entered" from="CollisionArea" to="." method="OnCollisionAreaEntered"]
 [connection signal="timeout" from="TouchedTimer" to="." method="OnTouchedTimerTimeout"]
+[connection signal="screen_entered" from="VisibilityNotifier" to="." method="ScreenEntered"]
+[connection signal="screen_exited" from="VisibilityNotifier" to="." method="ScreenExited"]
