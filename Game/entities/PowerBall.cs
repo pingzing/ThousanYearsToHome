@@ -50,6 +50,7 @@ namespace ThousandYearsHome.Entities
             }
         }
 
+        private Node2D _container = null!;
         private VisibilityNotifier2D _visibilityNotifier = null!;
         private bool _active = false;
 
@@ -61,6 +62,7 @@ namespace ThousandYearsHome.Entities
                 return;
             }
 
+            _container = GetParent().GetParent<Node2D>();
             _visibilityNotifier = GetNode<VisibilityNotifier2D>("VisibilityNotifier");
             Hide();
         }
@@ -90,7 +92,7 @@ namespace ThousandYearsHome.Entities
             var directionRadians = Numerology.DegToRad(DirectionAngle);
             Vector2 direction = new Vector2(Mathf.Cos(directionRadians), Mathf.Sin(directionRadians));
             Position += direction * Speed * delta;
-            GetTree().CallGroup(PowerBallGroup, nameof(PowerBallWatcher.BallPositionUpdated), GetInstanceId(), Position);
+            GetTree().CallGroup(PowerBallGroup, nameof(PowerBallWatcher.BallPositionUpdated), GetInstanceId(), Position + _container.Position);
         }
 
         public void Activate()

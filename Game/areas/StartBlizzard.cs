@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using ThousandYearsHome.Controls;
 using ThousandYearsHome.Controls.Dialogue;
+using ThousandYearsHome.Entities;
 using ThousandYearsHome.Entities.PlayerEntity;
 using ThousandYearsHome.Extensions;
 
@@ -22,6 +23,7 @@ namespace ThousandYearsHome.Areas
         private HUD _hud = null!;
         private Camera2D _cinematicCamera = null!;
         private TileMap _midgroundTiles = null!;
+        private PowerBallWatcher _powerBallWatcher = null!;
 
         private Area2D _firstFallDialogueTrigger = null!;
         private Area2D _vistaPointTrigger = null!;
@@ -55,6 +57,7 @@ namespace ThousandYearsHome.Areas
             _playerCamera = GetNode<PlayerCamera>("Player/PlayerCamera");
             _cinematicCamera = GetNode<Camera2D>("CinematicCamera");
             _midgroundTiles = GetNode<TileMap>("MidgroundTiles");
+            _powerBallWatcher = GetNode<PowerBallWatcher>("UICanvas/PowerBallWatcher");
 
             _firstFallDialogueTrigger = GetNode<Area2D>("FirstFallDialogueTrigger");
             _vistaPointTrigger = GetNode<Area2D>("VistaPointDialogueTrigger");
@@ -88,12 +91,6 @@ namespace ThousandYearsHome.Areas
                 _cinematicCamera.Current = false;
                 _playerCamera.Current = true;
             }
-        }
-
-        // Called every frame. 'delta' is the elapsed time since the previous frame.
-        public override void _Process(float delta)
-        {
-
         }
 
         public void OnPlayerDebugUpdateState(PlayerStateKind newState, float xVel, float yVel, Vector2 position)

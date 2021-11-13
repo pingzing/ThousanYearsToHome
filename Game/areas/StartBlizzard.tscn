@@ -179,7 +179,7 @@ __meta__ = {
 }
 
 [node name="StartPosition" type="Position2D" parent="."]
-position = Vector2( 9263, 293 )
+position = Vector2( 6496, 502 )
 
 [node name="JumpTutorialSign" type="Sprite" parent="."]
 position = Vector2( 512, 89 )
@@ -257,11 +257,11 @@ offset = Vector2( -1, 0 )
 WallJumpVelY = -275.0
 
 [node name="PlayerCamera" parent="Player" index="11"]
-TopLimit = -1500
-Current = false
-BottomLimit = 1180
-TargetRect = Rect2( 64, 16, 80, 160 )
 RightLimit = 11000
+TargetRect = Rect2( 64, 16, 80, 160 )
+TopLimit = -1500
+BottomLimit = 1180
+Current = false
 
 [node name="PowerBallSet" parent="." instance=ExtResource( 9 )]
 position = Vector2( 6886, 523 )
@@ -275,21 +275,21 @@ shape = SubResource( 7 )
 
 [node name="PowerBall" parent="PowerBallSet/Bullets" index="0" instance=ExtResource( 10 )]
 position = Vector2( 111, -62 )
+StartPosition = Vector2( 111, -62 )
 DirectionAngle = 135.0
 Speed = 10.0
-StartPosition = Vector2( 111, -62 )
 
 [node name="PowerBall2" parent="PowerBallSet/Bullets" index="1" instance=ExtResource( 10 )]
 position = Vector2( 188, -135 )
+StartPosition = Vector2( 188, -135 )
 DirectionAngle = 135.0
 Speed = 10.0
-StartPosition = Vector2( 188, -135 )
 
 [node name="PowerBall3" parent="PowerBallSet/Bullets" index="2" instance=ExtResource( 10 )]
 position = Vector2( 272, -216 )
+StartPosition = Vector2( 272, -216 )
 DirectionAngle = 135.0
 Speed = 10.0
-StartPosition = Vector2( 272, -216 )
 
 [node name="PowerBallSet2" parent="." instance=ExtResource( 9 )]
 position = Vector2( 7303, 248 )
@@ -303,18 +303,18 @@ shape = SubResource( 7 )
 
 [node name="PowerBall" parent="PowerBallSet2/Bullets" index="0" instance=ExtResource( 10 )]
 position = Vector2( 143, -80 )
-Speed = 30.0
 StartPosition = Vector2( 143, -80 )
+Speed = 30.0
 
 [node name="PowerBall2" parent="PowerBallSet2/Bullets" index="1" instance=ExtResource( 10 )]
 position = Vector2( 292, -30 )
-Speed = 30.0
 StartPosition = Vector2( 292, -30 )
+Speed = 30.0
 
 [node name="PowerBall3" parent="PowerBallSet2/Bullets" index="2" instance=ExtResource( 10 )]
 position = Vector2( 473, -17 )
-Speed = 30.0
 StartPosition = Vector2( 473, -17 )
+Speed = 30.0
 
 [node name="PowerBallSet3" parent="." instance=ExtResource( 9 )]
 position = Vector2( 7876, 243 )
@@ -328,18 +328,18 @@ shape = SubResource( 7 )
 
 [node name="PowerBall" parent="PowerBallSet3/Bullets" index="0" instance=ExtResource( 10 )]
 position = Vector2( 143, -11 )
-Speed = 40.0
 StartPosition = Vector2( 143, -11 )
+Speed = 40.0
 
 [node name="PowerBall2" parent="PowerBallSet3/Bullets" index="1" instance=ExtResource( 10 )]
 position = Vector2( 292, -30 )
-Speed = 40.0
 StartPosition = Vector2( 292, -30 )
+Speed = 40.0
 
 [node name="PowerBall3" parent="PowerBallSet3/Bullets" index="2" instance=ExtResource( 10 )]
 position = Vector2( 473, -74 )
-Speed = 40.0
 StartPosition = Vector2( 473, -74 )
+Speed = 40.0
 
 [node name="PowerBallSet4" parent="." instance=ExtResource( 9 )]
 position = Vector2( 8710, 295 )
@@ -353,28 +353,28 @@ shape = SubResource( 7 )
 
 [node name="PowerBall" parent="PowerBallSet4/Bullets" index="0" instance=ExtResource( 10 )]
 position = Vector2( 205, -40 )
-Speed = 40.0
 StartPosition = Vector2( 205, -40 )
+Speed = 40.0
 
 [node name="PowerBall2" parent="PowerBallSet4/Bullets" index="1" instance=ExtResource( 10 )]
 position = Vector2( 220, -62 )
-Speed = 40.0
 StartPosition = Vector2( 220, -62 )
+Speed = 40.0
 
 [node name="PowerBall3" parent="PowerBallSet4/Bullets" index="2" instance=ExtResource( 10 )]
 position = Vector2( 241, -86 )
-Speed = 40.0
 StartPosition = Vector2( 241, -86 )
+Speed = 40.0
 
 [node name="PowerBall4" parent="PowerBallSet4/Bullets" index="3" instance=ExtResource( 10 )]
 position = Vector2( 253, -102 )
-Speed = 40.0
 StartPosition = Vector2( 253, -102 )
+Speed = 40.0
 
 [node name="PowerBall5" parent="PowerBallSet4/Bullets" index="4" instance=ExtResource( 10 )]
 position = Vector2( 264, -113 )
-Speed = 40.0
 StartPosition = Vector2( 264, -113 )
+Speed = 40.0
 
 [node name="PowerBallSet5" parent="." instance=ExtResource( 9 )]
 position = Vector2( 9109, -564 )
@@ -388,27 +388,27 @@ shape = SubResource( 8 )
 
 [node name="PowerBall" parent="PowerBallSet5/Bullets" index="0" instance=ExtResource( 10 )]
 position = Vector2( 264, -20 )
+StartPosition = Vector2( 264, -20 )
 DirectionAngle = 0.0
 Speed = 5.0
-StartPosition = Vector2( 264, -20 )
 
 [node name="PowerBall2" parent="PowerBallSet5/Bullets" index="1" instance=ExtResource( 10 )]
 position = Vector2( 218, -20 )
+StartPosition = Vector2( 218, -20 )
 DirectionAngle = 0.0
 Speed = 5.0
-StartPosition = Vector2( 218, -20 )
 
 [node name="PowerBall3" parent="PowerBallSet5/Bullets" index="2" instance=ExtResource( 10 )]
 position = Vector2( 169, -20 )
+StartPosition = Vector2( 169, -20 )
 DirectionAngle = 0.0
 Speed = 5.0
-StartPosition = Vector2( 169, -20 )
 
 [node name="PowerBall4" parent="PowerBallSet5/Bullets" index="3" instance=ExtResource( 10 )]
 position = Vector2( 124, -20 )
+StartPosition = Vector2( 124, -20 )
 DirectionAngle = 0.0
 Speed = 5.0
-StartPosition = Vector2( 124, -20 )
 
 [node name="CaveSnowPile" type="Sprite" parent="."]
 position = Vector2( 3200, 768 )

@@ -344,8 +344,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _currentXOffset = Mathf.Round(_currentXOffset);
             _currentYOffset = Mathf.Round(_currentYOffset);
 
-            GD.Print($"Update offset: {_currentXOffset}, {_currentYOffset}");
-
             return new Transform2D(transform.x, transform.y, new Vector2(_currentXOffset, _currentYOffset));
         }
 
