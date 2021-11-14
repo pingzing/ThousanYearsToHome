@@ -7,10 +7,10 @@ namespace ThousandYearsHome.Entities.PlayerEntity
     [Tool]
     public class PlayerCamera : Node2D
     {
-        // ------ Private variables ------
-        // Native resolution, NOT actual physical window sizes.
-        private const float ResolutionWidth = 480f;
-        private const float ResolutionHeight = 270f;
+        // ------ Public consts ------ 
+        public const float ResolutionWidth = 480f;
+        public const float ResolutionHeight = 270f;
+        public static readonly Rect2 DefaultIdleRect = new Rect2(64, ResolutionHeight * .6f, 40, 16);
 
         // These two group names are used to keep Camera2Ds and ParallaxBackgrounds in sync and SUPER UNDOCUMENTED
         private string _groupName = null!;
@@ -19,39 +19,50 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private PlayerStateKind _currentPlayerState = PlayerStateKind.Idle;
         private Viewport _viewport = null!;
         private float? _xAxisLock = null;
-        private float? _yAxisLock = null;
+        private float? _yAxisLock = null; // TODO: Not implemented yet
         private float _currentXOffset = 0;
         private float _currentYOffset = 0;
         private float _xPerSecond = 150f;
         private float _yPerSecond = 200f;
         private Rect2 _currentRect = new Rect2(64, ResolutionHeight * .6f, 40, 16);
-        private Rect2? _overrideRect = null;
 
         // ------ Nodes ------
         private Player _player = null!;
         private Timer _panningTimer = null!;
         private Tween _tween = null!;
 
+        // ------ Read-only properties ------
+        public Rect2 CurrentRect => _currentRect;
+
         // ------ Exports ------
-        private int _leftLimit = 0;
-        [Export] public int LeftLimit { get => _leftLimit; set { _leftLimit = value; Update(); } }
+        private int _limitLeft = 0;
+        [Export] public int LimitLeft { get => _limitLeft; set { _limitLeft = value; Update(); } }
 
-        private int _rightLimit = 2000;
-        [Export] public int RightLimit { get => _rightLimit; set { _rightLimit = value; Update(); } }
+        private int _limitRight = 2000;
+        [Export] public int LimitRight { get => _limitRight; set { _limitRight = value; Update(); } }
 
-        private int _topLimit = -400;
-        [Export] public int TopLimit { get => _topLimit; set { _topLimit = value; Update(); } }
+        private int _limitTop = -400;
+        [Export] public int LimitTop { get => _limitTop; set { _limitTop = value; Update(); } }
 
-        private int _bottomLimit = 200;
+        private int _limitBottom = 200;
         [Export]
-        public int BottomLimit { get => _bottomLimit; set { _bottomLimit = value; Update(); } }
+        public int LimitBottom { get => _limitBottom; set { _limitBottom = value; Update(); } }
 
+        /// <summary>
+        /// The multiplier by which camera speed is increased when the player is moving.
+        /// </summary>
         [Export(PropertyHint.Range, "1.0, 2.0, .01")]
         public float MovementAccelerationCoefficient = 1.1f;
 
+        /// <summary>
+        /// The value that the TargetRect returns to when idle.
+        /// </summary>
         [Export(PropertyHint.Range, "0, 480, 1")]
-        public Rect2 DefaultIdleRect = new Rect2(64, ResolutionHeight * .6f, 40, 16);
+        public Rect2 IdleRect = DefaultIdleRect;
 
+        /// <summary>
+        /// The current position of the TargetRect. Describes where the camera should try to go.
+        /// </summary>
         [Export(PropertyHint.Range, "0, 480, 1")]
         public Rect2 TargetRect = new Rect2(64, ResolutionHeight * .6f, 40, 16);
 
@@ -167,11 +178,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _xAxisLock = null;
         }
 
-        public void OverrideTargetRect(Rect2 overrideRect)
-        {
-            _overrideRect = overrideRect;
-        }
-
         // ------ Internal state-keeping methods ------
 
         // Signal handler, listens for signals that can be sent by either this, or any Camera2D
@@ -211,10 +217,10 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 instantY = true;
             }
 
-            if (current == PlayerStateKind.Idle)
+            if (current == PlayerStateKind.Idle || current == PlayerStateKind.Crouching)
             {
-                float targetY = DefaultIdleRect.Position.y;
-                float targetHeight = DefaultIdleRect.Size.y;
+                float targetY = IdleRect.Position.y;
+                float targetHeight = IdleRect.Size.y;
 
                 // Snap the Top of the rectangle to just above the player head, so that it will begin panning up immediately
                 // now that they've landed.
@@ -224,7 +230,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                     instantY = true;
                     targetY = relativePlayerPos.y;
                     targetHeight = TargetRect.End.y - targetY;
-                    targetHeight = Mathf.Max(DefaultIdleRect.Size.y, targetHeight);
+                    targetHeight = Mathf.Max(IdleRect.Size.y, targetHeight);
                 }
 
                 // If the player has just turned around, and is staying idle, hold camera position for one second.
@@ -239,7 +245,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 }
                 else
                 {
-                    float targetX = playerFacingRight ? DefaultIdleRect.Position.x : ResolutionWidth - DefaultIdleRect.Position.x - DefaultIdleRect.Size.x;
+                    float targetX = playerFacingRight ? IdleRect.Position.x : ResolutionWidth - IdleRect.Position.x - IdleRect.Size.x;
                     TargetRect = new Rect2(targetX, targetY, _currentRect.Size.x, targetHeight);
                 }
 
@@ -248,8 +254,8 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
             if (current == PlayerStateKind.Running)
             {
-                float targetY = DefaultIdleRect.Position.y;
-                float targetHeight = DefaultIdleRect.Size.y;
+                float targetY = IdleRect.Position.y;
+                float targetHeight = IdleRect.Size.y;
                 if (_prevState == PlayerStateKind.Jumping || _prevState == PlayerStateKind.InAir)
                 {
                     instantHeight = true;
@@ -264,8 +270,8 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 }
                 else
                 {
-                    float targetX = playerFacingRight ? DefaultIdleRect.Position.x : ResolutionWidth - DefaultIdleRect.Position.x - DefaultIdleRect.Size.x;
-                    TargetRect = new Rect2(targetX, targetY, DefaultIdleRect.Size.x, targetHeight);
+                    float targetX = playerFacingRight ? IdleRect.Position.x : ResolutionWidth - IdleRect.Position.x - IdleRect.Size.x;
+                    TargetRect = new Rect2(targetX, targetY, IdleRect.Size.x, targetHeight);
                 }
             }
 
@@ -324,7 +330,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 {
                     _currentXOffset += (_currentRect.Position.x - relativePlayerPos.x);
                 }
-                _currentXOffset = Mathf.Clamp(_currentXOffset, -RightLimit + ResolutionWidth, -LeftLimit);
+                _currentXOffset = Mathf.Clamp(_currentXOffset, -LimitRight + ResolutionWidth, -LimitLeft);
             }
             else
             {
@@ -339,7 +345,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             {
                 _currentYOffset += (_currentRect.Position.y - relativePlayerPos.y);
             }
-            _currentYOffset = Mathf.Clamp(_currentYOffset, -BottomLimit + ResolutionHeight, -TopLimit);
+            _currentYOffset = Mathf.Clamp(_currentYOffset, -LimitBottom + ResolutionHeight, -LimitTop);
 
             _currentXOffset = Mathf.Round(_currentXOffset);
             _currentYOffset = Mathf.Round(_currentYOffset);

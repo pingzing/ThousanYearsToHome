@@ -80,6 +80,7 @@ namespace ThousandYearsHome.Areas
 
             Vector2 startPos = GetNode<Position2D>("StartPosition").Position;
             _player.Spawn(startPos);
+            _powerBallWatcher.Init(_playerCamera);
 
             // Lock player's input, because we're gonna animate them cutscene style
             if (!SkipIntro)
@@ -338,10 +339,10 @@ namespace ThousandYearsHome.Areas
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
-                _cinematicCamera.LimitBottom = _playerCamera.BottomLimit;
-                _cinematicCamera.LimitTop = _playerCamera.TopLimit;
-                _cinematicCamera.LimitRight = _playerCamera.RightLimit;
-                _cinematicCamera.LimitLeft = _playerCamera.LeftLimit;
+                _cinematicCamera.LimitBottom = _playerCamera.LimitBottom;
+                _cinematicCamera.LimitTop = _playerCamera.LimitTop;
+                _cinematicCamera.LimitRight = _playerCamera.LimitRight;
+                _cinematicCamera.LimitLeft = _playerCamera.LimitLeft;
                 _cinematicCamera.Position = _player.Position + _playerCamera.Position;
 
                 _cinematicCamera.SmoothingEnabled = true;
@@ -386,6 +387,7 @@ namespace ThousandYearsHome.Areas
             if (body is Player)
             {
                 await _playerCamera.LockXAxis(_cameraHoldPosition.Position.x);
+                _playerCamera.IdleRect = new Rect2(64, PlayerCamera.ResolutionHeight * .7f, 40, 16);
             }
         }
 
@@ -394,6 +396,7 @@ namespace ThousandYearsHome.Areas
             if (body is Player)
             {
                 _playerCamera.UnlockXAxis();
+                _playerCamera.IdleRect = PlayerCamera.DefaultIdleRect;
             }
         }
     }

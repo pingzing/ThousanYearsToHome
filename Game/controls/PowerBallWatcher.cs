@@ -12,6 +12,7 @@ namespace ThousandYearsHome.Entities
 
         private Viewport _viewport = null!;
         private PackedScene _arrowScene = null!;
+        private PlayerCamera _playerCamera = null!;
 
         public override void _EnterTree()
         {
@@ -21,6 +22,11 @@ namespace ThousandYearsHome.Entities
         public override void _ExitTree()
         {
             RemoveFromGroup(PowerBall.PowerBallGroup);
+        }
+
+        public void Init(PlayerCamera playerCamera)
+        {
+            _playerCamera = playerCamera;
         }
 
         public override void _Ready()
@@ -38,25 +44,19 @@ namespace ThousandYearsHome.Entities
                     continue;
                 }
 
-                var arrowRect = arrow.GetRect();
-
                 var viewportRect = GetViewportRect();
                 var cameraCenter = -_viewport.CanvasTransform.origin + (viewportRect.Size / 2);
-                var screenCenter = viewportRect.Size / 2;
+                var cameraRectLoc = -_viewport.CanvasTransform.origin + (_playerCamera.CurrentRect.End);
                 float angleRad = cameraCenter.AngleToPoint(ballPos.Value) - Mathf.Pi;
-                Vector2? intersection = GetScreenEdgeIntersection(cameraCenter, ballPos.Value);
+                Vector2? intersection = GetScreenEdgeIntersection(cameraRectLoc, ballPos.Value);
                 if (intersection == null)
                 {
                     arrow.Visible = false;
                     continue;
                 }
 
-                Vector2 intersectMinusSize = new Vector2(
-                    Mathf.MoveToward(intersection.Value.x, screenCenter.x, arrowRect.Size.x),
-                    Mathf.MoveToward(intersection.Value.y, screenCenter.y, arrowRect.Size.y)
-                );
                 arrow.Rotation = angleRad;
-                arrow.Position = intersectMinusSize;
+                arrow.Position = intersection.Value;
                 arrow.Visible = true;
             }
         }
