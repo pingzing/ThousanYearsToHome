@@ -109,17 +109,16 @@ namespace ThousandYearsHome.Entities
             {
                 var player = area.GetParent().GetParent<Player>();
                 player.OnHornTouched(this);
+            }
+
+            if (area.Name == "BallKillArea" || area.Name == "HornBox")
+            {
                 GetNode<Polygon2D>("Ball").Hide();
                 var particlesNode = GetNode<Particles2D>("ExplosionParticles");
                 var touchedTimer = GetNode<Timer>("TouchedTimer");
                 touchedTimer.WaitTime = particlesNode.Lifetime;
                 particlesNode.Emitting = true;
                 touchedTimer.Start(); // Begin a countdown that lasts as long as the explosion particles.
-            }
-
-            if (area.Name == "BallKillArea")
-            {
-                Deactivate();
             }
         }
 

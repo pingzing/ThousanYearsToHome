@@ -366,7 +366,7 @@ namespace ThousandYearsHome.Areas
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
-                var playerCameraPos = _player.Position + _playerCamera.GetParent<Node2D>().Position;
+                var playerCameraPos = _player.Position + _playerCamera.GetParent<Node2D>().Position; // TODO: PlayerCamera doesn't use position anymore.
                 _cinematicCamera.SmoothingEnabled = false;
                 _tweener.InterpolateProperty(_cinematicCamera, "position", null, playerCameraPos, 1.0f, Tween.TransitionType.Quad, Tween.EaseType.Out);
                 _tweener.Start();
@@ -397,6 +397,15 @@ namespace ThousandYearsHome.Areas
             {
                 _playerCamera.UnlockXAxis();
                 _playerCamera.IdleRect = PlayerCamera.DefaultIdleRect;
+            }
+        }
+
+        public void ClimaxCameraLimitAdjustAreaBodyEntered(Node body)
+        {
+            if (body is Player)
+            {
+                // For the final segment of the level, prevent the camera from going too far into the leftmost wall.
+                _playerCamera.LimitLeft = 5408;
             }
         }
     }
