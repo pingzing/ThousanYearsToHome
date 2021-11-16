@@ -1,10 +1,10 @@
 [gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://entities/playerentity/Player.tscn" type="PackedScene" id=1]
-[ext_resource path="res://Controls/HUD.tscn" type="PackedScene" id=2]
+[ext_resource path="res://controls/HUD.tscn" type="PackedScene" id=2]
 [ext_resource path="res://art/BlizzardTileset.tres" type="TileSet" id=3]
 [ext_resource path="res://art/BlizzardBackgrounds.png" type="Texture" id=4]
-[ext_resource path="res://Areas/Debug/MovementTest.cs" type="Script" id=5]
+[ext_resource path="res://areas/debug/MovementTest.cs" type="Script" id=5]
 [ext_resource path="res://entities/PowerBallSet.tscn" type="PackedScene" id=6]
 [ext_resource path="res://entities/PowerBall.tscn" type="PackedScene" id=7]
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=8]
