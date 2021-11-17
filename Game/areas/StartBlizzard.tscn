@@ -274,9 +274,9 @@ WallJumpVelY = -275.0
 
 [node name="PlayerCamera" parent="Player" index="11"]
 LimitRight = 11000
+LimitTop = -1664
 LimitBottom = 1200
 Current = false
-LimitTop = -1664
 TargetRect = Rect2( 64, 16, 80, 160 )
 
 [node name="PowerBallSet" parent="." instance=ExtResource( 9 )]
@@ -550,6 +550,12 @@ position = Vector2( -1100, -33 )
 Speed = 190.0
 DirectionAngle = 0.0
 StartPosition = Vector2( -1100, -33 )
+
+[node name="PowerBall11" parent="PowerBallSet8/Bullets" index="9" instance=ExtResource( 10 )]
+position = Vector2( -1323, 32 )
+Speed = 190.0
+DirectionAngle = 0.0
+StartPosition = Vector2( -1323, 32 )
 
 [node name="PowerBallSet9" parent="." instance=ExtResource( 9 )]
 position = Vector2( 5540, -557 )
