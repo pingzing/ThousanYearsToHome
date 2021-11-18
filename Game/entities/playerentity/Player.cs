@@ -24,6 +24,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private Timer _jumpHoldTimer = null!;
         private Timer _oneWayPlatformTimer = null!;
         private Timer _wallJumpLockoutTimer = null!;
+        private Timer _kickTimer = null!;
         private RayCast2D _leftRaycast = null!;
         private RayCast2D _rightRaycast = null!;
 
@@ -42,6 +43,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public bool IsOnSlope { get; private set; } = false;
         public bool IsTouchingWall { get; private set; } = false;
         public bool IsWallJumpLocked => !_wallJumpLockoutTimer.IsStopped();
+        public bool IsKicking => !_kickTimer.IsStopped();
         public float IdleTime { get; private set; }
         public RayCast2D LeftRaycast => _leftRaycast;
         public RayCast2D RightRaycast => _rightRaycast;
@@ -153,6 +155,8 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _jumpHoldTimer = GetNode<Timer>("JumpHoldTimer");
             _oneWayPlatformTimer = GetNode<Timer>("OneWayPlatformTimer");
             _wallJumpLockoutTimer = GetNode<Timer>("WallJumpLockoutTimer");
+            _kickTimer = GetNode<Timer>("KickTimer");
+
             _leftRaycast = GetNode<RayCast2D>("LeftRaycast");
             _rightRaycast = GetNode<RayCast2D>("RightRaycast");
             _stateMachine.Init(this);
@@ -216,6 +220,11 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             if (_inputService.IsJustPressed(PlayerInputAction.Accept))
             {
                 _jumpTimer.Start();
+            }
+
+            if (_inputService.IsJustPressed(PlayerInputAction.Cancel) && !IsKicking)
+            {
+                _kickTimer.Start();
             }
 
             if (_inputService.IsPressed(PlayerInputAction.Accept))

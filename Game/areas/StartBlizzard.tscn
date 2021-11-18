@@ -266,9 +266,6 @@ position = Vector2( 6361, 464 )
 [node name="Player" parent="." instance=ExtResource( 1 )]
 position = Vector2( 8813, 295 )
 
-[node name="Sprite" parent="Player" index="0"]
-offset = Vector2( -1, 0 )
-
 [node name="StateWallJumping" parent="Player/PlayerStateMachine" index="5"]
 WallJumpVelY = -275.0
 

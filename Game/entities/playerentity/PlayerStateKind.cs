@@ -8,5 +8,6 @@
         Jumping,
         Crouching,
         WallJumping,
+        Kicking,
     }
 }
