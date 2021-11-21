@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=2]
+[gd_scene load_steps=34 format=2]
 
 [ext_resource path="res://entities/playerentity/Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://areas/StartBlizzard.cs" type="Script" id=2]
@@ -12,6 +12,7 @@
 [ext_resource path="res://entities/PowerBall.tscn" type="PackedScene" id=10]
 [ext_resource path="res://controls/PowerBallWatcher.tscn" type="PackedScene" id=11]
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=12]
+[ext_resource path="res://entities/breakableentity/BreakableEntity.tscn" type="PackedScene" id=13]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 345, 4 )
@@ -194,8 +195,11 @@ __meta__ = {
 "_edit_lock_": true
 }
 
+[node name="BreakableWall1" parent="." instance=ExtResource( 13 )]
+position = Vector2( 4943.96, 664.191 )
+
 [node name="StartPosition" type="Position2D" parent="."]
-position = Vector2( -32, 132 )
+position = Vector2( 4846.45, 653.71 )
 
 [node name="JumpTutorialSign" type="Sprite" parent="."]
 position = Vector2( 512, 89 )
@@ -266,10 +270,13 @@ position = Vector2( 6361, 464 )
 [node name="Player" parent="." instance=ExtResource( 1 )]
 position = Vector2( 8813, 295 )
 
+[node name="KickHurtBoxShape" parent="Player/Sprite/KickHurtBox" index="0"]
+position = Vector2( 24.0052, 4.79423 )
+
 [node name="StateWallJumping" parent="Player/PlayerStateMachine" index="5"]
 WallJumpVelY = -275.0
 
-[node name="PlayerCamera" parent="Player" index="11"]
+[node name="PlayerCamera" parent="Player" index="12"]
 LimitRight = 11000
 LimitTop = -1664
 LimitBottom = 1200
