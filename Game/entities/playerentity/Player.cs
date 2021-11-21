@@ -43,6 +43,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public bool IsOnSlope { get; private set; } = false;
         public bool IsTouchingWall { get; private set; } = false;
         public bool IsWallJumpLocked => !_wallJumpLockoutTimer.IsStopped();
+        public bool IsKickJustPressed { get; private set; }
         public bool IsKicking => !_kickTimer.IsStopped();
         public float IdleTime { get; private set; }
         public RayCast2D LeftRaycast => _leftRaycast;
@@ -222,10 +223,8 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 _jumpTimer.Start();
             }
 
-            if (_inputService.IsJustPressed(PlayerInputAction.Cancel) && !IsKicking)
-            {
-                _kickTimer.Start();
-            }
+            IsKickJustPressed = _inputService.IsJustPressed(PlayerInputAction.Cancel) 
+                && !IsKicking;
 
             if (_inputService.IsPressed(PlayerInputAction.Accept))
             {

@@ -51,6 +51,11 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 return PlayerStateKind.Crouching;
             }
 
+            if (player.IsKickJustPressed)
+            {
+                return PlayerStateKind.Kicking;
+            }
+
             return null;
         }
 

@@ -211,6 +211,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
             if (current == PlayerStateKind.Jumping || current == PlayerStateKind.InAir)
             {
+                // If the player jumps, make the rectangle super tall, to prevent immediate panning upward.
                 // 32 pixels from the top of the screen
                 TargetRect = new Rect2(TargetRect.Position.x, 32, TargetRect.Size.x, TargetRect.Size.y + TargetRect.Position.y - 32);
                 instantHeight = true;
