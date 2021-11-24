@@ -7,11 +7,7 @@ using System.Text;
 
 namespace ThousandYearsHome.Controls.Dialogue
 {
-    /// <summary>
-    /// Class in charge of parsing Dialogue with game directives stripped from it,
-    /// but still containing BBCode.
-    /// </summary>
-    public class DialogueParser
+    public class DialogueSegmenter
     {
         private static char[] _openingTagArgSepartors = new[] { ' ', '=' };
         private readonly Font _dialogueBoxFont;
@@ -20,7 +16,7 @@ namespace ThousandYearsHome.Controls.Dialogue
         private List<string> _unassignedOpeningTags = new List<string>();
         private List<string> _unassignedClosingTags = new List<string>();
 
-        public DialogueParser(Font dialogueBoxFont)
+        public DialogueSegmenter(Font dialogueBoxFont)
         {
             _dialogueBoxFont = dialogueBoxFont;
         }

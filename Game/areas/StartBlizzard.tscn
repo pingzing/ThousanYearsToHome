@@ -199,7 +199,7 @@ __meta__ = {
 position = Vector2( 4943.96, 664.191 )
 
 [node name="StartPosition" type="Position2D" parent="."]
-position = Vector2( 4846.45, 653.71 )
+position = Vector2( -19, 133 )
 
 [node name="JumpTutorialSign" type="Sprite" parent="."]
 position = Vector2( 512, 89 )
@@ -269,9 +269,6 @@ position = Vector2( 6361, 464 )
 
 [node name="Player" parent="." instance=ExtResource( 1 )]
 position = Vector2( 8813, 295 )
-
-[node name="KickHurtBoxShape" parent="Player/Sprite/KickHurtBox" index="0"]
-position = Vector2( 24.0052, 4.79423 )
 
 [node name="StateWallJumping" parent="Player/PlayerStateMachine" index="5"]
 WallJumpVelY = -275.0
@@ -670,10 +667,12 @@ __meta__ = {
 }
 
 [node name="DialogueBox" parent="UICanvas" instance=ExtResource( 5 )]
+modulate = Color( 1, 1, 1, 0 )
 margin_left = 16.0
 margin_top = 39.0
 margin_right = 464.0
 margin_bottom = 94.0
+theme = ExtResource( 12 )
 
 [node name="FadePlayer" type="AnimationPlayer" parent="UICanvas"]
 anims/FadeScene = SubResource( 20 )

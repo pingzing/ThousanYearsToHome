@@ -1,8 +1,7 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://controls/dialogue/DialogueBox.cs" type="Script" id=1]
 [ext_resource path="res://art/DownArrow.png" type="Texture" id=2]
-[ext_resource path="res://controls/dialogue/DialogueEngine.tscn" type="PackedScene" id=3]
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=4]
 
 [sub_resource type="Animation" id=1]
@@ -55,7 +54,6 @@ tracks/0/keys = {
 }
 
 [node name="DialogueBox" type="Control"]
-modulate = Color( 1, 1, 1, 0 )
 margin_right = 176.0
 margin_bottom = 103.0
 theme = ExtResource( 4 )
@@ -83,16 +81,16 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="DialogueEngine" parent="." instance=ExtResource( 3 )]
+[node name="Label" type="RichTextLabel" parent="Background"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 3.0
-margin_right = -2.0
-margin_bottom = -2.0
+visible_characters = 0
+percent_visible = 0.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="NextArrow" type="TextureRect" parent="."]
-visible = false
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -106,6 +104,12 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="CharacterTickTimer" type="Timer" parent="."]
+
+[node name="SilenceTimer" type="Timer" parent="."]
+wait_time = 0.001
+one_shot = true
+
 [node name="DialogueBoxAnimator" type="AnimationPlayer" parent="."]
 anims/Hide = SubResource( 1 )
 anims/Show = SubResource( 2 )
@@ -113,8 +117,6 @@ anims/Show = SubResource( 2 )
 [node name="NextArrowAnimator" type="AnimationPlayer" parent="."]
 anims/BlinkArrow = SubResource( 3 )
 
-[connection signal="BreakEntered" from="DialogueEngine" to="." method="DialogueEngineBreakEntered"]
-[connection signal="BreakExited" from="DialogueEngine" to="." method="DialogueEngineBreakExited"]
-[connection signal="BufferEmptied" from="DialogueEngine" to="." method="DialogueEngineBufferEmptied"]
-[connection signal="TagEncountered" from="DialogueEngine" to="." method="DialogueEngineTagEncountered"]
+[connection signal="timeout" from="CharacterTickTimer" to="." method="CharacterTickTimeout"]
+[connection signal="timeout" from="SilenceTimer" to="." method="SilenceTimerTimeout"]
 [connection signal="animation_finished" from="DialogueBoxAnimator" to="." method="OnAnimationFinished"]
