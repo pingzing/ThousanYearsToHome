@@ -9,6 +9,8 @@ namespace ThousandYearsHome.Entities.BreakableEntity
         private Tween _tween = null!;
         private Area2D _breakableArea = null!;
         private CollisionShape2D _breakableShape = null!;
+        private StaticBody2D _collisionBody = null!;
+        private CollisionShape2D _collisionShape = null!;
 
         private uint _hitsToDestroy = 3;
         [Export]
@@ -26,6 +28,8 @@ namespace ThousandYearsHome.Entities.BreakableEntity
             _tween = GetNode<Tween>("Tween");
             _breakableArea = GetNode<Area2D>("BreakableArea");
             _breakableShape = _breakableArea.GetNode<CollisionShape2D>("BreakableShape");
+            _collisionBody = GetNode<StaticBody2D>("CollisionBody");
+            _collisionShape = _collisionBody.GetNode<CollisionShape2D>("CollisionShape");
             _hitsRemaining = HitsToDestroy;
         }
 
@@ -44,7 +48,8 @@ namespace ThousandYearsHome.Entities.BreakableEntity
                 // Animate sprite, take some damage
                 // Animate
                 _tween.Stop(_sprite);
-                _tween.InterpolateProperty(_sprite, "offset", Vector2.Zero, new Vector2(5, 0), 0.2f, Tween.TransitionType.Bounce, Tween.EaseType.OutIn);
+                _tween.InterpolateProperty(_sprite, "offset:x", 0, 5, 0.1f, Tween.TransitionType.Bounce, Tween.EaseType.OutIn);
+                _tween.InterpolateProperty(_sprite, "offset:x", 5, 0, 0.1f, Tween.TransitionType.Bounce, Tween.EaseType.OutIn, 0.1f);
                 _tween.Start();
 
                 // Take damage
@@ -54,6 +59,7 @@ namespace ThousandYearsHome.Entities.BreakableEntity
                 {
                     // If destroyed, remove collision, play animation.
                     _breakableShape.SetDeferred("disabled", true);
+                    _collisionShape.SetDeferred("disabled", true);
                     // TODO: Animation
                     _sprite.Hide();
                 }
