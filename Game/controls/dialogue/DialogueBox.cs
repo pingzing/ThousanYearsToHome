@@ -17,14 +17,17 @@ namespace ThousandYearsHome.Controls.Dialogue
         private List<IDialoguePayload> _buffer = new List<IDialoguePayload>();
         private DialogueBoxState _currState = DialogueBoxState.Waiting;
         private bool _isBreak = false;
-        private uint _maxLineIndex = 0;
+        private uint _maxLineCount = 0;
         private bool _dialogueBoxFull = false;
         private bool _printingText = false;
         private bool _isOpen = false;
+        private bool IsPortraitVisible => _portraitMargin.Visible;
         private bool _bufferEmptied = false;
         private int _currentLineIndex = 0;
+        private float? _labelWidthNoPortrait = null;
+        private float? _labelWidthWithPortrait = null!;
         private float[] _lineSpaceRemaining = null!;
-        private DialogueSegmenter _parser = null!;
+        private DialogueSegmenter _segmenter = null!;
 
         private TaskCompletionSource<string>? _showCompletionSource;
         private TaskCompletionSource<string>? _hideCompletionSource;
@@ -33,6 +36,13 @@ namespace ThousandYearsHome.Controls.Dialogue
         private TaskCompletionSource<string>? _singlePageCompletionSource;
 
         // Nodes
+        private Control _portraitMargin = null!;
+        private TextureRect _portrait = null!;
+        private Control _labelMargin = null!;
+        private RichTextLabel _label = null!;
+        private Timer _characterTickTimer = null!;
+        private Timer _silenceTimer = null!;
+
         private TextureRect _nextArrow = null!;
         private AnimationPlayer _animator = null!;
         private AnimationPlayer _nextArrowAnimator = null!;
@@ -60,18 +70,19 @@ namespace ThousandYearsHome.Controls.Dialogue
         /// </summary>
         [Signal] public delegate void BufferCleared();
 
-        // Nodes
-        private RichTextLabel _label = null!;
-        private Timer _characterTickTimer = null!;
-        private Timer _silenceTimer = null!;
-
         public override void _Ready()
         {
             SetPhysicsProcess(true);
             SetProcessInput(true);
-            _label = GetNode<RichTextLabel>("Background/Label");
+            _portraitMargin = GetNode<Control>("Background/HBoxContainer/PortraitMargin");
+            _portrait = GetNode<TextureRect>("Background/HBoxContainer/PortraitMargin/Portrait");
+            _labelMargin = GetNode<Control>("Background/HBoxContainer/LabelMargin");
+            _label = GetNode<RichTextLabel>("Background/HBoxContainer/LabelMargin/Label");
             _label.ScrollActive = false;
             _label.ScrollFollowing = false;
+            _label.Clear();
+            _label.VisibleCharacters = 0;
+
             _characterTickTimer = GetNode<Timer>("CharacterTickTimer");
             _silenceTimer = GetNode<Timer>("SilenceTimer");
 
@@ -89,16 +100,22 @@ namespace ThousandYearsHome.Controls.Dialogue
                 Font = _label.GetFont("normal_font");
             }
 
-            float fontHeight = Font.GetHeight();
-            _maxLineIndex = (uint)Mathf.Floor(RectSize.y / (fontHeight + _label.GetConstant("line_separation")));
-            _lineSpaceRemaining = new float[_maxLineIndex + 1];
-            _label.RectSize = RectSize;
-            for (int i = 0; i < _lineSpaceRemaining.Length; i++)
-            {
-                _lineSpaceRemaining[i] = _label.RectSize.x;
-            }
+            _labelWidthWithPortrait = _label.RectSize.x;
+
+            _portrait.Texture = null;
+            // Has to be CallDeferred, because the width doesn't get updated until
+            // the HBox has a chance to re-run its layout, which doesn't happen until one frame
+            // after the portrait gets hidden.
+            CallDeferred(nameof(SetLabelWidthNoPortrait));
+            CallDeferred(nameof(HidePortrait));
+
             _label.BbcodeEnabled = true;
-            _parser = new DialogueSegmenter(Font);
+            _segmenter = new DialogueSegmenter(Font);
+        }
+
+        private void SetLabelWidthNoPortrait()
+        {
+            _labelWidthNoPortrait = _label.RectSize.x;
         }
 
         // API-like methods and properties
@@ -128,7 +145,7 @@ namespace ThousandYearsHome.Controls.Dialogue
         {
             _bufferEmptied = false;
 
-            var payload = new DialogueTextPayload
+            var payload = new TextPayload
             {
                 PayloadString = text,
                 Speed = speed,
@@ -154,7 +171,7 @@ namespace ThousandYearsHome.Controls.Dialogue
         {
             _bufferEmptied = false;
 
-            var payload = new DialogueSilencePayload
+            var payload = new SilencePayload
             {
                 Length = length,
                 Tag = tag
@@ -178,7 +195,7 @@ namespace ThousandYearsHome.Controls.Dialogue
         {
             _bufferEmptied = false;
 
-            var payload = new DialogueBreakPayload
+            var payload = new BreakPayload
             {
                 Tag = tag
             };
@@ -197,15 +214,38 @@ namespace ThousandYearsHome.Controls.Dialogue
         /// <summary>
         /// Enqueues a "clear all text" instruction.
         /// </summary>
-        /// <param name="tag"></param>
-        /// <param name="pushFront"></param>
         public DialogueBox QueueClear(string tag = "", bool pushFront = false)
         {
             _bufferEmptied = false;
 
-            var payload = new DialogueClearPayload
+            var payload = new ClearPayload
             {
                 Tag = tag
+            };
+            if (pushFront)
+            {
+                _buffer.Insert(0, payload);
+            }
+            else
+            {
+                _buffer.Add(payload);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Enqueues a portrait change instruction.
+        /// </summary>
+        /// <param name="portraitPath">The Godot 'res://' path to the portrait.</param>
+        public DialogueBox QueuePortrait(string portraitPath, string tag = "", bool pushFront = false)
+        {
+            _bufferEmptied = false;
+
+            var payload = new PortraitPayload
+            {
+                PortraitResourcePath = portraitPath,
+                Tag = tag,
             };
             if (pushFront)
             {
@@ -227,10 +267,7 @@ namespace ThousandYearsHome.Controls.Dialogue
             _label.BbcodeText = "";
             _label.VisibleCharacters = 0;
             _currentLineIndex = 0;
-            for (int i = 0; i < _lineSpaceRemaining.Length; i++)
-            {
-                _lineSpaceRemaining[i] = _label.RectSize.x;
-            }
+            UpdateMeasure();
             _dialogueBoxFull = false;
         }
 
@@ -274,10 +311,7 @@ namespace ThousandYearsHome.Controls.Dialogue
             _currState = DialogueBoxState.Waiting;
             _buffer.Clear();
 
-            for (int i = 0; i < _lineSpaceRemaining.Length; i++)
-            {
-                _lineSpaceRemaining[i] = _label.RectSize.x;
-            }
+            UpdateMeasure();
 
             Turbo = false;
             EmitSignal(nameof(BufferCleared));
@@ -287,6 +321,8 @@ namespace ThousandYearsHome.Controls.Dialogue
         {
             ClearText();
             ClearBuffer();
+            HidePortrait();
+            _portrait.Texture = null;
         }
 
         // Internal methods
@@ -342,17 +378,20 @@ namespace ThousandYearsHome.Controls.Dialogue
 
                 switch (payload)
                 {
-                    case DialogueTextPayload text:
+                    case TextPayload text:
                         ProcessTextPayload(text);
                         break;
-                    case DialogueBreakPayload brk:
+                    case BreakPayload brk:
                         ProcessBreakPayload(brk);
                         break;
-                    case DialogueSilencePayload silence:
+                    case SilencePayload silence:
                         ProcessSilencePayload(silence);
                         break;
-                    case DialogueClearPayload clear:
+                    case ClearPayload clear:
                         ProcessClearPayload(clear);
+                        break;
+                    case PortraitPayload portrait:
+                        ProcessPortraitPayload(portrait);
                         break;
                     default:
                         throw new Exception("Unhandled kind of IDialoguePayload.");
@@ -360,7 +399,7 @@ namespace ThousandYearsHome.Controls.Dialogue
             }
         }
 
-        private void ProcessTextPayload(DialogueTextPayload text)
+        private void ProcessTextPayload(TextPayload text)
         {
             if (_dialogueBoxFull)
             {
@@ -401,7 +440,7 @@ namespace ThousandYearsHome.Controls.Dialogue
             }
         }
 
-        private void ProcessBreakPayload(DialogueBreakPayload brk)
+        private void ProcessBreakPayload(BreakPayload brk)
         {
             if (brk.Tag != "")
             {
@@ -420,7 +459,7 @@ namespace ThousandYearsHome.Controls.Dialogue
             }
         }
 
-        private void ProcessSilencePayload(DialogueSilencePayload silence)
+        private void ProcessSilencePayload(SilencePayload silence)
         {
             if (silence.Tag != "")
             {
@@ -438,7 +477,7 @@ namespace ThousandYearsHome.Controls.Dialogue
             }
         }
 
-        private void ProcessClearPayload(DialogueClearPayload clear)
+        private void ProcessClearPayload(ClearPayload clear)
         {
             if (clear.Tag != "")
             {
@@ -446,6 +485,39 @@ namespace ThousandYearsHome.Controls.Dialogue
             }
 
             ClearText();
+            _buffer.RemoveAt(0);
+        }
+
+        private void ProcessPortraitPayload(PortraitPayload portrait)
+        {
+            if (portrait.Tag != "")
+            {
+                EmitSignal(nameof(TagEncountered), portrait.Tag);
+            }
+
+            // Changing the portrait forces a text clear, otherwise we'd have to relayout already-drawn text.
+            // Screw that noise.
+            ClearText();
+            if (portrait.PortraitResourcePath == null)
+            {
+                _portrait.Texture = null;
+                HidePortrait();
+                _buffer.RemoveAt(0);
+                return;
+            }
+
+            if (!ResourceLoader.Exists(portrait.PortraitResourcePath, "Texture"))
+            {
+                _portrait.Texture = null;
+                HidePortrait();
+                GD.PushWarning($"Failed to load a portrait with the path '{portrait.PortraitResourcePath}'. Hiding portrait instead.");
+                _buffer.RemoveAt(0);
+                return;
+            }
+
+            var portraitTexture = ResourceLoader.Load<Texture>(portrait.PortraitResourcePath);
+            _portrait.Texture = portraitTexture;
+            ShowPortrait();
             _buffer.RemoveAt(0);
         }
 
@@ -469,11 +541,11 @@ namespace ThousandYearsHome.Controls.Dialogue
         private bool AddToLabel(string text, float speed)
         {
             List<DialogueSegment> segmentsToShow = new List<DialogueSegment>();
-            foreach (var segment in _parser.SegmentText(text))
+            foreach (var segment in _segmenter.SegmentText(text))
             {
                 // This block handles cases where we added a newline on the previous iteration
                 // and might need to page break immediately.
-                if (_currentLineIndex > _maxLineIndex)
+                if (_currentLineIndex > _maxLineCount)
                 {
                     BreakToNextPage(text, speed, segmentsToShow, segment);
                     break;
@@ -484,7 +556,7 @@ namespace ThousandYearsHome.Controls.Dialogue
                 if (segmentIsSoleNewline)
                 {
                     _currentLineIndex++;
-                    if (_currentLineIndex > _maxLineIndex)
+                    if (_currentLineIndex > _maxLineCount)
                     {
                         // We can't page break immediately--we need to move to the next segment, first.
                         continue;
@@ -499,7 +571,7 @@ namespace ThousandYearsHome.Controls.Dialogue
                 else
                 {
                     _currentLineIndex++;
-                    if (_currentLineIndex > _maxLineIndex)
+                    if (_currentLineIndex > _maxLineCount)
                     {
                         BreakToNextPage(text, speed, segmentsToShow, segment);
                         break;
@@ -581,8 +653,8 @@ namespace ThousandYearsHome.Controls.Dialogue
             }
 
             // Insert a break, and then whatever segments we couldn't fit just after the current payload.
-            _buffer.Insert(1, new DialogueTextPayload { PayloadString = remainderText, Speed = speed, Tag = "" });
-            _buffer.Insert(1, new DialogueBreakPayload());
+            _buffer.Insert(1, new TextPayload { PayloadString = remainderText, Speed = speed, Tag = "" });
+            _buffer.Insert(1, new BreakPayload());
         }
 
         private void BufferEmptied()
@@ -619,6 +691,30 @@ namespace ThousandYearsHome.Controls.Dialogue
                 Reset();
             }
         }
+
+        private void HidePortrait()
+        {
+            _portraitMargin.Visible = false;
+            UpdateMeasure();
+        }
+
+        private void ShowPortrait()
+        {
+            _portraitMargin.Visible = true;
+            UpdateMeasure();
+        }
+
+        private void UpdateMeasure()
+        {
+            float fontHeight = Font!.GetHeight();
+            float labelWidth = (IsPortraitVisible ? _labelWidthWithPortrait : _labelWidthNoPortrait) ?? _label.RectSize.y;
+            _maxLineCount = (uint)Mathf.Floor(_label.RectSize.y / (fontHeight + _label.GetConstant("line_separation"))) - 1;
+            _lineSpaceRemaining = new float[_maxLineCount + 1];
+            for (int i = 0; i < _lineSpaceRemaining.Length; i++)
+            {
+                _lineSpaceRemaining[i] = labelWidth;
+            }
+        }
     }
 
     public interface IDialoguePayload
@@ -626,7 +722,7 @@ namespace ThousandYearsHome.Controls.Dialogue
         public string Tag { get; set; }
     }
 
-    public class DialogueTextPayload : IDialoguePayload
+    public class TextPayload : IDialoguePayload
     {
         public string Tag { get; set; } = "";
         public string PayloadString { get; set; } = null!;
@@ -637,7 +733,7 @@ namespace ThousandYearsHome.Controls.Dialogue
         public float Speed { get; set; }
     }
 
-    public class DialogueSilencePayload : IDialoguePayload
+    public class SilencePayload : IDialoguePayload
     {
         public string Tag { get; set; } = "";
 
@@ -647,19 +743,20 @@ namespace ThousandYearsHome.Controls.Dialogue
         public float Length { get; set; }
     }
 
-    public class DialogueBreakPayload : IDialoguePayload
+    public class BreakPayload : IDialoguePayload
     {
         public string Tag { get; set; } = "";
     }
 
-    public class DialogueInputPayload : IDialoguePayload
+    public class ClearPayload : IDialoguePayload
     {
         public string Tag { get; set; } = "";
     }
 
-    public class DialogueClearPayload : IDialoguePayload
+    public class PortraitPayload : IDialoguePayload
     {
         public string Tag { get; set; } = "";
+        public string? PortraitResourcePath { get; set; } // TODO: this is for sure gonna change to something more performant...
     }
 
     public enum DialogueBoxState

@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://controls/dialogue/DialogueBox.cs" type="Script" id=1]
 [ext_resource path="res://art/DownArrow.png" type="Texture" id=2]
+[ext_resource path="res://art/PlaceholderPortrait.png" type="Texture" id=3]
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=4]
 
 [sub_resource type="Animation" id=1]
@@ -54,8 +55,12 @@ tracks/0/keys = {
 }
 
 [node name="DialogueBox" type="Control"]
-margin_right = 176.0
-margin_bottom = 103.0
+anchor_right = 1.0
+margin_left = 90.0
+margin_top = 8.0
+margin_right = -90.0
+margin_bottom = 72.0
+rect_clip_content = true
 theme = ExtResource( 4 )
 script = ExtResource( 1 )
 __meta__ = {
@@ -81,11 +86,60 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Label" type="RichTextLabel" parent="Background"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Background"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-visible_characters = 0
-percent_visible = 0.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PortraitMargin" type="MarginContainer" parent="Background/HBoxContainer"]
+margin_right = 58.0
+margin_bottom = 60.0
+size_flags_vertical = 3
+size_flags_stretch_ratio = 20.0
+custom_constants/margin_right = 2
+custom_constants/margin_top = 6
+custom_constants/margin_left = 8
+custom_constants/margin_bottom = 6
+
+[node name="Portrait" type="TextureRect" parent="Background/HBoxContainer/PortraitMargin"]
+margin_left = 8.0
+margin_top = 6.0
+margin_right = 56.0
+margin_bottom = 54.0
+grow_horizontal = 0
+grow_vertical = 0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture = ExtResource( 3 )
+stretch_mode = 4
+
+[node name="LabelMargin" type="MarginContainer" parent="Background/HBoxContainer"]
+margin_left = 62.0
+margin_right = 296.0
+margin_bottom = 60.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 80.0
+custom_constants/margin_top = 5
+custom_constants/margin_left = 6
+custom_constants/margin_bottom = 4
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="RichTextLabel" parent="Background/HBoxContainer/LabelMargin"]
+margin_left = 6.0
+margin_top = 5.0
+margin_right = 234.0
+margin_bottom = 56.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+bbcode_text = "* This sure is an example text box. It might have a portrait, or it might not! It might even be [u]underlined![/u]"
+text = "* This sure is an example text box. It might have a portrait, or it might not! It might even be underlined!"
+scroll_active = false
 __meta__ = {
 "_edit_use_anchors_": false
 }

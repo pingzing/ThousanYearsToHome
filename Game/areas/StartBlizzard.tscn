@@ -666,18 +666,13 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="DialogueBox" parent="UICanvas" instance=ExtResource( 5 )]
-modulate = Color( 1, 1, 1, 0 )
-margin_left = 16.0
-margin_top = 39.0
-margin_right = 464.0
-margin_bottom = 94.0
-theme = ExtResource( 12 )
-
 [node name="FadePlayer" type="AnimationPlayer" parent="UICanvas"]
 anims/FadeScene = SubResource( 20 )
 
 [node name="PowerBallWatcher" parent="UICanvas" instance=ExtResource( 11 )]
+
+[node name="DialogueBox" parent="UICanvas" instance=ExtResource( 5 )]
+modulate = Color( 1, 1, 1, 0 )
 
 [node name="CameraReference" type="ReferenceRect" parent="."]
 anchor_right = 1.0

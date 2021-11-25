@@ -178,12 +178,14 @@ namespace ThousandYearsHome.Areas
                     _dialogueBox.QueueText("You become intimiately acquainted with the densely-packed snow of this gulch's floor.", .02f)
                         .QueueBreak()
                         .QueueClear()
+                        .QueuePortrait("res://art/PlaceholderPortrait.png")
                         .QueueText("* Ow. ", .02f)
                         .QueueBreak();
                     await _dialogueBox.Run();
 
                     _player.AnimatePose("Idle");
-                    _dialogueBox.QueueText("\n* Come on, ", 0.02f).QueueSilence(0.1f).QueueText("just a little further...", 0.02f);
+                    _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
+                        .QueueText("* Come on, ", 0.02f).QueueSilence(0.1f).QueueText("just a little further...", 0.02f);
                     await _dialogueBox.Run();
                     await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
                 }
@@ -205,6 +207,7 @@ namespace ThousandYearsHome.Areas
                 _dialogueBox.QueueText("In the distance, something clearly artificial gleams amongst the drifts. It's difficult to make out through the snowfall.", 0.01f)
                     .QueueBreak()
                     .QueueClear()
+                    .QueuePortrait("res://art/PlaceholderPortrait.png")
                     .QueueText("* Could that be it?", 0.02f);
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
@@ -292,7 +295,8 @@ namespace ThousandYearsHome.Areas
                             .QueueClear();
                     await _dialogueBox.Run();
 
-                    _dialogueBox.QueueText("* Ow.", 0.03f)
+                    _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
+                        .QueueText("* Ow.", 0.03f)
                         .QueueBreak()
                         .QueueClear()
                         .QueueText("Miraculously, you seem to have escaped without major injury. Though there's fast-melting snow in places you'd rather not contemplate.", 0.01f)
@@ -310,10 +314,10 @@ namespace ThousandYearsHome.Areas
                 await _dialogueBox.Run();
 
                 // TODO: animate pose back to idle
-                _dialogueBox.QueueText("* Just as my luck was turning, too...", 0.03f)
+                _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
+                    .QueueText("* Just as my luck was turning, too...", 0.03f)
                     .QueueBreak()
-                    .QueueText("\n* All right, come on soldier, buck up.", 0.03f)
-                    .QueueBreak();
+                    .QueueText("\n* All right, come on soldier, buck up.", 0.03f);
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
@@ -335,6 +339,7 @@ namespace ThousandYearsHome.Areas
                 _dialogueBox.QueueText("You can see light coming from an exit ahead. Except...", 0.01f)
                     .QueueBreak()
                     .QueueClear()
+                    .QueuePortrait("res://art/PlaceholderPortrait.png")
                     .QueueText("* What in seasons' name is THAT?", 0.03f);
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
