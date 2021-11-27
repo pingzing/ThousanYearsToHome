@@ -1,0 +1,197 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://art/BaseTheme.tres" type="Theme" id=1]
+[ext_resource path="res://art/PlaceholderPortrait.png" type="Texture" id=2]
+[ext_resource path="res://controls/dialogue/DialogueBox.cs" type="Script" id=4]
+
+[sub_resource type="StyleBoxFlat" id=4]
+content_margin_left = 2.0
+content_margin_right = 2.0
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+bg_color = Color( 0, 0, 0, 0 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 1, 1, 1, 1 )
+
+[sub_resource type="StreamTexture" id=5]
+load_path = "res://.import/ShiftKey.png-bfe13a51864a1ade40f913596c907331.stex"
+
+[sub_resource type="Animation" id=1]
+resource_name = "Hide"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.2 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+
+[sub_resource type="Animation" id=2]
+resource_name = "Show"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.2 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=3]
+resource_name = "BlinkArrow"
+length = 1.6
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("NextArrow:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.8 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ true, false ]
+}
+
+[node name="LiteDialogueBox" type="Control"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 90.0
+margin_top = -50.0
+margin_right = -90.0
+mouse_filter = 2
+theme = ExtResource( 1 )
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Background" type="Panel" parent="."]
+self_modulate = Color( 1, 1, 1, 0 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+rect_clip_content = true
+mouse_filter = 2
+custom_styles/panel = SubResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BackgroundColor" type="ColorRect" parent="Background"]
+self_modulate = Color( 1, 1, 1, 0 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 1.0
+margin_top = 1.0
+margin_right = -1.0
+margin_bottom = -1.0
+color = Color( 0, 0, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false,
+"_editor_description_": "Here in addition to the Background Panel so that we 
+can have an opaque border, but a transparent background."
+}
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Background"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PortraitMargin" type="MarginContainer" parent="Background/HBoxContainer"]
+margin_right = 49.0
+margin_bottom = 50.0
+size_flags_vertical = 3
+size_flags_stretch_ratio = 20.0
+custom_constants/margin_top = 1
+custom_constants/margin_left = 1
+
+[node name="Portrait" type="TextureRect" parent="Background/HBoxContainer/PortraitMargin"]
+margin_left = 1.0
+margin_top = 1.0
+margin_right = 49.0
+margin_bottom = 50.0
+grow_horizontal = 0
+grow_vertical = 0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture = ExtResource( 2 )
+stretch_mode = 3
+
+[node name="LabelMargin" type="MarginContainer" parent="Background/HBoxContainer"]
+margin_left = 53.0
+margin_right = 300.0
+margin_bottom = 50.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 80.0
+custom_constants/margin_top = 2
+custom_constants/margin_left = 2
+custom_constants/margin_bottom = 4
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="RichTextLabel" parent="Background/HBoxContainer/LabelMargin"]
+margin_left = 2.0
+margin_top = 2.0
+margin_right = 247.0
+margin_bottom = 46.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_colors/font_color_shadow = Color( 0, 0, 0, 0.784314 )
+bbcode_enabled = true
+bbcode_text = "* This sure is an example text box. It might have a portrait, or it might not! It might even be [u]underlined![/u]"
+text = "* This sure is an example text box. It might have a portrait, or it might not! It might even be underlined!"
+scroll_active = false
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="NextArrow" type="TextureRect" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -26.0
+margin_top = -12.0
+margin_right = -4.0
+margin_bottom = -3.0
+texture = SubResource( 5 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CharacterTickTimer" type="Timer" parent="."]
+
+[node name="SilenceTimer" type="Timer" parent="."]
+wait_time = 0.001
+one_shot = true
+
+[node name="DialogueBoxAnimator" type="AnimationPlayer" parent="."]
+anims/Hide = SubResource( 1 )
+anims/Show = SubResource( 2 )
+
+[node name="NextArrowAnimator" type="AnimationPlayer" parent="."]
+anims/BlinkArrow = SubResource( 3 )
+
+[connection signal="timeout" from="CharacterTickTimer" to="." method="CharacterTickTimeout"]
+[connection signal="timeout" from="SilenceTimer" to="." method="SilenceTimerTimeout"]
+[connection signal="animation_finished" from="DialogueBoxAnimator" to="." method="OnAnimationFinished"]

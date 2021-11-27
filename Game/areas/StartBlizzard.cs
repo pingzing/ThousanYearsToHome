@@ -20,6 +20,7 @@ namespace ThousandYearsHome.Areas
         private Particles2D _snowParticles = null!;
         private ColorRect _fader = null!;
         private DialogueBox _dialogueBox = null!;
+        private DialogueBox _liteDialogueBox = null!;
         private HUD _hud = null!;
         private Camera2D _cinematicCamera = null!;
         private TileMap _midgroundTiles = null!;
@@ -49,6 +50,8 @@ namespace ThousandYearsHome.Areas
             _snowParticles = GetNode<Particles2D>("UICanvas/Particles2D");
             _fader = GetNode<ColorRect>("UICanvas/Fader");
             _dialogueBox = GetNode<DialogueBox>("UICanvas/DialogueBox");
+            _liteDialogueBox = GetNode<DialogueBox>("UICanvas/LiteDialogueBox");
+            _liteDialogueBox.BreakKey = KeyList.Shift;
             _player = GetNode<Player>("Player");
             _animator = GetNode<AnimationPlayer>("AnimationPlayer");
             _fadeAnimator = GetNode<AnimationPlayer>("UICanvas/FadePlayer");
@@ -169,28 +172,41 @@ namespace ThousandYearsHome.Areas
                 _firstFallTriggered = true;
                 _firstFallDialogueTrigger.QueueFree();
 
-                _player.InputLocked = true;
+                await _liteDialogueBox.Open();
+                _liteDialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
+                    .QueueText("* Ow.")
+                    .QueueBreak()
+                    .QueueClear()
+                    .QueueText("* I am so ", .01f).QueueSilence(.3f).QueueText("SICK").QueueSilence(.3f).QueueText(" of these hills.", .01f)
+                    .QueueBreak()
+                    .QueueClear()
+                    .QueueText("* Hopefully this really is the trail...", .01f)
+                    .QueueBreak();
+                await _liteDialogueBox.Run();
+                await _liteDialogueBox.Close();
 
-                using (_player.DisableStateMachine())
-                {
-                    _player.AnimatePose("Crouch"); // TODO: Replace with faceplant animation.                    
-                    await _dialogueBox.Open();
-                    _dialogueBox.QueueText("You become intimiately acquainted with the densely-packed snow of this gulch's floor.", .02f)
-                        .QueueBreak()
-                        .QueueClear()
-                        .QueuePortrait("res://art/PlaceholderPortrait.png")
-                        .QueueText("* Ow. ", .02f)
-                        .QueueBreak();
-                    await _dialogueBox.Run();
+                //_player.InputLocked = true;
 
-                    _player.AnimatePose("Idle");
-                    _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
-                        .QueueText("* Come on, ", 0.02f).QueueSilence(0.1f).QueueText("just a little further...", 0.02f);
-                    await _dialogueBox.Run();
-                    await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
-                }
+                //using (_player.DisableStateMachine())
+                //{
+                //    _player.AnimatePose("Crouch"); // TODO: Replace with faceplant animation.                    
+                //    await _dialogueBox.Open();
+                //    _dialogueBox.QueueText("You become intimately acquainted with the densely-packed snow of this gulch's floor.", .02f)
+                //        .QueueBreak()
+                //        .QueueClear()
+                //        .QueuePortrait("res://art/PlaceholderPortrait.png")
+                //        .QueueText("* Ow. ", .02f)
+                //        .QueueBreak();
+                //    await _dialogueBox.Run();
 
-                _player.InputLocked = false;
+                //    _player.AnimatePose("Idle");
+                //    _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
+                //        .QueueText("* Come on, ", 0.02f).QueueSilence(0.1f).QueueText("just a little further...", 0.02f);
+                //    await _dialogueBox.Run();
+                //    await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
+                //}
+
+                //_player.InputLocked = false;
             }
         }
 

@@ -336,7 +336,8 @@ namespace ThousandYearsHome.Controls.Dialogue
 
             if (_currState == DialogueBoxState.Outputting
                 && _isBreak
-                && keyEvt.Scancode == (uint)BreakKey)
+                && keyEvt.Scancode == (uint)BreakKey
+                && !keyEvt.Echo)
             {
                 BreakExited();
                 _buffer.RemoveAt(0);

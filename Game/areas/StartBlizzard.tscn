@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=2]
+[gd_scene load_steps=35 format=2]
 
 [ext_resource path="res://entities/playerentity/Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://areas/StartBlizzard.cs" type="Script" id=2]
@@ -13,6 +13,7 @@
 [ext_resource path="res://controls/PowerBallWatcher.tscn" type="PackedScene" id=11]
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=12]
 [ext_resource path="res://entities/breakableentity/BreakableEntity.tscn" type="PackedScene" id=13]
+[ext_resource path="res://controls/dialogue/LiteDialogueBox.tscn" type="PackedScene" id=14]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 345, 4 )
@@ -672,6 +673,9 @@ anims/FadeScene = SubResource( 20 )
 [node name="PowerBallWatcher" parent="UICanvas" instance=ExtResource( 11 )]
 
 [node name="DialogueBox" parent="UICanvas" instance=ExtResource( 5 )]
+modulate = Color( 1, 1, 1, 0 )
+
+[node name="LiteDialogueBox" parent="UICanvas" instance=ExtResource( 14 )]
 modulate = Color( 1, 1, 1, 0 )
 
 [node name="CameraReference" type="ReferenceRect" parent="."]
