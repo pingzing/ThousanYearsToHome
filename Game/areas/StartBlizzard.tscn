@@ -156,10 +156,13 @@ script = ExtResource( 2 )
 [node name="ParallaxBackground" type="ParallaxBackground" parent="."]
 
 [node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground"]
-motion_scale = Vector2( 0.05, 0.01 )
+motion_scale = Vector2( 0.05, 0.05 )
 motion_mirroring = Vector2( 480, 0 )
 
 [node name="TextureRect" type="TextureRect" parent="ParallaxBackground/ParallaxLayer"]
+margin_top = -270.0
+margin_right = 480.0
+margin_bottom = 270.0
 texture = ExtResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -623,11 +626,13 @@ autostart = true
 [node name="Tweener" type="Tween" parent="."]
 
 [node name="CinematicCamera" type="Camera2D" parent="."]
-position = Vector2( 190, -65 )
+position = Vector2( 0, -270 )
+anchor_mode = 0
 current = true
 limit_left = 0
-limit_top = -200
-limit_bottom = 217
+limit_top = -2000
+limit_right = 15000
+limit_bottom = 3000
 drag_margin_left = 0.0
 drag_margin_top = 0.0
 drag_margin_right = 0.0

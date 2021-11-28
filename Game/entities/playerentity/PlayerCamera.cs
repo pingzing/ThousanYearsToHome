@@ -75,6 +75,10 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             {
                 if (value)
                 {
+                    // Snap the _current<X|Y>Offset values to the current viewport offsets, so we don't get one frame of flicker
+                    _currentXOffset = _viewport.CanvasTransform.origin.x;
+                    _currentYOffset = _viewport.CanvasTransform.origin.y;
+
                     if (IsInsideTree())
                     {
                         // Tell all other Camera2Ds to stop being Current, and this one to start.
@@ -186,10 +190,12 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             if (which == this)
             {
                 _isCameraCurrent = true;
+                Update();
             }
             else
             {
                 _isCameraCurrent = false;
+                Update();
             }
         }
 

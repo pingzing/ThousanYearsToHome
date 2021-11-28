@@ -1,5 +1,4 @@
 using Godot;
-using System;
 using System.Threading.Tasks;
 using ThousandYearsHome.Controls;
 using ThousandYearsHome.Controls.Dialogue;
@@ -109,7 +108,7 @@ namespace ThousandYearsHome.Areas
             if (!SkipIntro)
             {
                 // Initial camera Pan
-                _tweener.InterpolateProperty(_cinematicCamera, "global_position", null, new Vector2(190, 82), 6.5f, Tween.TransitionType.Cubic, Tween.EaseType.InOut);
+                _tweener.InterpolateProperty(_cinematicCamera, "global_position", null, new Vector2(0, -21), 6.5f, Tween.TransitionType.Cubic, Tween.EaseType.InOut);
                 _tweener.Start();
                 await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
 
