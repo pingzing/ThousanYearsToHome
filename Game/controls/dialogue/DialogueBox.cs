@@ -140,8 +140,8 @@ namespace ThousandYearsHome.Controls.Dialogue
         /// Enqueues text to add to the dialogue box. Supports BBCode.
         /// </summary>
         /// <param name="text">The text to add.</param>
-        /// <param name="speed">Number of seconds to take to print each character.</param>        
-        public DialogueBox QueueText(string text, float speed = 0f, string tag = "", bool pushFront = false)
+        /// <param name="speed">Number of seconds to take to print each character. Defaults to 0.015. If 0, the text appears instantly.</param>        
+        public DialogueBox QueueText(string text, float speed = 0.015f, string tag = "", bool pushFront = false)
         {
             _bufferEmptied = false;
 

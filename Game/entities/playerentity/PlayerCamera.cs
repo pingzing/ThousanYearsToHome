@@ -22,7 +22,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private float? _yAxisLock = null; // TODO: Not implemented yet
         private float _currentXOffset = 0;
         private float _currentYOffset = 0;
-        private float _xPerSecond = 150f;
+        private float _xPerSecond = 175f;
         private float _yPerSecond = 200f;
         private Rect2 _currentRect = new Rect2(64, ResolutionHeight * .6f, 40, 16);
 
@@ -52,7 +52,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         /// The multiplier by which camera speed is increased when the player is moving.
         /// </summary>
         [Export(PropertyHint.Range, "1.0, 2.0, .01")]
-        public float MovementAccelerationCoefficient = 1.1f;
+        public float MovementAccelerationCoefficient = 1.2f;
 
         /// <summary>
         /// The value that the TargetRect returns to when idle.

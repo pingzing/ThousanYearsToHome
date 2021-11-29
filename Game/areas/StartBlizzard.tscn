@@ -282,6 +282,7 @@ LimitRight = 11000
 LimitTop = -1664
 LimitBottom = 1200
 Current = false
+MovementAccelerationCoefficient = 1.1
 TargetRect = Rect2( 64, 16, 80, 160 )
 
 [node name="PowerBallSet" parent="." instance=ExtResource( 9 )]

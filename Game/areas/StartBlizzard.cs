@@ -120,9 +120,14 @@ namespace ThousandYearsHome.Areas
                 _player.AnimatePose("Idle");
 
                 await _dialogueBox.Open();
-                _dialogueBox.QueueText("* I think I'm finally getting close... ", .03f);
-                _dialogueBox.QueueBreak();
-                _dialogueBox.QueueText("Not long now, one way or the other.", .03f);
+                _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
+                    .QueueText("...whew.\n")
+                    .QueueBreak()
+                    .QueueText("Finally made it up here.\n")
+                    .QueueBreak()
+                    .QueueText("This is the closest thing to a trail I've found all week. I really hope I'm close.")
+                    .QueueBreak().QueueClear()
+                    .QueueText(" ...especially because I'm almost out of supplies. If this doesn't lead anywhere, I'll have to turn back.");
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, "DialogueBoxClosed");
 
@@ -173,13 +178,11 @@ namespace ThousandYearsHome.Areas
 
                 await _liteDialogueBox.Open();
                 _liteDialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
-                    .QueueText("* Ow.")
-                    .QueueBreak()
-                    .QueueClear()
-                    .QueueText("* I am so ", .01f).QueueSilence(.3f).QueueText("SICK").QueueSilence(.3f).QueueText(" of these hills.", .01f)
-                    .QueueBreak()
-                    .QueueClear()
-                    .QueueText("* Hopefully this really is the trail...", .01f)
+                    .QueueText("Ow.")
+                    .QueueBreak().QueueClear()
+                    .QueueText("I am so ").QueueSilence(.3f).QueueText("SICK").QueueSilence(.3f).QueueText(" of these hills.")
+                    .QueueBreak().QueueClear()
+                    .QueueText("Hopefully this really is the trail...", .015f)
                     .QueueBreak();
                 await _liteDialogueBox.Run();
                 await _liteDialogueBox.Close();
@@ -219,11 +222,12 @@ namespace ThousandYearsHome.Areas
 
                 _player.InputLocked = true;
                 await _dialogueBox.Open();
-                _dialogueBox.QueueText("In the distance, something clearly artificial gleams amongst the drifts. It's difficult to make out through the snowfall.", 0.01f)
+                _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
+                    .QueueText("...?\n")
                     .QueueBreak()
-                    .QueueClear()
-                    .QueuePortrait("res://art/PlaceholderPortrait.png")
-                    .QueueText("* Could that be it?", 0.02f);
+                    .QueueText("What is that? I can barely make it out through the snowfall...")
+                    .QueueBreak().QueueClear()
+                    .QueueText("But...").QueueBreak().QueueText(" it looks...").QueueSilence(1f).QueueText(" artificial...");
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
@@ -263,9 +267,9 @@ namespace ThousandYearsHome.Areas
                 _snowParticles.Emitting = false; // no snow inside caves!
                 await _dialogueBox.Open();
 
-                var prevRect = _playerCamera.TargetRect;
+                // Make the Cinematic Camera take over, and parent it to the player so it follows them
+                CinematicCameraFollowPlayer(_player, _cinematicCamera);
 
-                _playerCamera.TargetRect = new Rect2(prevRect.Position, prevRect.Size.x, 0f);
                 _dialogueBox.QueueText("You have exactly enough time to regret the choices that led you here, and to mourn your imminent death.", 0.01f)
                     .QueueBreak()
                     .QueueText("\nBizarrely, you mostly just find yourself hoping you don't die in a stupid-looking posiiton.", 0.01f);
@@ -291,50 +295,45 @@ namespace ThousandYearsHome.Areas
             if (body is Player && !_collapseLanded)
             {
                 _collapseLanded = true;
-                _playerCamera.TargetRect = new Rect2(64, 16, 80, 160); // Stop force-centering the player in the camera vertically
 
                 _player.InputLocked = true;
 
                 using (_player.DisableStateMachine())
                 {
-                    _player.AnimatePose("Crouch");
+                    _player.AnimatePose("Crouch"); // TODO: Faceplant animation/pose
 
                     await Task.Delay(1000);
 
                     await _dialogueBox.Open();
-                    string firstLine = _firstFallTriggered
-                        ? "You find yourself contemplating the floor of an icy pit for the second time today. You hope it isn't going to become a habit."
-                        : "You find yourself contemplating an icy floor at the bottom of a deep pit.";
-                    _dialogueBox.QueueText(firstLine, 0.01f)
-                            .QueueBreak()
-                            .QueueClear();
-                    await _dialogueBox.Run();
-
                     _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
-                        .QueueText("* Ow.", 0.03f)
-                        .QueueBreak()
-                        .QueueClear()
-                        .QueueText("Miraculously, you seem to have escaped without major injury. Though there's fast-melting snow in places you'd rather not contemplate.", 0.01f)
-                        .QueueBreak()
-                        .QueueClear();
+                        .QueueText("Ow.")
+                        .QueueSilence(2)
+                        .QueueBreak();
+
+                    _player.AnimatePose("Idle"); // TODO: Animate standing up, then animate LOOKING up
+
+                    // TODO: pan camera up to fluttering coat
+
+                    string variantLine = _firstFallTriggered
+                        ? "The second time today! Unbelievable.\nNot getting back out that way. Or getting my coat back..."
+                        : "Not getting back out that way. Or getting my coat back...";
+                    _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
+                        .QueueText(variantLine)
+                        .QueueBreak().QueueClear();
                     await _dialogueBox.Run();
                 }
 
-                _player.AnimatePose("Idle"); // TODO: Replace this with crouch once the above is replaced by faceplant.
-
-                // TODO: Animate pose into "looking up"
-                _dialogueBox.QueueText("You can barely see the light at the top of the hole. You're probably not getting back out the way you came in.", 0.01f)
-                    .QueueBreak()
-                    .QueueClear();
-                await _dialogueBox.Run();
-
+                // TODO: Pan camera back down
                 // TODO: animate pose back to idle
+
                 _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
-                    .QueueText("* Just as my luck was turning, too...", 0.03f)
+                    .QueueText("Brrr. It is [shake rate=10 level=8]cold[/shake].")
                     .QueueBreak()
-                    .QueueText("\n* All right, come on soldier, buck up.", 0.03f);
+                    .QueueText("\nI'll be okay in here for a little while, but if I have to go outside again, that wind is going to slice right through me. I've got to find some shelter, and fast...");
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
+
+                PlayerCameraTakeControl(_player, _playerCamera, _cinematicCamera);
 
                 _collapseLandingTriggerArea.QueueFree();
                 _player.InputLocked = false;
@@ -427,6 +426,30 @@ namespace ThousandYearsHome.Areas
                 // For the final segment of the level, prevent the camera from going too far into the leftmost wall.
                 _playerCamera.LimitLeft = 5408;
             }
+        }
+
+        /// <summary>
+        /// Reparents the cinematic camera to the Player node, and gives it control.
+        /// </summary>
+        private void CinematicCameraFollowPlayer(Player player, Camera2D cinematicCamera)
+        {
+            RemoveChild(cinematicCamera);
+            player.AddChild(cinematicCamera);
+            cinematicCamera.Owner = player;
+            var relativePlayerPos = player.GetGlobalTransformWithCanvas().origin;
+            cinematicCamera.Position = -(new Vector2(relativePlayerPos.x, relativePlayerPos.y));
+            cinematicCamera.Current = true;
+        }
+
+        /// <summary>
+        /// Gives the PlayerCamera control again, and returns the cinematic camera to the main scene tree.
+        /// </summary>
+        private void PlayerCameraTakeControl(Player player, PlayerCamera playerCamera, Camera2D cinematicCamera)
+        {
+            playerCamera.Current = true;
+            player.RemoveChild(cinematicCamera);
+            AddChild(cinematicCamera);
+            cinematicCamera.Owner = this;
         }
     }
 }
