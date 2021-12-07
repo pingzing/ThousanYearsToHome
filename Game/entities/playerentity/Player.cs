@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Runtime.CompilerServices;
+using ThousandYearsHome.Entities.PowerBallEntity;
 
 namespace ThousandYearsHome.Entities.PlayerEntity
 {
@@ -223,7 +224,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 _jumpTimer.Start();
             }
 
-            IsKickJustPressed = _inputService.IsJustPressed(PlayerInputAction.Cancel) 
+            IsKickJustPressed = _inputService.IsJustPressed(PlayerInputAction.Cancel)
                 && !IsKicking;
 
             if (_inputService.IsPressed(PlayerInputAction.Accept))
@@ -450,12 +451,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public void SetSprite(int frameIndex)
         {
             _sprite.Frame = frameIndex;
-        }
-
-        public void OnHornTouched(PowerBall ball)
-        {
-            // TODO: Increase stamina meter, make player glow
-            // Maybe make more generic somehow
         }
 
         /// <summary>

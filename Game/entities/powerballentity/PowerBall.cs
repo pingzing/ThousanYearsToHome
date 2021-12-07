@@ -53,6 +53,7 @@ namespace ThousandYearsHome.Entities
         private Node2D _ballSet = null!;
         private Node2D _ballContainer = null!;
         private VisibilityNotifier2D _visibilityNotifier = null!;
+        private HornCollectibleSignalBus _signalBus = null!;
         private bool _active = false;
 
         public override void _Ready()
@@ -66,6 +67,7 @@ namespace ThousandYearsHome.Entities
             _ballContainer = GetParent<Node2D>();
             _ballSet = _ballContainer.GetParent<Node2D>();
             _visibilityNotifier = GetNode<VisibilityNotifier2D>("VisibilityNotifier");
+            _signalBus = GetNode<HornCollectibleSignalBus>("/root/HornCollectibleSignalBus");
             Hide();
         }
 
@@ -107,8 +109,7 @@ namespace ThousandYearsHome.Entities
         {
             if (area.Name == "HornBox") // TODO: Something more type safe?
             {
-                var player = area.GetParent().GetParent<Player>();
-                player.OnHornTouched(this);
+                _signalBus.EmitSignal(nameof(HornCollectibleSignalBus.PowerBallCollected), this);
             }
 
             if (area.Name == "BallKillArea" || area.Name == "HornBox")

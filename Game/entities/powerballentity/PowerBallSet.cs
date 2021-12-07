@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ThousandYearsHome.Entities.PlayerEntity;
 
-namespace ThousandYearsHome.Entities
+namespace ThousandYearsHome.Entities.PowerBallEntity
 {
     [Tool]
     public class PowerBallSet : Node2D

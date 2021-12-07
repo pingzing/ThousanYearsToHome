@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=2]
+[gd_scene load_steps=35 format=2]
 
 [ext_resource path="res://entities/playerentity/Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://areas/StartBlizzard.cs" type="Script" id=2]
@@ -8,9 +8,10 @@
 [ext_resource path="res://controls/HUD.tscn" type="PackedScene" id=6]
 [ext_resource path="res://art/Doodads.png" type="Texture" id=7]
 [ext_resource path="res://art/snowpiles.png" type="Texture" id=8]
-[ext_resource path="res://entities/PowerBallSet.tscn" type="PackedScene" id=9]
-[ext_resource path="res://entities/PowerBall.tscn" type="PackedScene" id=10]
+[ext_resource path="res://entities/powerballentity/PowerBallSet.tscn" type="PackedScene" id=9]
+[ext_resource path="res://entities/powerballentity/PowerBall.tscn" type="PackedScene" id=10]
 [ext_resource path="res://controls/PowerBallWatcher.tscn" type="PackedScene" id=11]
+[ext_resource path="res://entities/warmthballemitterentity/WarmthBallEmitter.tscn" type="PackedScene" id=12]
 [ext_resource path="res://entities/breakableentity/BreakableEntity.tscn" type="PackedScene" id=13]
 [ext_resource path="res://controls/dialogue/LiteDialogueBox.tscn" type="PackedScene" id=14]
 
@@ -209,7 +210,7 @@ position = Vector2( 5809, 504 )
 position = Vector2( 7368, -1432 )
 
 [node name="StartPosition" type="Position2D" parent="."]
-position = Vector2( 5909, -1446 )
+position = Vector2( 9552, -601 )
 
 [node name="JumpTutorialSign" type="Sprite" parent="."]
 position = Vector2( 512, 89 )
@@ -618,6 +619,9 @@ __meta__ = {
 
 [node name="ClimaxCameraLimitAdjustShape" type="CollisionShape2D" parent="ClimaxCameraLimitAdjustArea"]
 shape = SubResource( 14 )
+
+[node name="WarmthBallEmitter" parent="." instance=ExtResource( 12 )]
+position = Vector2( 7334, -1600 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 anims/PassOut = SubResource( 15 )

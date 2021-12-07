@@ -4,6 +4,7 @@ using ThousandYearsHome.Controls;
 using ThousandYearsHome.Controls.Dialogue;
 using ThousandYearsHome.Entities;
 using ThousandYearsHome.Entities.PlayerEntity;
+using ThousandYearsHome.Entities.WarmthBallEntity;
 using ThousandYearsHome.Extensions;
 
 namespace ThousandYearsHome.Areas
@@ -24,6 +25,7 @@ namespace ThousandYearsHome.Areas
         private Camera2D _cinematicCamera = null!;
         private TileMap _midgroundTiles = null!;
         private PowerBallWatcher _powerBallWatcher = null!;
+        private HornCollectibleSignalBus _collectibleSignalBus = null!;
 
         private Area2D _firstFallDialogueTrigger = null!;
         private Area2D _vistaPointTrigger = null!;
@@ -60,6 +62,9 @@ namespace ThousandYearsHome.Areas
             _cinematicCamera = GetNode<Camera2D>("CinematicCamera");
             _midgroundTiles = GetNode<TileMap>("MidgroundTiles");
             _powerBallWatcher = GetNode<PowerBallWatcher>("UICanvas/PowerBallWatcher");
+            _collectibleSignalBus = GetNode<HornCollectibleSignalBus>("/root/HornCollectibleSignalBus");
+            _collectibleSignalBus.Connect(nameof(HornCollectibleSignalBus.PowerBallCollected), this, nameof(PowerBallCollected));
+            _collectibleSignalBus.Connect(nameof(HornCollectibleSignalBus.WarmthBallCollected), this, nameof(WarmthBallCollected));
 
             _firstFallDialogueTrigger = GetNode<Area2D>("FirstFallDialogueTrigger");
             _vistaPointTrigger = GetNode<Area2D>("VistaPointDialogueTrigger");
@@ -426,6 +431,16 @@ namespace ThousandYearsHome.Areas
                 // For the final segment of the level, prevent the camera from going too far into the leftmost wall.
                 _playerCamera.LimitLeft = 5408;
             }
+        }
+
+        public void WarmthBallCollected(WarmthBall ball)
+        {
+            GD.Print("Level sees that player got a WarmthBall");
+        }
+
+        public void PowerBallCollected(PowerBall ball)
+        {
+            GD.Print("Level sees that player got a PowerBall");
         }
 
         /// <summary>

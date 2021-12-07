@@ -14,6 +14,10 @@ config/name="Thousand Years Home"
 run/main_scene="res://Title.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+HornCollectibleSignalBus="*res://entities/HornCollectibleSignalBus.cs"
+
 [display]
 
 window/size/width=480
