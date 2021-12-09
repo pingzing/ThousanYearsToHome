@@ -13,17 +13,28 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public override string DefaultAnimation => AnimationName;
 
         private Timer _kickTimer = null!;
+        private float? _defaultKickAnimationDuration = null;
 
         public override void _Ready()
         {
             _kickTimer = GetParent().GetParent<Player>().GetNode<Timer>("KickTimer");
         }
 
-        public override Task Enter(Player player)
+        public override async Task Enter(Player player)
         {
-            base.Enter(player);
-            _kickTimer.Start();
-            return Task.CompletedTask;
+            if (player.KickOverride != null)
+            {
+                await player.KickOverride(player, _kickTimer);
+            }
+            else
+            {
+                if (_defaultKickAnimationDuration == null)
+                {
+                    _defaultKickAnimationDuration = player.GetPoseAnimationDuration(AnimationName);
+                }
+                await base.Enter(player);
+                _kickTimer.Start(_defaultKickAnimationDuration.Value);
+            }
         }
 
         public override PlayerStateKind? Run(Player player)

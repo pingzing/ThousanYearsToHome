@@ -1,18 +1,12 @@
 using Godot;
 using System;
-using System.Runtime.CompilerServices;
-using ThousandYearsHome.Entities.PowerBallEntity;
+using System.Threading.Tasks;
 
 namespace ThousandYearsHome.Entities.PlayerEntity
 {
     [Tool]
     public class Player : KinematicBody2D
     {
-        public const int StandFrame = 0;
-        public const int WalkFrame1 = 1;
-        public const int WalkFrame2 = 2;
-        public const int WalkFrame3 = 3;
-
         private AnimationPlayer _poseAnimator = null!;
         private AnimationPlayer _colorAnimator = null!;
         private Sprite _sprite = null!;
@@ -46,6 +40,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public bool IsWallJumpLocked => !_wallJumpLockoutTimer.IsStopped();
         public bool IsKickJustPressed { get; private set; }
         public bool IsKicking => !_kickTimer.IsStopped();
+        public Func<Player, Timer, Task>? KickOverride { get; set; } = null!;
         public float IdleTime { get; private set; }
         public RayCast2D LeftRaycast => _leftRaycast;
         public RayCast2D RightRaycast => _rightRaycast;
@@ -451,6 +446,18 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public void SetSprite(int frameIndex)
         {
             _sprite.Frame = frameIndex;
+        }
+
+        public float GetPoseAnimationDuration(string animationName)
+        {
+            var animation = _poseAnimator.GetAnimation(animationName);
+            if (animation == null)
+            {
+                GD.PushWarning($"Failed to get duration of animation named '{animationName}'. No animation with that name found.");
+                return 0f;
+            }
+
+            return animation.Length;
         }
 
         /// <summary>

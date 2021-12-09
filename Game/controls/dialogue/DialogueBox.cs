@@ -70,6 +70,8 @@ namespace ThousandYearsHome.Controls.Dialogue
         /// </summary>
         [Signal] public delegate void BufferCleared();
 
+        public bool IsOpen { get; set; } = false;
+
         public override void _Ready()
         {
             SetPhysicsProcess(true);
@@ -87,7 +89,6 @@ namespace ThousandYearsHome.Controls.Dialogue
             _silenceTimer = GetNode<Timer>("SilenceTimer");
 
             _nextArrow = GetNode<TextureRect>("NextArrow");
-            BreakKey = KeyList.Z; // TODO: Make this user-configurable, I guess.
             _animator = GetNode<AnimationPlayer>("DialogueBoxAnimator");
             _nextArrowAnimator = GetNode<AnimationPlayer>("NextArrowAnimator");
 
@@ -273,6 +274,7 @@ namespace ThousandYearsHome.Controls.Dialogue
 
         public Task Open()
         {
+            IsOpen = true;
             _showCompletionSource = new TaskCompletionSource<string>();
             _animator.Play("Show");
             return _showCompletionSource.Task;
@@ -280,6 +282,7 @@ namespace ThousandYearsHome.Controls.Dialogue
 
         public Task Close()
         {
+            IsOpen = false;
             _hideCompletionSource = new TaskCompletionSource<string>();
             _animator.Play("Hide");
             return _hideCompletionSource.Task;

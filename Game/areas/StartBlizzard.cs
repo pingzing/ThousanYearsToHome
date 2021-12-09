@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using System.Threading.Tasks;
 using ThousandYearsHome.Controls;
 using ThousandYearsHome.Controls.Dialogue;
@@ -396,10 +397,13 @@ namespace ThousandYearsHome.Areas
                 _tweener.Start();
                 await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
 
+                // Return control to player, lock down their ability to kick
                 _playerCamera.Current = true;
+                _player.KickOverride = FreezingKickOverride;
                 _keeperCutsceneTriggerArea.QueueFree();
                 _player.InputLocked = false;
 
+                // More snow!
                 _snowParticles.Amount = 1600;
                 (_snowParticles.ProcessMaterial as ParticlesMaterial).InitialVelocity = 680f;
                 _snowParticles.Emitting = true;
@@ -436,11 +440,18 @@ namespace ThousandYearsHome.Areas
         public void WarmthBallCollected(WarmthBall ball)
         {
             GD.Print("Level sees that player got a WarmthBall");
+            // Freeze the warmth drain
+            // Begin the warmth ball's expiry timer
+            // Trigger the "powered up" animation
+
+            // Unlock kicking on the player
+            _player.KickOverride = null;
         }
 
         public void PowerBallCollected(PowerBall ball)
         {
             GD.Print("Level sees that player got a PowerBall");
+            // Increase the current warmth value, and update the warmth bar
         }
 
         /// <summary>
@@ -465,6 +476,29 @@ namespace ThousandYearsHome.Areas
             player.RemoveChild(cinematicCamera);
             AddChild(cinematicCamera);
             cinematicCamera.Owner = this;
+        }
+
+        private async Task FreezingKickOverride(Player player, Timer kickAnimationTimer)
+        {
+            // Player a slower kick animation that doesn't break breakables, then play some lite dialogue
+            player.AnimatePose("FrozenKick");
+            float slowKickDuration = player.GetPoseAnimationDuration("FrozenKick");
+            kickAnimationTimer.Start(slowKickDuration);
+
+            if (!_liteDialogueBox.IsOpen)
+            {
+                // TODO: variant dialogues
+                await Task.Delay(TimeSpan.FromSeconds(slowKickDuration));
+                _liteDialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
+                    .QueueText("T-t-t-").QueueSilence(.35f)
+                    .QueueText("too c-c-c-").QueueSilence(.35f)
+                    .QueueText("cold to k-k-k-").QueueSilence(.35f)
+                    .QueueText("kick...")
+                    .QueueBreak();
+                await _liteDialogueBox.Open();
+                await _liteDialogueBox.Run();
+                await _liteDialogueBox.Close();
+            }
         }
     }
 }

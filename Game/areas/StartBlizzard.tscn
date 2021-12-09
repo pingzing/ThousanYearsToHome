@@ -210,7 +210,7 @@ position = Vector2( 5809, 504 )
 position = Vector2( 7368, -1432 )
 
 [node name="StartPosition" type="Position2D" parent="."]
-position = Vector2( 9552, -601 )
+position = Vector2( 5904, 493 )
 
 [node name="JumpTutorialSign" type="Sprite" parent="."]
 position = Vector2( 512, 89 )

@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=2]
+[gd_scene load_steps=27 format=2]
 
 [ext_resource path="res://entities/playerentity/Player.cs" type="Script" id=1]
 [ext_resource path="res://art/PonyWalk2.png" type="Texture" id=2]
@@ -63,6 +63,71 @@ tracks/3/keys = {
 "transitions": PoolRealArray( 1 ),
 "update": 0,
 "values": [ Vector2( 0, 0 ) ]
+}
+
+[sub_resource type="Animation" id=14]
+resource_name = "FrozenKick"
+length = 1.55
+step = 0.01
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.13, 0.26, 0.8, 0.92, 1.02, 1.24, 1.39, 1.49 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 7, 8, 9, 10, 11, 12, 9, 8, 7 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath(".:offset")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.13, 0.26, 0.8, 1.24, 1.39, 1.49 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ Vector2( 0, 0 ), Vector2( 7, 0 ), Vector2( -1, 0 ), Vector2( 7, 0 ), Vector2( -1, 0 ), Vector2( 7, 0 ), Vector2( 0, 0 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("HornBox/HornBoxCollisionShape:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.13, 0.26, 0.8, 1.24, 1.39, 1.49 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ Vector2( 7, -21 ), Vector2( -22.685, -18.1575 ), Vector2( -27.812, 12.651 ), Vector2( -16.762, 20.143 ), Vector2( -27.812, 12.651 ), Vector2( -22.685, -18.1575 ), Vector2( 7, -21 ) ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("HornBox/HornBoxCollisionShape:rotation_degrees")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.13, 0.26, 0.8, 1.24, 1.39, 1.49 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ -132.3, -41.8, 31.4664, 14.0662, 31.4664, -41.8, -132.3 ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("HornBox/HornBoxCollisionShape:shape:extents")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0, 0.13, 0.26, 0.8, 1.24, 1.39, 1.49 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ Vector2( 2.19067, 4.51285 ), Vector2( 2.19067, 4.51285 ), Vector2( 2.19067, 4.51285 ), Vector2( 2.19067, 4.51285 ), Vector2( 2.19067, 4.51285 ), Vector2( 2.19067, 4.51285 ), Vector2( 2.19067, 4.51285 ) ]
 }
 
 [sub_resource type="Animation" id=2]
@@ -636,6 +701,7 @@ region_rect = Rect2( 189, 12, 140, 40 )
 
 [node name="PoseAnimator" type="AnimationPlayer" parent="Sprite"]
 anims/Crouch = SubResource( 1 )
+anims/FrozenKick = SubResource( 14 )
 anims/Idle = SubResource( 2 )
 anims/InAir = SubResource( 3 )
 anims/Jump = SubResource( 4 )
