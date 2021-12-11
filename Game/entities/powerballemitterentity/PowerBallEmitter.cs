@@ -1,14 +1,15 @@
 using Godot;
 using System;
+using ThousandYearsHome.Entities.PowerBallEntity;
 
-namespace ThousandYearsHome.Entities.WarmthBallEntity
+namespace ThousandYearsHome.Entities.PowerBallEmitterEntity
 {
-    public class WarmthBallEmitter : Node2D
+    public class PowerBallEmitter : Node2D
     {
         [Export] public float BallRespawnTime = 10f;
 
         private Timer _respawnTimer = null!;
-        private WarmthBall _emittedBall = null!;
+        private PowerBall _emittedBall = null!;
         private HornCollectibleSignalBus _signalBus = null!;
 
         public override void _Ready()
@@ -16,12 +17,12 @@ namespace ThousandYearsHome.Entities.WarmthBallEntity
             _signalBus = GetNode<HornCollectibleSignalBus>("/root/HornCollectibleSignalBus");
             _signalBus.Connect(nameof(HornCollectibleSignalBus.WarmthBallCollected), this, nameof(WarmthBallCollected));
 
-            _emittedBall = GetNode<WarmthBall>("WarmthBall");
+            _emittedBall = GetNode<PowerBall>("PowerBall");
             _respawnTimer = GetNode<Timer>("RespawnTimer");
             _respawnTimer.WaitTime = BallRespawnTime;
         }
 
-        public void WarmthBallCollected(WarmthBall ball)
+        public void WarmthBallCollected(PowerBall ball)
         {
             if (ball != _emittedBall)
             {

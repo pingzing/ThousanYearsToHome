@@ -1,4 +1,5 @@
 using Godot;
+using ThousandYearsHome.Entities.PowerBallEntity;
 using ThousandYearsHome.Entities.WarmthBallEntity;
 
 namespace ThousandYearsHome.Entities

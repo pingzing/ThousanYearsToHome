@@ -7,6 +7,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
     public class StateKicking : PlayerStateBase
     {
         public const string AnimationName = "Kick";
+        public const string FrozenKickName = "FrozenKick";
 
         public override PlayerStateKind StateKind => PlayerStateKind.Kicking;
 
@@ -22,9 +23,9 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         public override async Task Enter(Player player)
         {
-            if (player.KickOverride != null)
+            if (player.EnterKickOverride != null)
             {
-                await player.KickOverride(player, _kickTimer);
+                await player.EnterKickOverride(player, _kickTimer);
             }
             else
             {

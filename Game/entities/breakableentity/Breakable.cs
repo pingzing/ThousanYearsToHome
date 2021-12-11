@@ -4,6 +4,9 @@ namespace ThousandYearsHome.Entities.BreakableEntity
 {
     public class Breakable : Node2D
     {
+        [Signal] public delegate void PlayerEnteredKickRange(Breakable entity);
+        [Signal] public delegate void PlayerExitedKickRange(Breakable entity);
+
         // Nodes
         private Sprite _sprite = null!;
         private Tween _tween = null!;
@@ -63,6 +66,19 @@ namespace ThousandYearsHome.Entities.BreakableEntity
                     // TODO: Animation
                     _sprite.Hide();
                 }
+            }
+
+            if (area.Name == "KickHurtSentinel")
+            {
+                EmitSignal(nameof(PlayerEnteredKickRange), this);
+            }
+        }
+
+        public void BreakableAreaExited(Area2D area)
+        {
+            if (area.Name == "KickHurtSentinel")
+            {
+                EmitSignal(nameof(PlayerExitedKickRange), this);
             }
         }
     }

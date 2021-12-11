@@ -120,6 +120,11 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 return;
             }
 
+            if (!Current)
+            {
+                return;
+            }
+
             UpdateCameraRect(_currentPlayerState);
             UpdateScroll();
         }
@@ -305,11 +310,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             if (Engine.EditorHint)
             {
                 Update();
-                return;
-            }
-
-            if (!Current)
-            {
                 return;
             }
 

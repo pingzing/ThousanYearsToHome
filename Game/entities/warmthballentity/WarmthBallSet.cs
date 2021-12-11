@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using ThousandYearsHome.Entities.PlayerEntity;
 
-namespace ThousandYearsHome.Entities.PowerBallEntity
+namespace ThousandYearsHome.Entities.WarmthBallEntity
 {
     [Tool]
-    public class PowerBallSet : Node2D
+    public class WarmthBallSet : Node2D
     {
         private Node2D _bulletHolder = null!;
-        private List<PowerBall> _powerBalls = null!;
+        private List<WarmthBall> _warmthBalls = null!;
 
         private bool _triggered = false;
 
@@ -19,7 +19,7 @@ namespace ThousandYearsHome.Entities.PowerBallEntity
             _bulletHolder = GetNode<Node2D>("Bullets");
 
             // Both readies
-            _powerBalls = _bulletHolder.GetChildren().Cast<PowerBall>().ToList();
+            _warmthBalls = _bulletHolder.GetChildren().Cast<WarmthBall>().ToList();
         }
 
         public void OnTriggerAreaBodyEntered(Node node)
@@ -32,7 +32,7 @@ namespace ThousandYearsHome.Entities.PowerBallEntity
             if (node is Player)
             {
                 _triggered = true;
-                foreach (var ball in _powerBalls)
+                foreach (var ball in _warmthBalls)
                 {
                     ball.Activate();
                 }
@@ -51,9 +51,9 @@ namespace ThousandYearsHome.Entities.PowerBallEntity
 
             foreach (var child in bulletChildren.Cast<Node2D>())
             {
-                if (!(child is PowerBall))
+                if (!(child is WarmthBall))
                 {
-                    return $"{child.Name} is not a PowerBall."; // TODO: Expand this type more in the future, probably
+                    return $"{child.Name} is not a WarmthBall."; // TODO: Expand this type more in the future, probably
                 }
             }
 

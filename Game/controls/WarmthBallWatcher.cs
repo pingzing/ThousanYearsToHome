@@ -2,10 +2,11 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using ThousandYearsHome.Entities.PlayerEntity;
+using ThousandYearsHome.Entities.WarmthBallEntity;
 
 namespace ThousandYearsHome.Entities
 {
-    public class PowerBallWatcher : Control
+    public class WarmthBallWatcher : Control
     {
         private Dictionary<ulong, Vector2> _trackedBalls = new Dictionary<ulong, Vector2>();
         private Godot.Collections.Dictionary<ulong, Sprite> _ballArrows = new Godot.Collections.Dictionary<ulong, Sprite>();
@@ -16,12 +17,12 @@ namespace ThousandYearsHome.Entities
 
         public override void _EnterTree()
         {
-            AddToGroup(PowerBall.PowerBallGroup);
+            AddToGroup(WarmthBall.WarmthBallGroup);
         }
 
         public override void _ExitTree()
         {
-            RemoveFromGroup(PowerBall.PowerBallGroup);
+            RemoveFromGroup(WarmthBall.WarmthBallGroup);
         }
 
         public void Init(PlayerCamera playerCamera)
@@ -31,7 +32,7 @@ namespace ThousandYearsHome.Entities
 
         public override void _Ready()
         {
-            _arrowScene = GD.Load<PackedScene>("res://controls/PowerBallWatcherArrow.tscn");
+            _arrowScene = GD.Load<PackedScene>("res://controls/WarmthBallWatcherArrow.tscn");
             _viewport = GetViewport();
         }
 

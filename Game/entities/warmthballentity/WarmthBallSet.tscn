@@ -1,12 +1,11 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://entities/powerballentity/PowerBallSet.cs" type="Script" id=1]
+[ext_resource path="res://entities/warmthballentity/WarmthBallSet.cs" type="Script" id=1]
 
 [sub_resource type="RectangleShape2D" id=1]
 
-[node name="PowerBallSet" type="Node2D"]
+[node name="WarmthBallSet" type="Node2D"]
 script = ExtResource( 1 )
-TriggerShape = SubResource( 1 )
 
 [node name="TriggerArea" type="Area2D" parent="."]
 

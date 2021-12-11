@@ -22,6 +22,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private Timer _kickTimer = null!;
         private RayCast2D _leftRaycast = null!;
         private RayCast2D _rightRaycast = null!;
+        private Area2D _kickHurtSentinel = null!;
 
         private PlayerStateDisableToken? _stateProcessingDisableToken = null;
         private Vector2 _snapVector = Vector2.Down * 30; // 36 is player's collision box height. Should this be dynamic?
@@ -40,10 +41,11 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public bool IsWallJumpLocked => !_wallJumpLockoutTimer.IsStopped();
         public bool IsKickJustPressed { get; private set; }
         public bool IsKicking => !_kickTimer.IsStopped();
-        public Func<Player, Timer, Task>? KickOverride { get; set; } = null!;
+        public Func<Player, Timer, Task>? EnterKickOverride { get; set; } = null!;
         public float IdleTime { get; private set; }
         public RayCast2D LeftRaycast => _leftRaycast;
         public RayCast2D RightRaycast => _rightRaycast;
+        public Area2D KickHurtSentinel => _kickHurtSentinel;
 
         public int HorizontalUnit { get; set; } = 0;
 
@@ -153,6 +155,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _oneWayPlatformTimer = GetNode<Timer>("OneWayPlatformTimer");
             _wallJumpLockoutTimer = GetNode<Timer>("WallJumpLockoutTimer");
             _kickTimer = GetNode<Timer>("KickTimer");
+            _kickHurtSentinel = GetNode<Area2D>("Sprite/KickHurtSentinel");
 
             _leftRaycast = GetNode<RayCast2D>("LeftRaycast");
             _rightRaycast = GetNode<RayCast2D>("RightRaycast");

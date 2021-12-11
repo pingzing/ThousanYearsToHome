@@ -5,8 +5,8 @@
 [ext_resource path="res://art/BlizzardTileset.tres" type="TileSet" id=3]
 [ext_resource path="res://art/BlizzardBackgrounds.png" type="Texture" id=4]
 [ext_resource path="res://areas/debug/MovementTest.cs" type="Script" id=5]
-[ext_resource path="res://entities/powerballentity/PowerBallSet.tscn" type="PackedScene" id=6]
-[ext_resource path="res://entities/powerballentity/PowerBall.tscn" type="PackedScene" id=7]
+[ext_resource path="res://entities/warmthballentity/WarmthBallSet.tscn" type="PackedScene" id=6]
+[ext_resource path="res://entities/warmthballentity/WarmthBall.tscn" type="PackedScene" id=7]
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=8]
 [ext_resource path="res://fonts/Equipment-32pt.tres" type="DynamicFont" id=9]
 

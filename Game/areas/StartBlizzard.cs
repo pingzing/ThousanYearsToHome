@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using ThousandYearsHome.Controls;
 using ThousandYearsHome.Controls.Dialogue;
 using ThousandYearsHome.Entities;
+using ThousandYearsHome.Entities.BreakableEntity;
 using ThousandYearsHome.Entities.PlayerEntity;
+using ThousandYearsHome.Entities.PowerBallEntity;
 using ThousandYearsHome.Entities.WarmthBallEntity;
 using ThousandYearsHome.Extensions;
 
@@ -25,7 +27,7 @@ namespace ThousandYearsHome.Areas
         private HUD _hud = null!;
         private Camera2D _cinematicCamera = null!;
         private TileMap _midgroundTiles = null!;
-        private PowerBallWatcher _powerBallWatcher = null!;
+        private WarmthBallWatcher _warmthBallWatcher = null!;
         private HornCollectibleSignalBus _collectibleSignalBus = null!;
 
         private Area2D _firstFallDialogueTrigger = null!;
@@ -42,6 +44,8 @@ namespace ThousandYearsHome.Areas
         private CollisionShape2D _cameraHoldShape = null!;
         private RectangleShape2D _cameraHoldRect = null!;
         private Position2D _cameraHoldPosition = null!;
+
+        private Breakable? _doorInRange;
 
         public bool SkipIntro { get; set; }
 
@@ -62,7 +66,7 @@ namespace ThousandYearsHome.Areas
             _playerCamera = GetNode<PlayerCamera>("Player/PlayerCamera");
             _cinematicCamera = GetNode<Camera2D>("CinematicCamera");
             _midgroundTiles = GetNode<TileMap>("MidgroundTiles");
-            _powerBallWatcher = GetNode<PowerBallWatcher>("UICanvas/PowerBallWatcher");
+            _warmthBallWatcher = GetNode<WarmthBallWatcher>("UICanvas/WarmthBallWatcher");
             _collectibleSignalBus = GetNode<HornCollectibleSignalBus>("/root/HornCollectibleSignalBus");
             _collectibleSignalBus.Connect(nameof(HornCollectibleSignalBus.PowerBallCollected), this, nameof(PowerBallCollected));
             _collectibleSignalBus.Connect(nameof(HornCollectibleSignalBus.WarmthBallCollected), this, nameof(WarmthBallCollected));
@@ -88,7 +92,7 @@ namespace ThousandYearsHome.Areas
 
             Vector2 startPos = GetNode<Position2D>("StartPosition").Position;
             _player.Spawn(startPos);
-            _powerBallWatcher.Init(_playerCamera);
+            _warmthBallWatcher.Init(_playerCamera);
 
             // Lock player's input, because we're gonna animate them cutscene style
             if (!SkipIntro)
@@ -99,6 +103,9 @@ namespace ThousandYearsHome.Areas
             {
                 _cinematicCamera.Current = false;
                 _playerCamera.Current = true;
+
+                // DEBUG! Continuing forces us into freezing mode
+                _player.EnterKickOverride = FreezingKickOverride;
             }
         }
 
@@ -399,7 +406,7 @@ namespace ThousandYearsHome.Areas
 
                 // Return control to player, lock down their ability to kick
                 _playerCamera.Current = true;
-                _player.KickOverride = FreezingKickOverride;
+                _player.EnterKickOverride = FreezingKickOverride;
                 _keeperCutsceneTriggerArea.QueueFree();
                 _player.InputLocked = false;
 
@@ -437,21 +444,36 @@ namespace ThousandYearsHome.Areas
             }
         }
 
-        public void WarmthBallCollected(WarmthBall ball)
+        public void PowerBallCollected(PowerBall ball)
         {
-            GD.Print("Level sees that player got a WarmthBall");
+            GD.Print("Level sees that player got a PowerBall");
             // Freeze the warmth drain
             // Begin the warmth ball's expiry timer
             // Trigger the "powered up" animation
 
             // Unlock kicking on the player
-            _player.KickOverride = null;
+            _player.EnterKickOverride = PowerKickOverride;
         }
 
-        public void PowerBallCollected(PowerBall ball)
+        public void WarmthBallCollected(WarmthBall ball)
         {
-            GD.Print("Level sees that player got a PowerBall");
+            GD.Print("Level sees that player got a WarmthBall");
             // Increase the current warmth value, and update the warmth bar
+        }
+
+        public void PowerWallPlayerEnteredRange(Breakable entity)
+        {
+            _doorInRange = entity;
+            GD.Print($"Player entered kicking range of door: {entity.Name}");
+        }
+
+        public void PowerWallPlayerExitedRange(Breakable entity)
+        {
+            if (_doorInRange == entity)
+            {
+                _doorInRange = null;
+                GD.Print($"Player exited kicking range of door: {entity.Name}");
+            }
         }
 
         /// <summary>
@@ -481,8 +503,8 @@ namespace ThousandYearsHome.Areas
         private async Task FreezingKickOverride(Player player, Timer kickAnimationTimer)
         {
             // Player a slower kick animation that doesn't break breakables, then play some lite dialogue
-            player.AnimatePose("FrozenKick");
-            float slowKickDuration = player.GetPoseAnimationDuration("FrozenKick");
+            player.AnimatePose(StateKicking.FrozenKickName);
+            float slowKickDuration = player.GetPoseAnimationDuration(StateKicking.FrozenKickName);
             kickAnimationTimer.Start(slowKickDuration);
 
             if (!_liteDialogueBox.IsOpen)
@@ -498,6 +520,45 @@ namespace ThousandYearsHome.Areas
                 await _liteDialogueBox.Open();
                 await _liteDialogueBox.Run();
                 await _liteDialogueBox.Close();
+            }
+        }
+
+
+        private async Task PowerKickOverride(Player player, Timer kickAnimationTimer)
+        {
+            // Performs a regular kick and, if in door range, does a freeze-frame and zoom-in
+            player.AnimatePose(StateKicking.AnimationName);
+            kickAnimationTimer.Start(player.GetPoseAnimationDuration(StateKicking.AnimationName));
+
+            if (_doorInRange != null)
+            {
+                player.InputLocked = true;
+
+                // Wait exactly 200ms, as that's the point in the animation at which the sprite has turned around
+                await Task.Delay(200);
+                GetTree().Paused = true;
+
+                CinematicCameraFollowPlayer(_player, _cinematicCamera);
+                Vector2 cinematicStartPos = _cinematicCamera.Position;
+
+                _tweener.InterpolateProperty(_cinematicCamera, "zoom", null, new Vector2(.5f, .5f), 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
+                _tweener.InterpolateProperty(_cinematicCamera, "position", cinematicStartPos, _cinematicCamera.Position * .5f, 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
+                _tweener.Start();
+                await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
+
+                GetTree().Paused = false;
+
+                // When the kick lands, white out and do some special stuff based on which door it was
+                await ToSignal(kickAnimationTimer, "timeout");
+
+                _tweener.InterpolateProperty(_cinematicCamera, "zoom", null, new Vector2(1f, 1f), 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
+                _tweener.InterpolateProperty(_cinematicCamera, "position", _cinematicCamera.Position, cinematicStartPos, 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
+                _tweener.Start();
+                await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
+
+                PlayerCameraTakeControl(player, _playerCamera, _cinematicCamera);
+
+                player.InputLocked = false;
             }
         }
     }

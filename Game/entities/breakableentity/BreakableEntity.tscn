@@ -31,3 +31,4 @@ position = Vector2( 0.0932236, 0 )
 shape = SubResource( 2 )
 
 [connection signal="area_entered" from="BreakableArea" to="." method="BreakableAreaEntered"]
+[connection signal="area_exited" from="BreakableArea" to="." method="BreakableAreaExited"]
