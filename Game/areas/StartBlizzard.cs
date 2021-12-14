@@ -25,7 +25,7 @@ namespace ThousandYearsHome.Areas
         private DialogueBox _dialogueBox = null!;
         private DialogueBox _liteDialogueBox = null!;
         private HUD _hud = null!;
-        private Camera2D _cinematicCamera = null!;
+        private CinematicCamera _cinematicCamera = null!;
         private TileMap _midgroundTiles = null!;
         private WarmthBallWatcher _warmthBallWatcher = null!;
         private HornCollectibleSignalBus _collectibleSignalBus = null!;
@@ -64,7 +64,7 @@ namespace ThousandYearsHome.Areas
             _tweener = GetNode<Tween>("Tweener");
             _hud = GetNode<HUD>("UICanvas/HUD");
             _playerCamera = GetNode<PlayerCamera>("Player/PlayerCamera");
-            _cinematicCamera = GetNode<Camera2D>("CinematicCamera");
+            _cinematicCamera = GetNode<CinematicCamera>("CinematicCamera");
             _midgroundTiles = GetNode<TileMap>("MidgroundTiles");
             _warmthBallWatcher = GetNode<WarmthBallWatcher>("UICanvas/WarmthBallWatcher");
             _collectibleSignalBus = GetNode<HornCollectibleSignalBus>("/root/HornCollectibleSignalBus");
@@ -532,10 +532,11 @@ namespace ThousandYearsHome.Areas
 
             if (_doorInRange != null)
             {
+                Breakable doorInRange = _doorInRange; // store local copy, for when the player exits range next frame and the class-wide one gets nulled
                 player.InputLocked = true;
 
                 // Wait exactly 200ms, as that's the point in the animation at which the sprite has turned around
-                await Task.Delay(200);
+                await Task.Delay(200); // TODO: May be safer to watch for a specific frame. Maybe make AnimationPlayer have a callback func here?
                 GetTree().Paused = true;
 
                 CinematicCameraFollowPlayer(_player, _cinematicCamera);
@@ -543,23 +544,62 @@ namespace ThousandYearsHome.Areas
 
                 _tweener.InterpolateProperty(_cinematicCamera, "zoom", null, new Vector2(.5f, .5f), 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
                 _tweener.InterpolateProperty(_cinematicCamera, "position", cinematicStartPos, _cinematicCamera.Position * .5f, 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
+                _tweener.InterpolateProperty(_snowParticles, "modulate", null, new Color(_snowParticles.Modulate, 0), .4f);
                 _tweener.Start();
                 await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
 
                 GetTree().Paused = false;
 
-                // When the kick lands, white out and do some special stuff based on which door it was
+                await Task.Delay(225); // We're now at 0.4225s, which is juuust after when the hooves fly
+                // Screen shake, and special stuff based on which door it was
+                _cinematicCamera.Shake(.3f, 100, 24);
+                if (doorInRange.Name == "BreakableWall3")
+                {
+                    CollapseSnowDrift();
+                }
+
                 await ToSignal(kickAnimationTimer, "timeout");
 
-                _tweener.InterpolateProperty(_cinematicCamera, "zoom", null, new Vector2(1f, 1f), 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
-                _tweener.InterpolateProperty(_cinematicCamera, "position", _cinematicCamera.Position, cinematicStartPos, 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
+                _tweener.InterpolateProperty(_cinematicCamera, "zoom", null, new Vector2(1f, 1f), .5f, Tween.TransitionType.Cubic, Tween.EaseType.In);
+                _tweener.InterpolateProperty(_cinematicCamera, "position", _cinematicCamera.Position, cinematicStartPos, .5f, Tween.TransitionType.Cubic, Tween.EaseType.In);
+                _tweener.InterpolateProperty(_snowParticles, "modulate", null, new Color(_snowParticles.Modulate, 1), .1f, Tween.TransitionType.Linear, Tween.EaseType.InOut, .4f);
                 _tweener.Start();
                 await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
 
                 PlayerCameraTakeControl(player, _playerCamera, _cinematicCamera);
 
                 player.InputLocked = false;
+
+                // Now that the door has been kicked down, set the kick override back to "oh no I'm freezing"
+                _player.EnterKickOverride = FreezingKickOverride;
+
+                // TODO: If this was the first door, play some "oh no cold again" dialogue
             }
+        }
+
+        private void CollapseSnowDrift()
+        {
+            // TODO: Make this actually animate some sprite that falls and spreads out on the ground
+            // For now, just fiddle around with tiles
+            // Remove the hanging snow tiles
+            var topLeft = GetNode<Position2D>("DoorKnockdownCorners/TopLeft");
+            var bottomRight = GetNode<Position2D>("DoorKnockdownCorners/BottomRight");
+
+            var topLeftCell = _midgroundTiles.WorldToMap(topLeft.Position);
+            var bottomRightCell = _midgroundTiles.WorldToMap(bottomRight.Position);
+            for (int x = (int)topLeftCell.x; x <= bottomRightCell.x; x++)
+            {
+                for (int y = (int)topLeftCell.y; y <= bottomRightCell.y; y++)
+                {
+                    if (_midgroundTiles.GetCell(x, y) == 10) // Only remove cell index 10, the snowy ones
+                    {
+                        _midgroundTiles.SetCellv(new Vector2(x, y), TileMap.InvalidCell);
+                    }
+                }
+            }
+
+            _midgroundTiles.UpdateDirtyQuadrants();
+
         }
     }
 }

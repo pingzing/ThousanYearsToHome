@@ -15,14 +15,14 @@ namespace ThousandYearsHome.Entities.PowerBallEmitterEntity
         public override void _Ready()
         {
             _signalBus = GetNode<HornCollectibleSignalBus>("/root/HornCollectibleSignalBus");
-            _signalBus.Connect(nameof(HornCollectibleSignalBus.WarmthBallCollected), this, nameof(WarmthBallCollected));
+            _signalBus.Connect(nameof(HornCollectibleSignalBus.PowerBallCollected), this, nameof(PowerBallCollected));
 
             _emittedBall = GetNode<PowerBall>("PowerBall");
             _respawnTimer = GetNode<Timer>("RespawnTimer");
             _respawnTimer.WaitTime = BallRespawnTime;
         }
 
-        public void WarmthBallCollected(PowerBall ball)
+        public void PowerBallCollected(PowerBall ball)
         {
             if (ball != _emittedBall)
             {

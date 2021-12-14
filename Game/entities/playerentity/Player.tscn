@@ -732,6 +732,9 @@ disabled = true
 [node name="KickHurtSentinel" type="Area2D" parent="Sprite"]
 collision_layer = 4
 collision_mask = 4
+__meta__ = {
+"_editor_description_": "This sentinel is used to detect kickable things, but not break them."
+}
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite/KickHurtSentinel"]
 position = Vector2( 34.005, 4.794 )
