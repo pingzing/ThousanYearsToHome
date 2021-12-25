@@ -221,7 +221,7 @@ position = Vector2( 8639, -1432 )
 HitsToDestroy = 1
 
 [node name="StartPosition" type="Position2D" parent="."]
-position = Vector2( 6885, -1714 )
+position = Vector2( 6237.52, 464.361 )
 
 [node name="JumpTutorialSign" type="Sprite" parent="."]
 position = Vector2( 512, 89 )
