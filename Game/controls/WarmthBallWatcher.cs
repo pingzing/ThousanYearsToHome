@@ -129,7 +129,7 @@ namespace ThousandYearsHome.Entities
 
             // Convert from world space to screen space
             var intersectionVec = (Vector2)intersection;
-            var vec = _viewport.CanvasTransform.Xform(intersectionVec);
+            var vec = _viewport.CanvasTransform * (intersectionVec);
             return vec;
         }
     }
