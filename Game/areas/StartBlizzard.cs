@@ -40,10 +40,6 @@ namespace ThousandYearsHome.Areas
         private Area2D _collapseLandingTriggerArea = null!;
         private Area2D _keeperCutsceneTriggerArea = null!;
         private Position2D _keeperCutsceneCameraPosition = null!;
-        private Area2D _cameraHoldArea = null!;
-        private CollisionShape2D _cameraHoldShape = null!;
-        private RectangleShape2D _cameraHoldRect = null!;
-        private Position2D _cameraHoldPosition = null!;
 
         private Breakable? _doorInRange;
 
@@ -84,11 +80,6 @@ namespace ThousandYearsHome.Areas
             _collapseLandingTriggerArea = GetNode<Area2D>("CollapseLandingTriggerArea");
 
             _keeperCutsceneTriggerArea = GetNode<Area2D>("KeeperCutsceneTriggerArea");
-
-            _cameraHoldArea = GetNode<Area2D>("CameraHoldArea");
-            _cameraHoldShape = _cameraHoldArea.GetNode<CollisionShape2D>("CameraHoldShape");
-            _cameraHoldRect = (RectangleShape2D)_cameraHoldShape.Shape;
-            _cameraHoldPosition = GetNode<Position2D>("CameraHoldPosition");
 
             Vector2 startPos = GetNode<Position2D>("StartPosition").Position;
             _player.Spawn(startPos);
@@ -414,24 +405,6 @@ namespace ThousandYearsHome.Areas
                 _snowParticles.Amount = 1600;
                 (_snowParticles.ProcessMaterial as ParticlesMaterial).InitialVelocity = 680f;
                 _snowParticles.Emitting = true;
-            }
-        }
-
-        public async void CameraHoldAreaEntered(Node body)
-        {
-            if (body is Player)
-            {
-                await _playerCamera.LockXAxis(_cameraHoldPosition.Position.x);
-                _playerCamera.IdleRect = new Rect2(64, PlayerCamera.ResolutionHeight * .7f, 40, 16);
-            }
-        }
-
-        public void CameraHoldAreaExited(Node body)
-        {
-            if (body is Player)
-            {
-                _playerCamera.UnlockXAxis();
-                _playerCamera.IdleRect = PlayerCamera.DefaultIdleRect;
             }
         }
 

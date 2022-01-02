@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://controls/CameraControlArea.cs" type="Script" id=1]
+
+[node name="CameraControlArea" type="Area2D"]
+input_pickable = false
+script = ExtResource( 1 )
+
+[node name="CameraControlCollisionShape" type="CollisionShape2D" parent="."]
+
+[node name="LockXPosition" type="Position2D" parent="."]
+
+[node name="LockYPosition" type="Position2D" parent="."]
+
+[connection signal="body_entered" from="." to="." method="CameraControlAreaBodyEntered"]
+[connection signal="body_exited" from="." to="." method="CameraControlAreaBodyExited"]
