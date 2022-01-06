@@ -15,7 +15,8 @@
 [ext_resource path="res://entities/breakableentity/BreakableEntity.tscn" type="PackedScene" id=13]
 [ext_resource path="res://controls/dialogue/LiteDialogueBox.tscn" type="PackedScene" id=14]
 [ext_resource path="res://controls/CinematicCamera.tscn" type="PackedScene" id=15]
-[ext_resource path="res://controls/CameraControlArea.tscn" type="PackedScene" id=16]
+[ext_resource path="res://controls/CameraLockArea.tscn" type="PackedScene" id=16]
+[ext_resource path="res://controls/CameraLimitArea.tscn" type="PackedScene" id=17]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 345, 4 )
@@ -52,9 +53,6 @@ extents = Vector2( 32, 179 )
 
 [sub_resource type="RectangleShape2D" id=12]
 extents = Vector2( 15, 191 )
-
-[sub_resource type="RectangleShape2D" id=21]
-extents = Vector2( 241.106, 518.958 )
 
 [sub_resource type="RectangleShape2D" id=14]
 extents = Vector2( 30, 181 )
@@ -624,12 +622,16 @@ position = Vector2( 9597, 261 )
 PlayerCameraPath = NodePath("../Player/PlayerCamera")
 LockXAxis = true
 
-[node name="CameraControlCollisionShape" parent="FarRightClimbCameraXLockArea" index="0"]
-position = Vector2( 211.895, -264.958 )
-shape = SubResource( 21 )
-
 [node name="LockXPosition" parent="FarRightClimbCameraXLockArea" index="1"]
 position = Vector2( -29, -197 )
+
+[node name="LastClimbLimitArea" parent="." instance=ExtResource( 17 )]
+position = Vector2( 5665, -1080 )
+PlayerCameraPath = NodePath("")
+LimitLeft = 5408.0
+LimitRight = 5888.0
+LimitTop = -1700.0
+LimitBottom = -512.0
 
 [node name="ClimaxCameraLimitAdjustArea" type="Area2D" parent="."]
 position = Vector2( 5843, -709 )

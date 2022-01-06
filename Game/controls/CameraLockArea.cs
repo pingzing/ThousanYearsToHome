@@ -4,7 +4,7 @@ using ThousandYearsHome.Entities.PlayerEntity;
 
 namespace ThousandYearsHome.Controls
 {
-    public class CameraControlArea : Area2D
+    public class CameraLockArea : Area2D
     {
         // Exports
         private NodePath? _playerCameraPath = null;
@@ -33,8 +33,8 @@ namespace ThousandYearsHome.Controls
         }
 
         // Local nodes
-        private Area2D _cameraControlArea = null!;
-        private CollisionShape2D _cameraControlCollisionShape = null!;
+        private Area2D _cameraLockArea = null!;
+        private CollisionShape2D _cameraLockCollisionShape = null!;
         private Position2D _lockXPosition = null!;
         private Position2D _lockYPosition = null!;
 
@@ -49,7 +49,7 @@ namespace ThousandYearsHome.Controls
             _lockYPosition = GetNode<Position2D>("LockYPosition");
         }
 
-        public async void CameraControlAreaBodyEntered(Node body)
+        public async void CameraLockAreaBodyEntered(Node body)
         {
             if (!(body is Player) || _playerCamera == null)
             {
@@ -72,7 +72,7 @@ namespace ThousandYearsHome.Controls
             _playerCamera.IdleRect = new Rect2(64, idleRectYPos, 40, 16);            
         }
 
-        public void CameraControlAreaBodyExited(Node body)
+        public void CameraLockAreaBodyExited(Node body)
         {
             if (!(body is Player) || _playerCamera == null)
             {
