@@ -32,7 +32,19 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private Tween _tween = null!;
 
         // ------ Read-only properties ------
+        /// <summary>
+        /// Where the Rect that describes the player's limit of motion before the camera moves CURRENTLY is.
+        /// </summary>
         public Rect2 CurrentRect => _currentRect;
+
+        /// <summary>
+        /// A 2D Rect that describes the currently visible area in world coordinates.
+        /// </summary>
+        public Rect2 CurrentViewportRect => new Rect2(
+            new Vector2(-_currentXOffset, -_currentYOffset), 
+            new Vector2(ResolutionWidth, ResolutionHeight)
+        );            
+        
 
         // ------ Exports ------
         private int _limitLeft = 0;

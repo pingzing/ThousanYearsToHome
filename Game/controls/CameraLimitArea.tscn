@@ -4,10 +4,13 @@
 
 [node name="CameraLimitArea" type="Area2D"]
 script = ExtResource( 1 )
+PlayerCameraPath = NodePath("")
 
 [node name="CameraLimitShape" type="CollisionShape2D" parent="."]
 
-[node name="Tweener" type="Tween" parent="."]
+[node name="EnterTween" type="Tween" parent="."]
+
+[node name="ExitTween" type="Tween" parent="."]
 
 [connection signal="body_entered" from="." to="." method="CameraLimitAreaEntered"]
 [connection signal="body_exited" from="." to="." method="CameraLimitAreaExited"]

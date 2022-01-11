@@ -362,10 +362,10 @@ namespace ThousandYearsHome.Areas
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
-                _cinematicCamera.LimitBottom = _playerCamera.LimitBottom;
-                _cinematicCamera.LimitTop = _playerCamera.LimitTop;
-                _cinematicCamera.LimitRight = _playerCamera.LimitRight;
-                _cinematicCamera.LimitLeft = _playerCamera.LimitLeft;
+                _cinematicCamera.LimitBottom = (int)_playerCamera.LimitBottom;
+                _cinematicCamera.LimitTop = (int)_playerCamera.LimitTop;
+                _cinematicCamera.LimitRight = (int)_playerCamera.LimitRight;
+                _cinematicCamera.LimitLeft = (int)_playerCamera.LimitLeft;
                 _cinematicCamera.Position = _player.Position + _playerCamera.Position;
 
                 _cinematicCamera.SmoothingEnabled = true;
@@ -405,15 +405,6 @@ namespace ThousandYearsHome.Areas
                 _snowParticles.Amount = 1600;
                 (_snowParticles.ProcessMaterial as ParticlesMaterial).InitialVelocity = 680f;
                 _snowParticles.Emitting = true;
-            }
-        }
-
-        public void ClimaxCameraLimitAdjustAreaBodyEntered(Node body)
-        {
-            if (body is Player)
-            {
-                // For the final segment of the level, prevent the camera from going too far into the leftmost wall.
-                _playerCamera.LimitLeft = 5408;
             }
         }
 
