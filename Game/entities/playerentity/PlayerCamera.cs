@@ -11,6 +11,8 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public const float ResolutionWidth = 480f;
         public const float ResolutionHeight = 270f;
         public static readonly Rect2 DefaultIdleRect = new Rect2(64, ResolutionHeight * .6f, 40, 16);
+        public const float DefaultXSpeed = 175f;
+        public const float DefaultYSpeed = 200f;
 
         // These two group names are used to keep Camera2Ds and ParallaxBackgrounds in sync and SUPER UNDOCUMENTED
         private string _groupName = null!;
@@ -22,8 +24,8 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private float? _yAxisLock = null; // TODO: Not implemented yet
         private float _currentXOffset = 0;
         private float _currentYOffset = 0;
-        private float _xPerSecond = 175f;
-        private float _yPerSecond = 200f;
+        
+        
         private Rect2 _currentRect = new Rect2(64, ResolutionHeight * .6f, 40, 16);
 
         // ------ Nodes ------
@@ -43,10 +45,56 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public Rect2 CurrentViewportRect => new Rect2(
             new Vector2(-_currentXOffset, -_currentYOffset), 
             new Vector2(ResolutionWidth, ResolutionHeight)
-        );            
-        
+        );
+
 
         // ------ Exports ------
+        private float _xSpeed = DefaultXSpeed;
+        /// <summary>
+        /// The speed at which TargetRect moves horizontally.
+        /// </summary>
+        [Export(PropertyHint.Range, "0, 1000, 1")]
+        public float XSpeed
+        {
+            get => _xSpeed;
+            set => _xSpeed = value;
+        }
+
+        private float _ySpeed = DefaultYSpeed;
+        /// <summary>
+        /// The speed at which TargetRect moves vertically.
+        /// </summary>
+        [Export(PropertyHint.Range, "0, 1000, 1")]
+        public float YSpeed
+        {
+            get => _ySpeed;
+            set => _ySpeed = value;
+        }
+
+        private float _maxXPerSecond = -1;
+        /// <summary>
+        /// The maximum amount of pixels the camera (not either of the rects) is allowed to scroll per second.
+        /// If set to -1, no cap is enforced.
+        /// </summary>
+        [Export(PropertyHint.Range, "-1, 6000, 1")]
+        public float MaxXPerSecond
+        {
+            get => _maxXPerSecond;
+            set => _maxXPerSecond = value;
+        }
+
+        private float _maxYPerSecond = -1;
+        /// <summary>
+        /// The maximum amount of pixels the camera (not either of the rects) is allowed to scroll per second.
+        /// If set to -1, no cap is enforced.
+        /// </summary>
+        [Export(PropertyHint.Range, "-1, 6000, 1")]
+        public float MaxYPerSecond
+        {
+            get => _maxYPerSecond;
+            set => _maxYPerSecond = value;
+        }
+
         private int _limitLeft = 0;
         [Export] public int LimitLeft { get => _limitLeft; set { _limitLeft = value; Update(); } }
 
@@ -137,7 +185,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 return;
             }
 
-            UpdateCameraRect(_currentPlayerState);
+            UpdateCameraRect(_currentPlayerState, delta);
             UpdateScroll();
         }
 
@@ -223,7 +271,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         private PlayerStateKind _prevState = PlayerStateKind.Idle;
         private bool _prevIdleFacingRight = false;
-        private void UpdateCameraRect(PlayerStateKind current)
+        private void UpdateCameraRect(PlayerStateKind current, float delta)
         {
             bool playerFacingRight = !_player.FlipH;
             bool instantX = false; // Make any update to the _currentRect's Position.x instant instead of interpolated.
@@ -300,13 +348,12 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
 
             // Gradually pan _currentRect toward TargetRect
-            float delta = GetPhysicsProcessDeltaTime();
             float moveAccel = _player.HorizontalUnit != 0 ? MovementAccelerationCoefficient : 1.0f;
 
-            float newX = instantX ? TargetRect.Position.x : Mathf.MoveToward(_currentRect.Position.x, TargetRect.Position.x, (_xPerSecond * delta) * moveAccel);
-            float newWidth = instantWidth ? TargetRect.Size.x : Mathf.MoveToward(_currentRect.Size.x, TargetRect.Size.x, (_xPerSecond * delta) * moveAccel);
-            float newY = instantY ? TargetRect.Position.y : Mathf.MoveToward(_currentRect.Position.y, TargetRect.Position.y, _yPerSecond * delta);
-            float newHeight = instantHeight ? TargetRect.Size.y : Mathf.MoveToward(_currentRect.Size.y, TargetRect.Size.y, _yPerSecond * delta);
+            float newX = instantX ? TargetRect.Position.x : Mathf.MoveToward(_currentRect.Position.x, TargetRect.Position.x, (_xSpeed * delta) * moveAccel);
+            float newWidth = instantWidth ? TargetRect.Size.x : Mathf.MoveToward(_currentRect.Size.x, TargetRect.Size.x, (_xSpeed * delta) * moveAccel);
+            float newY = instantY ? TargetRect.Position.y : Mathf.MoveToward(_currentRect.Position.y, TargetRect.Position.y, _ySpeed * delta);
+            float newHeight = instantHeight ? TargetRect.Size.y : Mathf.MoveToward(_currentRect.Size.y, TargetRect.Size.y, _ySpeed * delta);            
 
             _prevState = current;
             _currentRect = new Rect2(newX, newY, newWidth, newHeight);
@@ -325,7 +372,8 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 return;
             }
 
-            var newTransform = GetCameraTransform();
+            float delta = GetPhysicsProcessDeltaTime();
+            var newTransform = GetCameraTransform(delta);
             if (newTransform != _viewport.CanvasTransform)
             {
                 _viewport.CanvasTransform = newTransform;
@@ -334,21 +382,33 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
         }
 
-        private Transform2D GetCameraTransform()
+        private Transform2D GetCameraTransform(float delta)
         {
             Transform2D transform = _viewport.CanvasTransform;
             Vector2 relativePlayerPos = _player.GetGlobalTransformWithCanvas().origin;
 
             if (_xAxisLock == null)
             {
+                float xDiff = 0f; ;
                 if (relativePlayerPos.x > _currentRect.End.x)
                 {
-                    _currentXOffset -= (relativePlayerPos.x - _currentRect.End.x);
+                    xDiff = relativePlayerPos.x - _currentRect.End.x;
+                    if (_maxXPerSecond != -1)
+                    {
+                        xDiff = Mathf.Min(xDiff, _maxXPerSecond * delta);
+                    }
+                    xDiff = -xDiff; // negated, because we add down below, and going left means going negative-wards
                 }
                 if (relativePlayerPos.x < _currentRect.Position.x)
                 {
-                    _currentXOffset += (_currentRect.Position.x - relativePlayerPos.x);
+                    xDiff = _currentRect.Position.x - relativePlayerPos.x;
+                    if (_maxXPerSecond != -1)
+                    {
+                        xDiff = Mathf.Min(xDiff, _maxXPerSecond * delta);
+                    }
                 }
+
+                _currentXOffset += xDiff;
                 _currentXOffset = Mathf.Clamp(_currentXOffset, -LimitRight + ResolutionWidth, -LimitLeft);
             }
             else

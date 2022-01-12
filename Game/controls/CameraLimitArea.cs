@@ -64,14 +64,14 @@ namespace ThousandYearsHome.Controls
         private Area2D _cameraLimitArea = null!;
         private CollisionShape2D _cameraLimitShape = null!;
         private Tween _enterTween = null!;
-        private Tween _exitTween = null!;
 
         // Plain ol' locals
         private float _preEnterLimitLeft;
         private float _preEnterLimitRight;
         private float _preEnterLimitTop;
         private float _preEnterLimitBottom;
-        private CancellationTokenSource? _cts = null;
+        private CancellationTokenSource _enterCts = new CancellationTokenSource();
+        private CancellationTokenSource _exitCts = new CancellationTokenSource();
 
         public override void _Ready()
         {
@@ -90,7 +90,6 @@ namespace ThousandYearsHome.Controls
             _cameraLimitArea = GetNode<Area2D>("CameraLimitArea");
             _cameraLimitShape = GetNode<CollisionShape2D>("CameraLimitShape");
             _enterTween = GetNode<Tween>("EnterTween");
-            _exitTween = GetNode<Tween>("ExitTween");
         }
 
         public async void CameraLimitAreaEntered(Node body)
@@ -99,14 +98,15 @@ namespace ThousandYearsHome.Controls
             {
                 return;
             }
-
+                       
             if (ActivationDelay != 0f)
             {
-                _cts = new CancellationTokenSource();
+                _enterCts.Cancel();
+                _enterCts = new CancellationTokenSource();
                 await Task.Delay(TimeSpan.FromSeconds(ActivationDelay));
             }
             
-            if (_cts != null && _cts.Token.IsCancellationRequested)
+            if (_enterCts.Token.IsCancellationRequested)
             {
                 return;
             }
@@ -119,7 +119,6 @@ namespace ThousandYearsHome.Controls
             _playerCamera.LimitTop = (int)currentViewport.Position.y;                        
             _playerCamera.LimitBottom = (int)currentViewport.End.y;
 
-            _exitTween.StopAll();
             _enterTween.StopAll();
             _enterTween.InterpolateProperty(_playerCamera, nameof(PlayerCamera.LimitLeft), currentViewport.Position.x, LimitLeft, 1.0f, Tween.TransitionType.Linear, Tween.EaseType.Out);
             _enterTween.InterpolateProperty(_playerCamera, nameof(PlayerCamera.LimitRight), currentViewport.End.x, LimitRight, 1.0f, Tween.TransitionType.Linear, Tween.EaseType.Out);
@@ -129,37 +128,37 @@ namespace ThousandYearsHome.Controls
             _enterTween.Start();
         }
 
-        public void CameraLimitAreaExited(Node body)
+        public async void CameraLimitAreaExited(Node body)
         {
             if (!(body is Player) || _playerCamera == null)
             {
                 return;
             }
 
-            _cts?.Cancel();
-
-            var currentViewport = _playerCamera.CurrentViewportRect;
-
-            float twiceViewportLeft = currentViewport.Position.x - PlayerCamera.ResolutionWidth;
-            float twiceViewportRight = currentViewport.End.x + PlayerCamera.ResolutionWidth;
-            float twiceViewportTop = currentViewport.Position.y - PlayerCamera.ResolutionHeight;
-            float twiceViewportBottom = currentViewport.End.y + PlayerCamera.ResolutionHeight;
-
             _enterTween.StopAll();
-            _exitTween.StopAll();
-            // First, slowly animate out to twice the camera's current location
-            _exitTween.InterpolateProperty(_playerCamera, nameof(PlayerCamera.LimitLeft), currentViewport.Position.x, twiceViewportLeft, 1.0f, Tween.TransitionType.Linear, Tween.EaseType.In);
-            _exitTween.InterpolateProperty(_playerCamera, nameof(PlayerCamera.LimitRight), currentViewport.End.x, twiceViewportRight, 1.0f, Tween.TransitionType.Linear, Tween.EaseType.In);
-            _exitTween.InterpolateProperty(_playerCamera, nameof(PlayerCamera.LimitTop), currentViewport.Position.y, twiceViewportTop, 1.0f, Tween.TransitionType.Linear, Tween.EaseType.In);
-            _exitTween.InterpolateProperty(_playerCamera, nameof(PlayerCamera.LimitBottom), currentViewport.End.y, twiceViewportBottom, 1.0f, Tween.TransitionType.Linear, Tween.EaseType.In);
+            if (ActivationDelay != 0f)
+            {
+                _enterCts.Cancel();
+            }
+            _exitCts.Cancel();
 
-            // Then, animate out to the original cached locations
-            _exitTween.InterpolateProperty(_playerCamera, nameof(PlayerCamera.LimitLeft), twiceViewportLeft, _preEnterLimitLeft, 1.0f, Tween.TransitionType.Linear, Tween.EaseType.In, 1.0f);
-            _exitTween.InterpolateProperty(_playerCamera, nameof(PlayerCamera.LimitRight), twiceViewportRight, _preEnterLimitRight, 1.0f, Tween.TransitionType.Linear, Tween.EaseType.In, 1.0f);
-            _exitTween.InterpolateProperty(_playerCamera, nameof(PlayerCamera.LimitTop), twiceViewportTop, _preEnterLimitTop, 1.0f, Tween.TransitionType.Linear, Tween.EaseType.In, 1.0f);
-            _exitTween.InterpolateProperty(_playerCamera, nameof(PlayerCamera.LimitBottom), twiceViewportBottom, _preEnterLimitBottom, 1.0f, Tween.TransitionType.Linear, Tween.EaseType.In, 1.0f);
+            _exitCts = new CancellationTokenSource();              
 
-            _exitTween.Start();
+            _playerCamera.MaxXPerSecond = 325f;
+
+            _playerCamera.LimitLeft = (int)_preEnterLimitLeft;
+            _playerCamera.LimitRight = (int)_preEnterLimitRight;
+            _playerCamera.LimitTop = (int)_preEnterLimitTop;
+            _playerCamera.LimitBottom = (int)_preEnterLimitBottom;
+
+            await Task.Delay(3000);
+
+            if (_exitCts.Token.IsCancellationRequested)
+            {
+                return;
+            }
+
+            _playerCamera.MaxXPerSecond = -1;
         }
 
         public override void _Notification(int what)
