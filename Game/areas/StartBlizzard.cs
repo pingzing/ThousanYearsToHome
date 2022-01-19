@@ -494,6 +494,7 @@ namespace ThousandYearsHome.Areas
             player.AnimatePose(StateKicking.AnimationName);
             kickAnimationTimer.Start(player.GetPoseAnimationDuration(StateKicking.AnimationName));
 
+            // TODO: This can be too late by a frame (or two?) so instead of relying on the event, we should just do a hit-check somehow
             if (_doorInRange != null)
             {
                 Breakable doorInRange = _doorInRange; // store local copy, for when the player exits range next frame and the class-wide one gets nulled
@@ -521,6 +522,10 @@ namespace ThousandYearsHome.Areas
                 {
                     CollapseSnowDrift();
                 }
+                if (doorInRange.Name == "BreakableWall7")
+                {
+                    CollapseSecondSnowDrift();
+                }    
 
                 await ToSignal(kickAnimationTimer, "timeout");
 
@@ -564,6 +569,11 @@ namespace ThousandYearsHome.Areas
 
             _midgroundTiles.UpdateDirtyQuadrants();
 
+        }
+
+        private void CollapseSecondSnowDrift()
+        {
+            // Make this clear the skinny barrier in the ice wall, so players can go back and charge up
         }
     }
 }
