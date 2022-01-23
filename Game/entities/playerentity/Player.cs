@@ -1,6 +1,8 @@
 using Godot;
 using System;
 using System.Threading.Tasks;
+using ThousandYearsHome.Entities.PowerBallEntity;
+using ThousandYearsHome.Entities.WarmthBallEntity;
 
 namespace ThousandYearsHome.Entities.PlayerEntity
 {
@@ -23,6 +25,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private RayCast2D _leftRaycast = null!;
         private RayCast2D _rightRaycast = null!;
         private Area2D _kickHurtSentinel = null!;
+        private HornCollectibleSignalBus _collectibleSignalBus = null!;
 
         private PlayerStateDisableToken? _stateProcessingDisableToken = null;
         private Vector2 _snapVector = Vector2.Down * 30; // 36 is player's collision box height. Should this be dynamic?
@@ -46,6 +49,13 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public RayCast2D LeftRaycast => _leftRaycast;
         public RayCast2D RightRaycast => _rightRaycast;
         public Area2D KickHurtSentinel => _kickHurtSentinel;
+
+        private float _warmth = 100f;
+        public float Warmth
+        {
+            get => _warmth;
+            set => _warmth = Mathf.Clamp(value, 0, 100);            
+        }
 
         public int HorizontalUnit { get; set; } = 0;
 
@@ -156,6 +166,10 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _wallJumpLockoutTimer = GetNode<Timer>("WallJumpLockoutTimer");
             _kickTimer = GetNode<Timer>("KickTimer");
             _kickHurtSentinel = GetNode<Area2D>("Sprite/KickHurtSentinel");
+
+            _collectibleSignalBus = GetNode<HornCollectibleSignalBus>("/root/HornCollectibleSignalBus");
+            _collectibleSignalBus.Connect(nameof(HornCollectibleSignalBus.WarmthBallCollected), this, nameof(WarmthBallCollected));
+            _collectibleSignalBus.Connect(nameof(HornCollectibleSignalBus.PowerBallCollected), this, nameof(PowerBallCollected));
 
             _leftRaycast = GetNode<RayCast2D>("LeftRaycast");
             _rightRaycast = GetNode<RayCast2D>("RightRaycast");
@@ -405,6 +419,16 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             // When passing through one-way platforms, they only occupy Layer 1.
             // Once the timer expires, this puts them back on both layers.
             CollisionLayer = 1 | 2;
+        }
+
+        public void WarmthBallCollected(WarmthBall warmthBall)
+        {
+            Warmth += warmthBall.WarmthRestoration;
+        }
+
+        public void PowerBallCollected(PowerBall powerBall)
+        {
+
         }
 
         // Methods primarily meant to allow external callers to manipulate the Player

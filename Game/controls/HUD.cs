@@ -1,4 +1,5 @@
 using Godot;
+using ThousandYearsHome.Controls.WarmthBarControl;
 using ThousandYearsHome.Entities.PlayerEntity;
 
 namespace ThousandYearsHome.Controls
@@ -10,6 +11,7 @@ namespace ThousandYearsHome.Controls
         private Label _debugYVelLabel = null!;
         private Label _debugXPosLabel = null!;
         private Label _debugYPosLabel = null!;
+        private WarmthBar _warmthBar = null!;
 
         public override void _Ready()
         {
@@ -18,6 +20,7 @@ namespace ThousandYearsHome.Controls
             _debugYVelLabel = GetNode<Label>("DEBUG_VelocityContainer/DEBUG_YVelLabel");
             _debugXPosLabel = GetNode<Label>("DEBUG_PositionContainer/DEBUG_XPosLabel");
             _debugYPosLabel = GetNode<Label>("DEBUG_PositionContainer/DEBUG_YPosLabel");
+            _warmthBar = GetNode<WarmthBar>("WarmthBar");
         }
 
         public void Debug_SetStateLabel(PlayerStateKind newState)

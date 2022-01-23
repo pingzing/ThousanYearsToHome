@@ -50,6 +50,14 @@ namespace ThousandYearsHome.Entities.WarmthBallEntity
             }
         }
 
+        private float _warmthRestoration = 10f;
+        [Export]
+        public float WarmthRestoration
+        {
+            get => _warmthRestoration;
+            set => _warmthRestoration = value;
+        }
+
         private Node2D _ballSet = null!;
         private Node2D _ballContainer = null!;
         private VisibilityNotifier2D _visibilityNotifier = null!;

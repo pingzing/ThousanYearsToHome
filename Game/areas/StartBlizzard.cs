@@ -550,6 +550,7 @@ namespace ThousandYearsHome.Areas
         {
             // TODO: Make this actually animate some sprite that falls and spreads out on the ground
             // For now, just fiddle around with tiles
+
             // Remove the hanging snow tiles
             var topLeft = GetNode<Position2D>("DoorKnockdownCorners/TopLeft");
             var bottomRight = GetNode<Position2D>("DoorKnockdownCorners/BottomRight");
