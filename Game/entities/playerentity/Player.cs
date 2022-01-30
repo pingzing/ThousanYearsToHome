@@ -26,6 +26,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private RayCast2D _rightRaycast = null!;
         private Area2D _kickHurtSentinel = null!;
         private HornCollectibleSignalBus _collectibleSignalBus = null!;
+        private PlayerSignalBus _playerSignalBus = null!;
 
         private PlayerStateDisableToken? _stateProcessingDisableToken = null;
         private Vector2 _snapVector = Vector2.Down * 30; // 36 is player's collision box height. Should this be dynamic?
@@ -51,10 +52,22 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public Area2D KickHurtSentinel => _kickHurtSentinel;
 
         private float _warmth = 100f;
+        /// <summary>
+        /// The player's current Warmth. Ranges from 0-100, inclusive at both ends.
+        /// </summary>
         public float Warmth
         {
             get => _warmth;
-            set => _warmth = Mathf.Clamp(value, 0, 100);            
+            set
+            {
+                float oldWarmth = _warmth;
+                float newWarmth = Mathf.Clamp(value, 0, 100);
+                if (_warmth != newWarmth)
+                {
+                    _warmth = newWarmth;
+                    _playerSignalBus.EmitSignal(nameof(PlayerSignalBus.WarmthChanged), oldWarmth, newWarmth);
+                }
+            }
         }
 
         public int HorizontalUnit { get; set; } = 0;
@@ -142,9 +155,6 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
         }
 
-        [Signal] public delegate void DebugUpdateState(PlayerStateKind newState, float xVel, float yVel, Vector2 position);
-        [Signal] public delegate void StateChanged(PlayerStateKind oldState, PlayerStateKind newState);
-
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
         {
@@ -171,6 +181,8 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _collectibleSignalBus.Connect(nameof(HornCollectibleSignalBus.WarmthBallCollected), this, nameof(WarmthBallCollected));
             _collectibleSignalBus.Connect(nameof(HornCollectibleSignalBus.PowerBallCollected), this, nameof(PowerBallCollected));
 
+            _playerSignalBus = GetNode<PlayerSignalBus>("/root/PlayerSignalBus");
+
             _leftRaycast = GetNode<RayCast2D>("LeftRaycast");
             _rightRaycast = GetNode<RayCast2D>("RightRaycast");
             _stateMachine.Init(this);
@@ -183,6 +195,9 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 return;
             }
 
+            var oldPos = Position;
+            var oldVel = new Vector2(VelX, VelY);
+
             UpdateFromInput(delta);
 
             if (IsOnFloor())
@@ -194,11 +209,11 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
             if (_stateProcessingDisableToken == null)
             {
-                var oldState = _stateMachine.CurrentState.StateKind;
-                var newState = _stateMachine.Run();
+                PlayerStateKind oldState = _stateMachine.CurrentState.StateKind;
+                PlayerStateKind newState = _stateMachine.Run();
                 if (oldState != newState)
                 {
-                    EmitSignal(nameof(StateChanged), oldState, newState);
+                    _playerSignalBus.EmitSignal(nameof(PlayerSignalBus.StateChanged), oldState, newState);
                 }
             }
 
@@ -211,7 +226,9 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 IdleTime = 0;
             }
 
-            EmitSignal(nameof(DebugUpdateState), _stateMachine.CurrentState.StateKind, VelX, VelY, Position);
+            var newVel = new Vector2(VelX, VelY);
+            if (oldPos != Position) { _playerSignalBus.EmitSignal(nameof(PlayerSignalBus.PositionChanged), oldPos, Position); }
+            if (oldVel != newVel) { _playerSignalBus.EmitSignal(nameof(PlayerSignalBus.VelocityChanged), oldVel, newVel); }
         }
 
         // Places the player at pos, enables their collision, and initializes their state machine.

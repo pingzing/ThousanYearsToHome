@@ -816,5 +816,4 @@ __meta__ = {
 
 [node name="PlayerCamera" parent="." instance=ExtResource( 11 )]
 
-[connection signal="StateChanged" from="." to="PlayerCamera" method="PlayerStateChanged"]
 [connection signal="timeout" from="OneWayPlatformTimer" to="." method="OnOneWayPlatformTimerTimeout"]

@@ -14,17 +14,21 @@ __meta__ = {
 }
 
 [node name="DEBUG_CurrentStateLabel" type="Label" parent="."]
+anchor_left = 1.0
 anchor_right = 1.0
-margin_bottom = 14.0
+margin_left = -480.0
+margin_bottom = 16.0
 text = "CurrentState"
-align = 1
+align = 2
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="DEBUG_VelocityContainer" type="VBoxContainer" parent="."]
-margin_right = 71.0
-margin_bottom = 40.0
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -40.0
+margin_right = 78.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -41,9 +45,12 @@ margin_bottom = 36.0
 text = "YVel: -888.88"
 
 [node name="DEBUG_PositionContainer" type="VBoxContainer" parent="."]
+anchor_top = 1.0
+anchor_bottom = 1.0
 margin_left = 82.0
+margin_top = -40.0
 margin_right = 160.0
-margin_bottom = 16.0
+margin_bottom = -4.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -63,6 +70,5 @@ text = "Y: -888.88"
 anchor_left = 0.25
 anchor_right = 0.75
 margin_left = -0.064003
-margin_top = 40.0
 margin_right = -0.0639954
-margin_bottom = -187.0
+margin_bottom = -227.0

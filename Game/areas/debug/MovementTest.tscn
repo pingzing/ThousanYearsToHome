@@ -71,10 +71,8 @@ tile_data = PoolIntArray( 65702, 12, 0, 65703, 14, 0, 65704, 13, 0, 131240, 12, 
 [node name="Player" parent="." instance=ExtResource( 1 )]
 position = Vector2( 59, 152 )
 
-[node name="PlayerCamera" parent="Player" index="11"]
+[node name="PlayerCamera" parent="Player" index="12"]
 TargetRect = Rect2( 64, 110, 80, 72 )
-BottomLimit = 200
-RightLimit = 2000
 
 [node name="PowerBallSet1" parent="." instance=ExtResource( 6 )]
 position = Vector2( 141, 167 )
@@ -126,8 +124,8 @@ margin_top = 88.0
 margin_right = 2486.0
 margin_bottom = 120.0
 theme = ExtResource( 8 )
-custom_fonts/font = ExtResource( 9 )
 custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = ExtResource( 9 )
 text = "10 tiles"
 __meta__ = {
 "_edit_use_anchors_": false,
@@ -140,8 +138,8 @@ margin_top = 88.0
 margin_right = 2263.0
 margin_bottom = 104.0
 theme = ExtResource( 8 )
-custom_fonts/font = ExtResource( 9 )
 custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = ExtResource( 9 )
 text = "9 tiles"
 __meta__ = {
 "_edit_use_anchors_": false,
@@ -154,8 +152,8 @@ margin_top = 87.0
 margin_right = 2097.0
 margin_bottom = 119.0
 theme = ExtResource( 8 )
-custom_fonts/font = ExtResource( 9 )
 custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = ExtResource( 9 )
 text = "8 tiles"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -167,8 +165,8 @@ margin_top = 87.0
 margin_right = 1935.0
 margin_bottom = 119.0
 theme = ExtResource( 8 )
-custom_fonts/font = ExtResource( 9 )
 custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = ExtResource( 9 )
 text = "7 tiles"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -180,8 +178,8 @@ margin_top = 87.0
 margin_right = 1778.0
 margin_bottom = 119.0
 theme = ExtResource( 8 )
-custom_fonts/font = ExtResource( 9 )
 custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = ExtResource( 9 )
 text = "6 tiles"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -193,8 +191,8 @@ margin_top = 87.0
 margin_right = 1648.0
 margin_bottom = 119.0
 theme = ExtResource( 8 )
-custom_fonts/font = ExtResource( 9 )
 custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = ExtResource( 9 )
 text = "5 tiles"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -206,8 +204,8 @@ margin_top = 87.0
 margin_right = 1531.0
 margin_bottom = 119.0
 theme = ExtResource( 8 )
-custom_fonts/font = ExtResource( 9 )
 custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = ExtResource( 9 )
 text = "4 tiles"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -234,8 +232,6 @@ margin_left = 1.0
 margin_top = -1.0
 margin_right = 1.0
 margin_bottom = -1.0
-
-[connection signal="DebugUpdateState" from="Player" to="." method="OnPlayerDebugUpdateState"]
 
 [editable path="Player"]
 [editable path="PowerBallSet1"]

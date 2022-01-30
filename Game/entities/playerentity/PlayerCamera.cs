@@ -32,6 +32,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private Player _player = null!;
         private Timer _panningTimer = null!;
         private Tween _tween = null!;
+        private PlayerSignalBus _playerSignals = null!;
 
         // ------ Read-only properties ------
         /// <summary>
@@ -162,6 +163,10 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _player = GetParent<Player>();
             _panningTimer = GetNode<Timer>("PanningTimer");
             _tween = GetNode<Tween>("Tween");
+            _playerSignals = GetNode<PlayerSignalBus>("/root/PlayerSignalBus");
+
+            _playerSignals.Connect(nameof(PlayerSignalBus.StateChanged), this, nameof(PlayerStateChanged));
+
             _prevIdleFacingRight = !_player.FlipH;
         }
 

@@ -40,6 +40,10 @@ namespace ThousandYearsHome.Areas
         private Area2D _collapseLandingTriggerArea = null!;
         private Area2D _keeperCutsceneTriggerArea = null!;
         private Position2D _keeperCutsceneCameraPosition = null!;
+        private Timer _warmthDrainTimer = null!;
+
+        private const float DefaultWarmthDrainPerTick = 1f;
+        private float _warmthDrainPerTick = DefaultWarmthDrainPerTick;
 
         private Breakable? _doorInRange;
 
@@ -63,6 +67,8 @@ namespace ThousandYearsHome.Areas
             _cinematicCamera = GetNode<CinematicCamera>("CinematicCamera");
             _midgroundTiles = GetNode<TileMap>("MidgroundTiles");
             _warmthBallWatcher = GetNode<WarmthBallWatcher>("UICanvas/WarmthBallWatcher");
+            _warmthDrainTimer = GetNode<Timer>("WarmthDrainTimer");
+
             _collectibleSignalBus = GetNode<HornCollectibleSignalBus>("/root/HornCollectibleSignalBus");
             _collectibleSignalBus.Connect(nameof(HornCollectibleSignalBus.PowerBallCollected), this, nameof(PowerBallCollected));
             _collectibleSignalBus.Connect(nameof(HornCollectibleSignalBus.WarmthBallCollected), this, nameof(WarmthBallCollected));
@@ -96,15 +102,8 @@ namespace ThousandYearsHome.Areas
                 _playerCamera.Current = true;
 
                 // DEBUG! Continuing forces us into freezing mode
-                _player.EnterKickOverride = FreezingKickOverride;
+                //_player.EnterKickOverride = FreezingKickOverride;
             }
-        }
-
-        public void OnPlayerDebugUpdateState(PlayerStateKind newState, float xVel, float yVel, Vector2 position)
-        {
-            _hud.Debug_SetStateLabel(newState);
-            _hud.Debug_SetVelocity(new Vector2(xVel, yVel));
-            _hud.Debug_SetPosition(position);
         }
 
         public async void WaitStartTimerTimeout()
@@ -385,7 +384,7 @@ namespace ThousandYearsHome.Areas
                 }
 
                 await _dialogueBox.Open();
-                _dialogueBox.QueueText("This is where the keeper cutscene will happen! Zappy horns, big scary flashy, glowy balls, stamia meter!");
+                _dialogueBox.QueueText("This is where the keeper cutscene will happen! Zappy horns, big scary flashy, glowy balls, warmth meter!");
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
@@ -395,7 +394,8 @@ namespace ThousandYearsHome.Areas
                 _tweener.Start();
                 await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
 
-                // Return control to player, lock down their ability to kick
+                // Return control to player, lock down their ability to kick, begin draining warmth faster
+                _warmthDrainTimer.Start();
                 _playerCamera.Current = true;
                 _player.EnterKickOverride = FreezingKickOverride;
                 _keeperCutsceneTriggerArea.QueueFree();
@@ -406,6 +406,11 @@ namespace ThousandYearsHome.Areas
                 (_snowParticles.ProcessMaterial as ParticlesMaterial).InitialVelocity = 680f;
                 _snowParticles.Emitting = true;
             }
+        }
+
+        public void WarmthDrainTimerTimeout()
+        {
+            _player.Warmth -= _warmthDrainPerTick;
         }
 
         public void PowerBallCollected(PowerBall ball)
