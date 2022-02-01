@@ -43,8 +43,8 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         private Position2D _keeperCutsceneCameraPosition = null!;
         private Timer _warmthDrainTimer = null!;
 
-        private const float DefaultWarmthDrainPerTick = 1f;
-        private float _warmthDrainPerTick = DefaultWarmthDrainPerTick;
+        private const float DefaultWarmthDrainPerTick = .1f;
+        private float _levelWarmthDrainPerTick = DefaultWarmthDrainPerTick;
 
         private Breakable? _doorInRange;
 
@@ -360,7 +360,8 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
 
                 _player.InputLocked = true;
 
-                // Stop draining warmth and hide the warmth bar
+                // Stop draining warmth and hide the warmth bar, and disable the cave chill area--everything is cold now
+                _firstCaveChillArea.Monitoring = false;
                 _warmthDrainTimer.Stop();
                 // TODO: fade warmth bar
 
@@ -406,8 +407,9 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
                 _tweener.Start();
                 await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
 
-                // Return control to player, lock down their ability to kick, begin draining warmth faster
+                // Return control to player, lock down their ability to kick, begin draining warmth at the level's global drain rate
                 _warmthDrainTimer.Start();
+                _player.WarmthDrainPerTick = _levelWarmthDrainPerTick;
                 _playerCamera.Current = true;
                 _player.EnterKickOverride = FreezingKickOverride;
                 _keeperCutsceneTriggerArea.QueueFree();

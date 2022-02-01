@@ -57,7 +57,7 @@ namespace ThousandYearsHome.Controls
 
         private void DebugDraw()
         {
-            if (Engine.EditorHint || GetTree().DebugCollisionsHint)
+            if (Engine.EditorHint || GetTree()?.DebugCollisionsHint == true)
             {
                 if (_modifyChillShape != null)
                 {
