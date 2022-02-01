@@ -10,7 +10,7 @@ using ThousandYearsHome.Entities.PowerBallEntity;
 using ThousandYearsHome.Entities.WarmthBallEntity;
 using ThousandYearsHome.Extensions;
 
-namespace ThousandYearsHome.Areas
+namespace ThousandYearsHome.Areas.StartBlizzardArea
 {
     public class StartBlizzard : Node
     {
@@ -38,6 +38,7 @@ namespace ThousandYearsHome.Areas
         private Position2D _fallTeleportTop = null!;
         private Area2D _fallTeleportBottomArea = null!;
         private Area2D _collapseLandingTriggerArea = null!;
+        private Area2D _firstCaveChillArea = null!;
         private Area2D _keeperCutsceneTriggerArea = null!;
         private Position2D _keeperCutsceneCameraPosition = null!;
         private Timer _warmthDrainTimer = null!;
@@ -84,6 +85,8 @@ namespace ThousandYearsHome.Areas
             _fallTeleportBottomArea = GetNode<Area2D>("FallTeleportBottomArea");
 
             _collapseLandingTriggerArea = GetNode<Area2D>("CollapseLandingTriggerArea");
+
+            _firstCaveChillArea = GetNode<Area2D>("FirstCaveChillArea");
 
             _keeperCutsceneTriggerArea = GetNode<Area2D>("KeeperCutsceneTriggerArea");
 
@@ -331,12 +334,17 @@ namespace ThousandYearsHome.Areas
 
                 _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
                     .QueueText("Brrr. It is [shake rate=10 level=8]cold[/shake].")
+                    // TODO: Play a shiver animation here?
                     .QueueBreak()
                     .QueueText("\nI'll be okay in here for a little while, but if I have to go outside again, that wind is going to slice right through me. I've got to find some shelter, and fast...");
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
                 PlayerCameraTakeControl(_player, _playerCamera, _cinematicCamera);
+
+                // Enable chill area, which should cause warmth to start draining
+                _firstCaveChillArea.Monitoring = true;
+                _warmthDrainTimer.Start();
 
                 _collapseLandingTriggerArea.QueueFree();
                 _player.InputLocked = false;
@@ -351,6 +359,10 @@ namespace ThousandYearsHome.Areas
                 _keeperCutscenePlayed = true;
 
                 _player.InputLocked = true;
+
+                // Stop draining warmth and hide the warmth bar
+                _warmthDrainTimer.Stop();
+                // TODO: fade warmth bar
 
                 await _dialogueBox.Open();
                 _dialogueBox.QueueText("You can see light coming from an exit ahead. Except...", 0.01f)
@@ -410,7 +422,7 @@ namespace ThousandYearsHome.Areas
 
         public void WarmthDrainTimerTimeout()
         {
-            _player.Warmth -= _warmthDrainPerTick;
+            _player.Warmth -= _player.WarmthDrainPerTick;
         }
 
         public void PowerBallCollected(PowerBall ball)

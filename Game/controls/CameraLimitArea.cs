@@ -61,7 +61,6 @@ namespace ThousandYearsHome.Controls
         }
 
         // Local nodes
-        private Area2D _cameraLimitArea = null!;
         private CollisionShape2D _cameraLimitShape = null!;
         private Tween _enterTween = null!;
 
@@ -87,7 +86,6 @@ namespace ThousandYearsHome.Controls
                 _preEnterLimitBottom = _playerCamera.LimitBottom;
             }
 
-            _cameraLimitArea = GetNode<Area2D>("CameraLimitArea");
             _cameraLimitShape = GetNode<CollisionShape2D>("CameraLimitShape");
             _enterTween = GetNode<Tween>("EnterTween");
         }

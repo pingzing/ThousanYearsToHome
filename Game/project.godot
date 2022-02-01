@@ -19,6 +19,10 @@ config/icon="res://icon.png"
 HornCollectibleSignalBus="*res://entities/HornCollectibleSignalBus.cs"
 PlayerSignalBus="*res://entities/PlayerSignalBus.cs"
 
+[debug]
+
+shapes/collision/shape_color=Color( 1, 1, 1, 0.235294 )
+
 [display]
 
 window/size/width=480

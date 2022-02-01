@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://controls/ModifyChillArea.cs" type="Script" id=1]
+
+[node name="ModifyChillArea" type="Area2D"]
+script = ExtResource( 1 )
+
+[node name="ModifyChillShape" type="CollisionShape2D" parent="."]
+
+[connection signal="body_entered" from="." to="." method="ModifyChillAreaBodyEntered"]
+[connection signal="body_exited" from="." to="." method="ModifyChillAreaBodyExited"]

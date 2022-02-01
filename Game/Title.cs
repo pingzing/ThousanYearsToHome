@@ -1,8 +1,7 @@
 using Godot;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ThousandYearsHome.Areas;
-using ThousandYearsHome.Entities.PlayerEntity;
+using ThousandYearsHome.Areas.StartBlizzardArea;
 
 namespace ThousandYearsHome
 {
@@ -33,7 +32,7 @@ namespace ThousandYearsHome
             _menuVBox.Modulate = new Color(_menuVBox.Modulate, a: 0);
 
             // Begin loading the "new game" scene immediately on boot
-            _newGameLoader = ResourceLoader.LoadInteractive("res://areas/StartBlizzard.tscn");
+            _newGameLoader = ResourceLoader.LoadInteractive("res://areas/startblizzardarea/StartBlizzard.tscn");
         }
 
         public void ShowTitleTimerTimeout()

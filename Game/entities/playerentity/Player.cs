@@ -70,6 +70,16 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
         }
 
+        private float _warmthDrainPerTick = 0;
+        /// <summary>
+        /// Determines how much wamrth is lost each time a warmth drain timer ticks.
+        /// </summary>
+        public float WarmthDrainPerTick
+        {
+            get => _warmthDrainPerTick;
+            set => _warmthDrainPerTick = value;
+        }
+
         public int HorizontalUnit { get; set; } = 0;
 
         public int VerticalUnit { get; set; } = 0;
