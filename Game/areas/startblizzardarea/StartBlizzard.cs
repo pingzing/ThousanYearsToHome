@@ -16,11 +16,12 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
     {
         private Node _sceneRoot = null!;
         private Player _player = null!;
+        private Particles2D _backgroundSnow = null!;
+        private Particles2D _firstAreaSnow = null!;
         private PlayerCamera _playerCamera = null!;
         private AnimationPlayer _animator = null!;
         private AnimationPlayer _fadeAnimator = null!;
         private Tween _tweener = null!;
-        private Particles2D _snowParticles = null!;
         private ColorRect _fader = null!;
         private DialogueBox _dialogueBox = null!;
         private DialogueBox _liteDialogueBox = null!;
@@ -54,7 +55,6 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         public override void _Ready()
         {
             _sceneRoot = GetTree().Root.GetNode<Node>("StartBlizzard");
-            _snowParticles = GetNode<Particles2D>("UICanvas/Particles2D");
             _fader = GetNode<ColorRect>("UICanvas/Fader");
             _dialogueBox = GetNode<DialogueBox>("UICanvas/DialogueBox");
             _liteDialogueBox = GetNode<DialogueBox>("UICanvas/LiteDialogueBox");
@@ -65,6 +65,8 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
             _tweener = GetNode<Tween>("Tweener");
             _hud = GetNode<HUD>("UICanvas/HUD");
             _playerCamera = GetNode<PlayerCamera>("Player/PlayerCamera");
+            _backgroundSnow = GetNode<Particles2D>("ParallaxBackground/BackgroundSnowfallParticles");
+            _firstAreaSnow = GetNode<Particles2D>("FirstAreaSnowParticles");
             _cinematicCamera = GetNode<CinematicCamera>("CinematicCamera");
             _midgroundTiles = GetNode<TileMap>("MidgroundTiles");
             _warmthBallWatcher = GetNode<WarmthBallWatcher>("UICanvas/WarmthBallWatcher");
@@ -269,8 +271,11 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
                 _midgroundTiles.UpdateDirtyQuadrants();
                 _player.MoveAndSlide(new Vector2(0, 0), Vector2.Down); // Force a position update to make the player begin to fall.
 
+                // Hide the snowfall from the first area, so we don't have indoor snowfall
+                _firstAreaSnow.Emitting = false;
+                _tweener.InterpolateProperty(_firstAreaSnow, "modulate", null, new Color(_firstAreaSnow.Modulate, 0), .2f);
+
                 // falling dialogue
-                _snowParticles.Emitting = false; // no snow inside caves!
                 await _dialogueBox.Open();
 
                 // Make the Cinematic Camera take over, and parent it to the player so it follows them
@@ -415,10 +420,7 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
                 _keeperCutsceneTriggerArea.QueueFree();
                 _player.InputLocked = false;
 
-                // More snow!
-                _snowParticles.Amount = 1600;
-                (_snowParticles.ProcessMaterial as ParticlesMaterial).InitialVelocity = 680f;
-                _snowParticles.Emitting = true;
+                // TODO: Make more snow happen here!
             }
         }
 
@@ -528,7 +530,7 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
 
                 _tweener.InterpolateProperty(_cinematicCamera, "zoom", null, new Vector2(.5f, .5f), 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
                 _tweener.InterpolateProperty(_cinematicCamera, "position", cinematicStartPos, _cinematicCamera.Position * .5f, 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
-                _tweener.InterpolateProperty(_snowParticles, "modulate", null, new Color(_snowParticles.Modulate, 0), .4f);
+                // TODO: Fade snow out //_tweener.InterpolateProperty(_snowParticles, "modulate", null, new Color(_snowParticles.Modulate, 0), .4f);
                 _tweener.Start();
                 await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
 
@@ -550,7 +552,7 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
 
                 _tweener.InterpolateProperty(_cinematicCamera, "zoom", null, new Vector2(1f, 1f), .5f, Tween.TransitionType.Cubic, Tween.EaseType.In);
                 _tweener.InterpolateProperty(_cinematicCamera, "position", _cinematicCamera.Position, cinematicStartPos, .5f, Tween.TransitionType.Cubic, Tween.EaseType.In);
-                _tweener.InterpolateProperty(_snowParticles, "modulate", null, new Color(_snowParticles.Modulate, 1), .1f, Tween.TransitionType.Linear, Tween.EaseType.InOut, .4f);
+                //TODO: Fade snow in  _tweener.InterpolateProperty(_snowParticles, "modulate", null, new Color(_snowParticles.Modulate, 1), .1f, Tween.TransitionType.Linear, Tween.EaseType.InOut, .4f);
                 _tweener.Start();
                 await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
 

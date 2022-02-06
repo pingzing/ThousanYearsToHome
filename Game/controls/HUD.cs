@@ -38,7 +38,7 @@ namespace ThousandYearsHome.Controls
             _debugStateLabel.Text = newState.ToString();
         }
 
-        public void Debug_SetVelocity(Vector2 newVel)
+        public void Debug_SetVelocity(Vector2 oldVel, Vector2 newVel)
         {
             _debugXVelLabel.Text = $"XVel: {newVel.x}";
             _debugYVelLabel.Text = $"YVel: {newVel.y}";

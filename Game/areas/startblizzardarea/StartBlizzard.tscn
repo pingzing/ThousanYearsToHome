@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=2]
+[gd_scene load_steps=46 format=2]
 
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=1]
 [ext_resource path="res://fonts/Equipment-32pt.tres" type="DynamicFont" id=2]
@@ -20,6 +20,7 @@
 [ext_resource path="res://art/BlizzardTileset.tres" type="TileSet" id=18]
 [ext_resource path="res://areas/startblizzardarea/StartBlizzard.cs" type="Script" id=19]
 [ext_resource path="res://controls/ModifyChillArea.tscn" type="PackedScene" id=20]
+[ext_resource path="res://art/SnowParticles_Sideways.tres" type="Material" id=21]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 345, 4 )
@@ -42,6 +43,24 @@ extents = Vector2( 1481.5, 386 )
 [sub_resource type="RectangleShape2D" id=6]
 extents = Vector2( 31, 82 )
 
+[sub_resource type="ParticlesMaterial" id=25]
+emission_shape = 2
+emission_box_extents = Vector3( 3500, 17.841, 1 )
+flag_disable_z = true
+direction = Vector3( 0, 1, 0 )
+spread = 1.0
+gravity = Vector3( -20, 7, 0 )
+initial_velocity = 200.0
+initial_velocity_random = 0.25
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+tangential_accel = 10.0
+tangential_accel_random = 0.31
+damping = 10.0
+damping_random = 0.5
+scale = 2.0
+scale_random = 0.71
+
 [sub_resource type="RectangleShape2D" id=7]
 extents = Vector2( 12, 113 )
 
@@ -60,8 +79,14 @@ extents = Vector2( 32, 179 )
 [sub_resource type="RectangleShape2D" id=12]
 extents = Vector2( 15, 191 )
 
+[sub_resource type="RectangleShape2D" id=26]
+extents = Vector2( 199, 442.5 )
+
 [sub_resource type="RectangleShape2D" id=22]
 extents = Vector2( 185.5, 434 )
+
+[sub_resource type="ConvexPolygonShape2D" id=27]
+points = PoolVector2Array( 32, 37, 679, 36, 682, 153, 564, 284, 480, 295, 469, 1163, -3, 1164, 1, 38 )
 
 [sub_resource type="RectangleShape2D" id=21]
 extents = Vector2( 232.25, 578.5 )
@@ -130,23 +155,6 @@ tracks/1/keys = {
 
 [sub_resource type="Animation" id=18]
 
-[sub_resource type="ParticlesMaterial" id=19]
-emission_shape = 2
-emission_box_extents = Vector3( 1, 135, 1 )
-flag_disable_z = true
-direction = Vector3( -1, 0, 0 )
-spread = 7.98
-gravity = Vector3( -40, 5, 0 )
-initial_velocity = 340.0
-initial_velocity_random = 0.4
-angular_velocity = 10.21
-orbit_velocity = 0.0
-orbit_velocity_random = 0.0
-linear_accel = -24.39
-linear_accel_random = 1.0
-scale = 1.25
-scale_random = 1.0
-
 [sub_resource type="Animation" id=20]
 length = 7.0
 tracks/0/type = "value"
@@ -181,6 +189,13 @@ texture = ExtResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="BackgroundSnowfallParticles" type="Particles2D" parent="ParallaxBackground"]
+position = Vector2( 520, 135 )
+amount = 5000
+lifetime = 5.0
+preprocess = 5.0
+process_material = ExtResource( 21 )
 
 [node name="WarmthDrainTimer" type="Timer" parent="."]
 process_mode = 0
@@ -244,7 +259,7 @@ position = Vector2( 9705.41, -1432.12 )
 HitsToDestroy = 1
 
 [node name="StartPosition" type="Position2D" parent="."]
-position = Vector2( -20, 140 )
+position = Vector2( -16, 131 )
 
 [node name="JumpTutorialSign" type="Sprite" parent="."]
 position = Vector2( 512, 89 )
@@ -347,6 +362,14 @@ LimitBottom = 1200
 Current = false
 MovementAccelerationCoefficient = 1.1
 TargetRect = Rect2( 64, 16, 80, 160 )
+
+[node name="FirstAreaSnowParticles" type="Particles2D" parent="."]
+position = Vector2( 1497, -1206 )
+amount = 20239
+lifetime = 18.0
+preprocess = 18.0
+visibility_rect = Rect2( -1500, -100, 3500, 1700 )
+process_material = SubResource( 25 )
 
 [node name="WarmthBallSets" type="Node" parent="."]
 
@@ -650,6 +673,15 @@ shape = SubResource( 12 )
 position = Vector2( 3200, 768 )
 texture = ExtResource( 4 )
 
+[node name="FarRightCaveChillArea" parent="." instance=ExtResource( 20 )]
+position = Vector2( 9566, -512 )
+ChillModifier = -0.09
+
+[node name="ModifyChillShape" parent="FarRightCaveChillArea" index="0"]
+modulate = Color( 0.858824, 0.576471, 0.0392157, 1 )
+position = Vector2( 214, 427.5 )
+shape = SubResource( 26 )
+
 [node name="FarRightClimbCameraXLockArea" parent="." instance=ExtResource( 16 )]
 position = Vector2( 9597, 261 )
 PlayerCameraPath = NodePath("../Player/PlayerCamera")
@@ -661,6 +693,14 @@ shape = SubResource( 22 )
 
 [node name="LockXPosition" parent="FarRightClimbCameraXLockArea" index="1"]
 position = Vector2( -29, -197 )
+
+[node name="LastClimbCaveChillArea" parent="." instance=ExtResource( 20 )]
+position = Vector2( 5403, -1672 )
+ChillModifier = -0.09
+
+[node name="ModifyChillShape" parent="LastClimbCaveChillArea" index="0"]
+modulate = Color( 0.858824, 0.576471, 0.0392157, 1 )
+shape = SubResource( 27 )
 
 [node name="LastClimbLimitArea" parent="." instance=ExtResource( 9 )]
 position = Vector2( 5665, -1080 )
@@ -726,14 +766,6 @@ __meta__ = {
 }
 
 [node name="UICanvas" type="CanvasLayer" parent="."]
-
-[node name="Particles2D" type="Particles2D" parent="UICanvas"]
-position = Vector2( 480, 105 )
-amount = 800
-lifetime = 1.75
-preprocess = 1.5
-visibility_rect = Rect2( -480, -135, 480, 270 )
-process_material = SubResource( 19 )
 
 [node name="HUD" parent="UICanvas" instance=ExtResource( 11 )]
 
@@ -802,6 +834,8 @@ __meta__ = {
 [editable path="WarmthBallSets/WarmthBallSet7"]
 [editable path="WarmthBallSets/WarmthBallSet8"]
 [editable path="WarmthBallSets/WarmthBallSet9"]
+[editable path="FarRightCaveChillArea"]
 [editable path="FarRightClimbCameraXLockArea"]
+[editable path="LastClimbCaveChillArea"]
 [editable path="LastClimbLimitArea"]
 [editable path="HiddenAlcoveLimitArea"]
