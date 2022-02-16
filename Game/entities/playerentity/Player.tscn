@@ -65,6 +65,30 @@ tracks/3/keys = {
 "update": 0,
 "values": [ Vector2( 0, 0 ) ]
 }
+tracks/4/type = "value"
+tracks/4/path = NodePath("KickHurtSentinel/KickHurtSentinelShape:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 34.005, 4.794 ) ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("KickHurtSentinel/KickHurtSentinelShape:shape:extents")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 6.99043, 10.6662 ) ]
+}
 
 [sub_resource type="Animation" id=14]
 resource_name = "FrozenKick"
@@ -129,6 +153,30 @@ tracks/4/keys = {
 "transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1 ),
 "update": 1,
 "values": [ Vector2( 2.19067, 4.51285 ), Vector2( 2.19067, 4.51285 ), Vector2( 2.19067, 4.51285 ), Vector2( 2.19067, 4.51285 ), Vector2( 2.19067, 4.51285 ), Vector2( 2.19067, 4.51285 ), Vector2( 2.19067, 4.51285 ) ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("KickHurtSentinel/KickHurtSentinelShape:position")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 34.005, 4.794 ) ]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath("KickHurtSentinel/KickHurtSentinelShape:shape:extents")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 6.99043, 10.6662 ) ]
 }
 
 [sub_resource type="Animation" id=2]
@@ -434,6 +482,20 @@ tracks/7/keys = {
 "update": 1,
 "values": [ Vector2( 34.005, 4.794 ), Vector2( 34.005, -0.206 ), Vector2( 34.005, 4.794 ) ]
 }
+tracks/8/type = "method"
+tracks/8/path = NodePath("../PlayerStateMachine/StateKicking")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/keys = {
+"times": PoolRealArray( 0.2 ),
+"transitions": PoolRealArray( 1 ),
+"values": [ {
+"args": [ NodePath("../..") ],
+"method": "PreKick"
+} ]
+}
 
 [sub_resource type="Animation" id=10]
 resource_name = "RESET"
@@ -736,7 +798,7 @@ __meta__ = {
 "_editor_description_": "This sentinel is used to detect kickable things, but not break them."
 }
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite/KickHurtSentinel"]
+[node name="KickHurtSentinelShape" type="CollisionShape2D" parent="Sprite/KickHurtSentinel"]
 position = Vector2( 34.005, 4.794 )
 shape = ExtResource( 13 )
 

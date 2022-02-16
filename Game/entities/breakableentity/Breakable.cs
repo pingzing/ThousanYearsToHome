@@ -6,6 +6,7 @@ namespace ThousandYearsHome.Entities.BreakableEntity
     {
         [Signal] public delegate void PlayerEnteredKickRange(Breakable entity);
         [Signal] public delegate void PlayerExitedKickRange(Breakable entity);
+        [Signal] public delegate void Broken(Breakable entity);
 
         // Nodes
         private Sprite _sprite = null!;
@@ -65,6 +66,7 @@ namespace ThousandYearsHome.Entities.BreakableEntity
                     _collisionShape.SetDeferred("disabled", true);
                     // TODO: Animation
                     _sprite.Hide();
+                    EmitSignal(nameof(Broken), this);
                 }
             }
 

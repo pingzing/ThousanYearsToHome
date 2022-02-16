@@ -31,8 +31,11 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private PlayerStateDisableToken? _stateProcessingDisableToken = null;
         private Vector2 _snapVector = Vector2.Down * 30; // 36 is player's collision box height. Should this be dynamic?
 
-        public string CurrentAnimationName => _poseAnimator.CurrentAnimation;
+        [Signal] public delegate void KickEntered(Player player);
+        [Signal] public delegate void KickExited(Player player);
+        [Signal] public delegate void PreKicking(Player player);
 
+        public string CurrentAnimationName => _poseAnimator.CurrentAnimation;
         public bool FlipH { get; private set; } = false;
         public bool Grounded => !_floorTimer.IsStopped();
         public bool Jumping => !_jumpTimer.IsStopped();
@@ -45,6 +48,10 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         public bool IsWallJumpLocked => !_wallJumpLockoutTimer.IsStopped();
         public bool IsKickJustPressed { get; private set; }
         public bool IsKicking => !_kickTimer.IsStopped();
+        /// <summary>
+        /// Callback that gets fired immediately when the player enters a Kicking state.
+        /// Replaces normal Kick Enter behavior if not null.
+        /// </summary>
         public Func<Player, Timer, Task>? EnterKickOverride { get; set; } = null!;
         public float IdleTime { get; private set; }
         public RayCast2D LeftRaycast => _leftRaycast;

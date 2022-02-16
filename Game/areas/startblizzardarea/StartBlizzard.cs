@@ -44,6 +44,7 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         private Position2D _keeperCutsceneCameraPosition = null!;
         private Timer _warmthDrainTimer = null!;
 
+        private bool _playerHasPowerBall = false;
         private const float DefaultWarmthDrainPerTick = .1f;
         private float _levelWarmthDrainPerTick = DefaultWarmthDrainPerTick;
 
@@ -95,6 +96,8 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
             Vector2 startPos = GetNode<Position2D>("StartPosition").Position;
             _player.Spawn(startPos);
             _warmthBallWatcher.Init(_playerCamera);
+
+            _player.Connect(nameof(Player.PreKicking), this, nameof(PlayerPreKicking));
 
             // Lock player's input, because we're gonna animate them cutscene style
             if (!SkipIntro)
@@ -432,33 +435,19 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         public void PowerBallCollected(PowerBall ball)
         {
             GD.Print("Level sees that player got a PowerBall");
-            // Freeze the warmth drain
-            // Begin the warmth ball's expiry timer
-            // Trigger the "powered up" animation
+            // TODO: Freeze the warmth drain
+            //      Begin the warmth ball's expiry timer
+            //      Trigger the "powered up" animation
+            _playerHasPowerBall = true;
 
             // Unlock kicking on the player
-            _player.EnterKickOverride = PowerKickOverride;
+            _player.EnterKickOverride = null;
         }
 
         public void WarmthBallCollected(WarmthBall ball)
         {
             GD.Print("Level sees that player got a WarmthBall");
             // Increase the current warmth value, and update the warmth bar
-        }
-
-        public void PowerWallPlayerEnteredRange(Breakable entity)
-        {
-            _doorInRange = entity;
-            GD.Print($"Player entered kicking range of door: {entity.Name}");
-        }
-
-        public void PowerWallPlayerExitedRange(Breakable entity)
-        {
-            if (_doorInRange == entity)
-            {
-                _doorInRange = null;
-                GD.Print($"Player exited kicking range of door: {entity.Name}");
-            }
         }
 
         /// <summary>
@@ -485,12 +474,12 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
             cinematicCamera.Owner = this;
         }
 
-        private async Task FreezingKickOverride(Player player, Timer kickAnimationTimer)
+        private async Task FreezingKickOverride(Player player, Timer kickTimer)
         {
             // Player a slower kick animation that doesn't break breakables, then play some lite dialogue
             player.AnimatePose(StateKicking.FrozenKickName);
             float slowKickDuration = player.GetPoseAnimationDuration(StateKicking.FrozenKickName);
-            kickAnimationTimer.Start(slowKickDuration);
+            kickTimer.Start(slowKickDuration);
 
             if (!_liteDialogueBox.IsOpen)
             {
@@ -509,65 +498,75 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         }
 
 
-        private async Task PowerKickOverride(Player player, Timer kickAnimationTimer)
+        private async void PlayerPreKicking(Player player)
         {
-            // Performs a regular kick and, if in door range, does a freeze-frame and zoom-in
-            player.AnimatePose(StateKicking.AnimationName);
-            kickAnimationTimer.Start(player.GetPoseAnimationDuration(StateKicking.AnimationName));
-
-            // TODO: This can be too late by a frame (or two?) so instead of relying on the event, we should just do a hit-check somehow
-            if (_doorInRange != null)
+            var overlaps = player.KickHurtSentinel.GetOverlappingAreas();
+            if (overlaps == null || overlaps.Count <= 0)
             {
-                Breakable doorInRange = _doorInRange; // store local copy, for when the player exits range next frame and the class-wide one gets nulled
-                player.InputLocked = true;
-
-                // Wait exactly 200ms, as that's the point in the animation at which the sprite has turned around
-                await Task.Delay(200); // TODO: May be safer to watch for a specific frame. Maybe make AnimationPlayer have a callback func here?
-                GetTree().Paused = true;
-
-                CinematicCameraFollowPlayer(_player, _cinematicCamera);
-                Vector2 cinematicStartPos = _cinematicCamera.Position;
-
-                _tweener.InterpolateProperty(_cinematicCamera, "zoom", null, new Vector2(.5f, .5f), 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
-                _tweener.InterpolateProperty(_cinematicCamera, "position", cinematicStartPos, _cinematicCamera.Position * .5f, 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
-                // TODO: Fade snow out //_tweener.InterpolateProperty(_snowParticles, "modulate", null, new Color(_snowParticles.Modulate, 0), .4f);
-                _tweener.Start();
-                await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
-
-                GetTree().Paused = false;
-
-                await Task.Delay(225); // We're now at 0.4225s, which is juuust after when the hooves fly
-                // Screen shake, and special stuff based on which door it was
-                _cinematicCamera.Shake(.3f, 100, 24);
-                if (doorInRange.Name == "BreakableWall3")
-                {
-                    CollapseSnowDrift();
-                }
-                if (doorInRange.Name == "BreakableWall7")
-                {
-                    CollapseSecondSnowDrift();
-                }    
-
-                await ToSignal(kickAnimationTimer, "timeout");
-
-                _tweener.InterpolateProperty(_cinematicCamera, "zoom", null, new Vector2(1f, 1f), .5f, Tween.TransitionType.Cubic, Tween.EaseType.In);
-                _tweener.InterpolateProperty(_cinematicCamera, "position", _cinematicCamera.Position, cinematicStartPos, .5f, Tween.TransitionType.Cubic, Tween.EaseType.In);
-                //TODO: Fade snow in  _tweener.InterpolateProperty(_snowParticles, "modulate", null, new Color(_snowParticles.Modulate, 1), .1f, Tween.TransitionType.Linear, Tween.EaseType.InOut, .4f);
-                _tweener.Start();
-                await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
-
-                PlayerCameraTakeControl(player, _playerCamera, _cinematicCamera);
-
-                player.InputLocked = false;
-
-                // Now that the door has been kicked down, set the kick override back to "oh no I'm freezing"
-                _player.EnterKickOverride = FreezingKickOverride;
-
-                // TODO: If this was the first door, play some "oh no cold again" dialogue
+                return;
             }
+
+            // Just check the first overlap, this level doesn't have any overlapping doors
+            if (!(overlaps[0] is Area2D breakableArea))
+            {
+                return;
+            }            
+
+            if (!_playerHasPowerBall)
+            {
+                return;
+            }
+
+            Breakable doorInRange = breakableArea.GetParent<Breakable>();
+
+            player.InputLocked = true;            
+            GetTree().Paused = true;
+
+            CinematicCameraFollowPlayer(_player, _cinematicCamera);
+            Vector2 cinematicStartPos = _cinematicCamera.Position;
+
+            _tweener.InterpolateProperty(_cinematicCamera, "zoom", null, new Vector2(.5f, .5f), 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
+            _tweener.InterpolateProperty(_cinematicCamera, "position", cinematicStartPos, _cinematicCamera.Position * .5f, 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
+            // TODO: Fade snow out //_tweener.InterpolateProperty(_snowParticles, "modulate", null, new Color(_snowParticles.Modulate, 0), .4f);
+            _tweener.Start();
+            await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
+
+            GetTree().Paused = false;
+
+            await Task.Delay(225); // Wait until juuust after when the hooves fly
+            // Screen shake, and special stuff based on which door it was
+            _cinematicCamera.Shake(.3f, 100, 24);
+            if (doorInRange.Name == "BreakableWall3")
+            {
+                CollapseFirstSnowDrift();
+            }
+            if (doorInRange.Name == "BreakableWall7")
+            {
+                CollapseSecondSnowDrift();
+            }    
+
+            await ToSignal(player, nameof(Player.KickExited));
+
+            _tweener.InterpolateProperty(_cinematicCamera, "zoom", null, new Vector2(1f, 1f), .5f, Tween.TransitionType.Cubic, Tween.EaseType.In);
+            _tweener.InterpolateProperty(_cinematicCamera, "position", _cinematicCamera.Position, cinematicStartPos, .5f, Tween.TransitionType.Cubic, Tween.EaseType.In);
+            //TODO: Fade snow in  _tweener.InterpolateProperty(_snowParticles, "modulate", null, new Color(_snowParticles.Modulate, 1), .1f, Tween.TransitionType.Linear, Tween.EaseType.InOut, .4f);
+            _tweener.Start();
+            await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
+
+            PlayerCameraTakeControl(player, _playerCamera, _cinematicCamera);
+
+            player.InputLocked = false;
+
+            // Now that the door has been kicked down, set the kick override back to "oh no I'm freezing"
+            _player.EnterKickOverride = FreezingKickOverride;
+
+            // TODO: If this was the first door, play some "oh no cold again" dialogue
+
+            // TODO: Clear the player's PowerBall status
+            
         }
 
-        private void CollapseSnowDrift()
+        private void CollapseFirstSnowDrift()
         {
             // TODO: Make this actually animate some sprite that falls and spreads out on the ground
             // For now, just fiddle around with tiles
@@ -596,6 +595,13 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         private void CollapseSecondSnowDrift()
         {
             // Make this clear the skinny barrier in the ice wall, so players can go back and charge up
+        }
+
+        // DEBUG DELETE ME, TRYING TO FIGURE OUT HOW COLLISION WORKS X.X
+        public async void OnWall3Broken(Breakable breakable)
+        {
+            await Task.Delay(5000);
+            breakable.Spawn();
         }
     }
 }

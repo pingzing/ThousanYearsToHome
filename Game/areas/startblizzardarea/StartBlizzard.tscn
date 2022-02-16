@@ -259,7 +259,7 @@ position = Vector2( 9705.41, -1432.12 )
 HitsToDestroy = 1
 
 [node name="StartPosition" type="Position2D" parent="."]
-position = Vector2( -16, 131 )
+position = Vector2( 6822, -1453 )
 
 [node name="JumpTutorialSign" type="Sprite" parent="."]
 position = Vector2( 512, 89 )
@@ -339,6 +339,9 @@ position = Vector2( 6361, 464 )
 
 [node name="WarmthBallEmitter1" parent="." instance=ExtResource( 17 )]
 position = Vector2( 7398, -1615 )
+
+[node name="WarmthBallEmitter5" parent="." instance=ExtResource( 17 )]
+position = Vector2( 7070, -1422 )
 
 [node name="WarmthBallEmitter2" parent="." instance=ExtResource( 17 )]
 position = Vector2( 8694, -1774 )
@@ -802,16 +805,7 @@ __meta__ = {
 }
 
 [connection signal="timeout" from="WarmthDrainTimer" to="." method="WarmthDrainTimerTimeout"]
-[connection signal="PlayerEnteredKickRange" from="BreakableWall3" to="." method="PowerWallPlayerEnteredRange"]
-[connection signal="PlayerExitedKickRange" from="BreakableWall3" to="." method="PowerWallPlayerExitedRange"]
-[connection signal="PlayerEnteredKickRange" from="BreakableWall4" to="." method="PowerWallPlayerEnteredRange"]
-[connection signal="PlayerExitedKickRange" from="BreakableWall4" to="." method="PowerWallPlayerExitedRange"]
-[connection signal="PlayerEnteredKickRange" from="BreakableWall5" to="." method="PowerWallPlayerEnteredRange"]
-[connection signal="PlayerExitedKickRange" from="BreakableWall5" to="." method="PowerWallPlayerExitedRange"]
-[connection signal="PlayerEnteredKickRange" from="BreakableWall6" to="." method="PowerWallPlayerEnteredRange"]
-[connection signal="PlayerExitedKickRange" from="BreakableWall6" to="." method="PowerWallPlayerExitedRange"]
-[connection signal="PlayerEnteredKickRange" from="BreakableWall7" to="." method="PowerWallPlayerEnteredRange"]
-[connection signal="PlayerExitedKickRange" from="BreakableWall7" to="." method="PowerWallPlayerExitedRange"]
+[connection signal="Broken" from="BreakableWall3" to="." method="OnWall3Broken"]
 [connection signal="body_entered" from="FirstFallDialogueTrigger" to="." method="OnFirstFallDialogueEntered"]
 [connection signal="body_entered" from="VistaPointDialogueTrigger" to="." method="OnVistaPointEntered"]
 [connection signal="body_entered" from="CollapseTriggerArea" to="." method="CollapseTriggerAreaEntered"]
