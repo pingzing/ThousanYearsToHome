@@ -26,6 +26,7 @@ namespace ThousandYearsHome.Controls
             _debugXPosLabel = GetNode<Label>("DEBUG_PositionContainer/DEBUG_XPosLabel");
             _debugYPosLabel = GetNode<Label>("DEBUG_PositionContainer/DEBUG_YPosLabel");
             _warmthBar = GetNode<WarmthBar>("WarmthBar");
+            _warmthBar.OverchargeColor = Color.Color8(153, 228, 80);
 
             _playerSignals.Connect(nameof(PlayerSignalBus.StateChanged), this, nameof(Debug_SetStateLabel));
             _playerSignals.Connect(nameof(PlayerSignalBus.PositionChanged), this, nameof(Debug_SetPosition));
@@ -52,7 +53,7 @@ namespace ThousandYearsHome.Controls
 
         public void WarmthChanged(float oldWarmth, float newWarmth)
         {
-            _warmthBar.CurrentPercent = newWarmth;
+            _warmthBar.UpdateWarmth(oldWarmth, newWarmth);
         }
     }
 }

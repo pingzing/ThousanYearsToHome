@@ -27,7 +27,6 @@ shapes/collision/shape_color=Color( 1, 1, 1, 0.235294 )
 
 window/size/width=480
 window/size/height=270
-window/size/resizable=false
 window/size/test_width=1440
 window/size/test_height=810
 window/dpi/allow_hidpi=true

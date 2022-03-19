@@ -1,20 +1,30 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=1]
 [ext_resource path="res://controls/warmthbarcontrol/WarmthBar.cs" type="Script" id=2]
 
-[sub_resource type="StyleBoxFlat" id=1]
-content_margin_left = 2.0
-content_margin_right = 2.0
-content_margin_top = 2.0
-content_margin_bottom = 2.0
+[sub_resource type="StyleBoxEmpty" id=6]
+
+[sub_resource type="StyleBoxFlat" id=5]
 bg_color = Color( 0.6, 0.6, 0.6, 0 )
+draw_center = false
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color( 1, 1, 1, 1 )
-shadow_color = Color( 0, 0, 0, 0.0745098 )
+
+[sub_resource type="StyleBoxFlat" id=4]
+bg_color = Color( 1, 1, 1, 0 )
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color( 1, 1, 1, 1 )
+corner_detail = 1
+
+[sub_resource type="StyleBoxEmpty" id=7]
 
 [sub_resource type="StyleBoxFlat" id=2]
 bg_color = Color( 1, 0.556863, 0, 1 )
@@ -47,22 +57,44 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="BarBorder" type="Panel" parent="VBoxContainer"]
+[node name="BarContainer" type="Panel" parent="VBoxContainer"]
 margin_top = 20.0
 margin_right = 480.0
 margin_bottom = 270.0
-mouse_filter = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_styles/panel = SubResource( 1 )
+custom_styles/panel = SubResource( 6 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="BarMarginContainer" type="MarginContainer" parent="VBoxContainer/BarBorder"]
+[node name="StaticBorder" type="Panel" parent="VBoxContainer/BarContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+custom_styles/panel = SubResource( 5 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ProgressBorder" type="ProgressBar" parent="VBoxContainer/BarContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/fg = SubResource( 4 )
+custom_styles/bg = SubResource( 7 )
+max_value = 25.0
+percent_visible = false
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BarMarginContainer" type="MarginContainer" parent="VBoxContainer/BarContainer/ProgressBorder"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 rect_clip_content = true
+size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_constants/margin_right = 2
 custom_constants/margin_top = 2
@@ -72,12 +104,13 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Fill" type="ProgressBar" parent="VBoxContainer/BarBorder/BarMarginContainer"]
+[node name="Fill" type="ProgressBar" parent="VBoxContainer/BarContainer/ProgressBorder/BarMarginContainer"]
 margin_left = 2.0
 margin_top = 2.0
 margin_right = 478.0
 margin_bottom = 248.0
 mouse_filter = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_styles/fg = SubResource( 2 )
 custom_styles/bg = SubResource( 3 )

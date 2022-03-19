@@ -429,7 +429,15 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
 
         public void WarmthDrainTimerTimeout()
         {
-            _player.Warmth -= _player.WarmthDrainPerTick;
+            if (_player.Warmth > Player.OverWarmthTheshold)
+            {
+                // Overwarmth drains faster.
+                _player.Warmth -= (_player.WarmthDrainPerTick * 4);
+            }
+            else
+            {
+                _player.Warmth -= _player.WarmthDrainPerTick;
+            }
         }
 
         public void PowerBallCollected(PowerBall ball)

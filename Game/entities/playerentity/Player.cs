@@ -60,7 +60,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         private float _warmth = 100f;
         /// <summary>
-        /// The player's current Warmth. Ranges from 0-100, inclusive at both ends.
+        /// The player's current Warmth. Ranges from 0-200, inclusive at both ends.
         /// </summary>
         public float Warmth
         {
@@ -68,14 +68,20 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             set
             {
                 float oldWarmth = _warmth;
-                float newWarmth = Mathf.Clamp(value, 0, 100);
+                float newWarmth = Mathf.Clamp(value, 0, 125);
                 if (_warmth != newWarmth)
                 {
-                    _warmth = newWarmth;
+                    _warmth = newWarmth;                    
                     _playerSignalBus.EmitSignal(nameof(PlayerSignalBus.WarmthChanged), oldWarmth, newWarmth);
                 }
             }
         }
+
+        /// <summary>
+        /// Determines the value after which any additional warmth is considered "over warmth",
+        /// and is displayed differently, and drains faster.
+        /// </summary>
+        public const float OverWarmthTheshold = 100;
 
         private float _warmthDrainPerTick = 0;
         /// <summary>
