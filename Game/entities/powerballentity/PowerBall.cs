@@ -21,7 +21,7 @@ namespace ThousandYearsHome.Entities.PowerBallEntity
             if (area.Name == "HornBox") // TODO: Something a bit more robust
             {
                 _signalBus.EmitSignal(nameof(HornCollectibleSignalBus.PowerBallCollected), this);
-                _collisionShape.Disabled = true;
+                _collisionShape.SetDeferred("disabled", true);
                 _sprite.Hide();
                 // Disable collision, hide sprite, play animation
             }
@@ -30,7 +30,7 @@ namespace ThousandYearsHome.Entities.PowerBallEntity
         public void Respawn()
         {
             // Re-enable collision, re-show sprite
-            _collisionShape.Disabled = false;
+            _collisionShape.SetDeferred("disabled", false);
             _sprite.Show();
         }
     }

@@ -18,25 +18,6 @@ script = ExtResource( 5 )
 
 [node name="ParallaxBackground" type="ParallaxBackground" parent="."]
 
-[node name="ColorRect" type="ColorRect" parent="ParallaxBackground"]
-margin_left = 2.0
-margin_top = 177.0
-margin_right = 4003.0
-margin_bottom = 244.0
-color = Color( 0.921569, 0.976471, 1, 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="ColorRect2" type="ColorRect" parent="ParallaxBackground"]
-margin_top = -63.0
-margin_right = 3997.0
-margin_bottom = 46.0
-color = Color( 0.321569, 0.647059, 0.870588, 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
 [node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground"]
 motion_scale = Vector2( 0.5, 0.5 )
 motion_offset = Vector2( 0, -100 )
@@ -72,6 +53,7 @@ tile_data = PoolIntArray( 65702, 12, 0, 65703, 14, 0, 65704, 13, 0, 131240, 12, 
 position = Vector2( 59, 152 )
 
 [node name="PlayerCamera" parent="Player" index="12"]
+IdleRect = Rect2( 128, 162, 40, 16 )
 TargetRect = Rect2( 64, 110, 80, 72 )
 
 [node name="PowerBallSet1" parent="." instance=ExtResource( 6 )]

@@ -364,6 +364,7 @@ LimitTop = -3528
 LimitBottom = 1200
 Current = false
 MovementAccelerationCoefficient = 1.1
+IdleRect = Rect2( 96, 162, 40, 16 )
 TargetRect = Rect2( 64, 16, 80, 160 )
 
 [node name="FirstAreaSnowParticles" type="Particles2D" parent="."]

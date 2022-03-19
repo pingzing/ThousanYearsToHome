@@ -10,7 +10,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         // ------ Public consts ------ 
         public const float ResolutionWidth = 480f;
         public const float ResolutionHeight = 270f;
-        public static readonly Rect2 DefaultIdleRect = new Rect2(64, ResolutionHeight * .6f, 40, 16);
+        public static readonly Rect2 DefaultIdleRect = new Rect2(128, ResolutionHeight * .6f, 40, 16);
         public const float DefaultXSpeed = 175f;
         public const float DefaultYSpeed = 200f;
 
