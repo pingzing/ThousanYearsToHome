@@ -748,6 +748,7 @@ extents = Vector2( 2.19067, 4.51285 )
 extents = Vector2( 12, 23 )
 
 [node name="Player" type="KinematicBody2D"]
+position = Vector2( 0, 1 )
 collision_layer = 3
 collision/safe_margin = 0.1
 script = ExtResource( 1 )
@@ -877,5 +878,6 @@ __meta__ = {
 }
 
 [node name="PlayerCamera" parent="." instance=ExtResource( 11 )]
+position = Vector2( 0, 1 )
 
 [connection signal="timeout" from="OneWayPlatformTimer" to="." method="OnOneWayPlatformTimerTimeout"]

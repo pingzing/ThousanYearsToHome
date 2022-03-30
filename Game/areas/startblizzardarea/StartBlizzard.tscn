@@ -1,4 +1,4 @@
-[gd_scene load_steps=46 format=2]
+[gd_scene load_steps=48 format=2]
 
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=1]
 [ext_resource path="res://fonts/Equipment-32pt.tres" type="DynamicFont" id=2]
@@ -21,6 +21,8 @@
 [ext_resource path="res://areas/startblizzardarea/StartBlizzard.cs" type="Script" id=19]
 [ext_resource path="res://controls/ModifyChillArea.tscn" type="PackedScene" id=20]
 [ext_resource path="res://art/SnowParticles_Sideways.tres" type="Material" id=21]
+[ext_resource path="res://shaders/SpriteDissolve.tscn" type="PackedScene" id=22]
+[ext_resource path="res://art/PlaceholderKeeper.png" type="Texture" id=23]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 345, 4 )
@@ -259,7 +261,7 @@ position = Vector2( 9705.41, -1432.12 )
 HitsToDestroy = 1
 
 [node name="StartPosition" type="Position2D" parent="."]
-position = Vector2( 6123.49, 470.358 )
+position = Vector2( 5848.51, 497.248 )
 
 [node name="JumpTutorialSign" type="Sprite" parent="."]
 position = Vector2( 512, 89 )
@@ -335,7 +337,15 @@ shape = SubResource( 6 )
 position = Vector2( 6305, 489 )
 
 [node name="KeeperCutsceneCameraPosition" type="Position2D" parent="."]
-position = Vector2( 6361, 464 )
+position = Vector2( 6123, 327.5 )
+
+[node name="KeeperDissolver" parent="." instance=ExtResource( 22 )]
+position = Vector2( 6414.5, 480 )
+preprocess = 4.0
+
+[node name="KeeperSprite" type="Sprite" parent="."]
+position = Vector2( 6413.5, 480 )
+texture = ExtResource( 23 )
 
 [node name="WarmthBallEmitter1" parent="." instance=ExtResource( 17 )]
 position = Vector2( 7398, -1615 )
@@ -369,7 +379,7 @@ position = Vector2( 1497, -1206 )
 amount = 20239
 lifetime = 18.0
 preprocess = 18.0
-visibility_rect = Rect2( -1500, -100, 3500, 1700 )
+visibility_rect = Rect2( -1500, -100, 3250, 1700 )
 process_material = SubResource( 25 )
 
 [node name="WarmthBallSets" type="Node" parent="."]
@@ -793,10 +803,10 @@ modulate = Color( 1, 1, 1, 0 )
 [node name="CameraReference" type="ReferenceRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 6542.0
-margin_top = -1629.0
-margin_right = 6542.0
-margin_bottom = -1629.0
+margin_left = 6123.11
+margin_top = 327.09
+margin_right = 6123.11
+margin_bottom = 327.09
 __meta__ = {
 "_edit_lock_": true,
 "_edit_use_anchors_": false
