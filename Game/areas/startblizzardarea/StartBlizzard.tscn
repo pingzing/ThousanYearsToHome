@@ -1,4 +1,4 @@
-[gd_scene load_steps=48 format=2]
+[gd_scene load_steps=51 format=2]
 
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=1]
 [ext_resource path="res://fonts/Equipment-32pt.tres" type="DynamicFont" id=2]
@@ -23,6 +23,7 @@
 [ext_resource path="res://art/SnowParticles_Sideways.tres" type="Material" id=21]
 [ext_resource path="res://shaders/SpriteDissolve.tscn" type="PackedScene" id=22]
 [ext_resource path="res://art/PlaceholderKeeper.png" type="Texture" id=23]
+[ext_resource path="res://art/Mask256x128.png" type="Texture" id=24]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 345, 4 )
@@ -44,6 +45,17 @@ extents = Vector2( 1481.5, 386 )
 
 [sub_resource type="RectangleShape2D" id=6]
 extents = Vector2( 31, 82 )
+
+[sub_resource type="Shader" id=28]
+code = "shader_type canvas_item;
+
+void fragment() {
+	COLOR = texture(SCREEN_TEXTURE, SCREEN_UV);
+	COLOR.a = texture(TEXTURE, UV).a;
+}"
+
+[sub_resource type="ShaderMaterial" id=29]
+shader = SubResource( 28 )
 
 [sub_resource type="ParticlesMaterial" id=25]
 emission_shape = 2
@@ -343,9 +355,19 @@ position = Vector2( 6123, 327.5 )
 position = Vector2( 6414.5, 480 )
 preprocess = 4.0
 
-[node name="KeeperSprite" type="Sprite" parent="."]
+[node name="Keeper" type="Node2D" parent="."]
 position = Vector2( 6413.5, 480 )
+
+[node name="BackBufferCopy" type="BackBufferCopy" parent="Keeper"]
+copy_mode = 2
+
+[node name="KeeperSprite" type="Sprite" parent="Keeper/BackBufferCopy"]
 texture = ExtResource( 23 )
+
+[node name="Mask" type="Sprite" parent="Keeper/BackBufferCopy"]
+material = SubResource( 29 )
+position = Vector2( 0, -128 )
+texture = ExtResource( 24 )
 
 [node name="WarmthBallEmitter1" parent="." instance=ExtResource( 17 )]
 position = Vector2( 7398, -1615 )

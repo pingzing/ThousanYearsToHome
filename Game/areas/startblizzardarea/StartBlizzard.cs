@@ -43,6 +43,7 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         private Area2D _keeperCutsceneTriggerArea = null!;
         private Position2D _keeperCutsceneCameraPosition = null!;
         private Sprite _keeperSprite = null!;
+        private Sprite _keeperMask = null!;
         private SpriteDissolve _keeperDissolver = null!;
         private Timer _warmthDrainTimer = null!;
 
@@ -94,7 +95,8 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
             _firstCaveChillArea = GetNode<Area2D>("FirstCaveChillArea");
 
             _keeperCutsceneTriggerArea = GetNode<Area2D>("KeeperCutsceneTriggerArea");
-            _keeperSprite = GetNode<Sprite>("KeeperSprite");
+            _keeperSprite = GetNode<Sprite>("Keeper/BackBufferCopy/KeeperSprite");
+            _keeperMask = GetNode<Sprite>("Keeper/BackBufferCopy/Mask");
             _keeperDissolver = GetNode<SpriteDissolve>("KeeperDissolver");
 
             Vector2 startPos = GetNode<Position2D>("StartPosition").Position;
@@ -377,14 +379,14 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
                 _warmthDrainTimer.Stop();
                 // TODO: fade warmth bar
 
-                await _dialogueBox.Open();
-                _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
-                    .QueueText("An exit! But...", 0.01f)
-                    .QueueBreak()
-                    .QueueClear()                    
-                    .QueueText("...what in seasons' name is THAT?", 0.03f);
-                await _dialogueBox.Run();
-                await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
+                //await _dialogueBox.Open();
+                //_dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
+                //    .QueueText("An exit! But...", 0.01f)
+                //    .QueueBreak()
+                //    .QueueClear()                    
+                //    .QueueText("...what in seasons' name is THAT?", 0.03f);
+                //await _dialogueBox.Run();
+                //await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
                 _cinematicCamera.LimitBottom = _playerCamera.LimitBottom;
                 _cinematicCamera.LimitTop = _playerCamera.LimitTop;
@@ -408,15 +410,19 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
                     _player.AnimatePose("Idle");
                 }
 
-                await _dialogueBox.Open();
-                _dialogueBox.QueueText("This is where the keeper cutscene will happen! Zappy horns, big scary flashy, glowy balls, warmth meter!");
-                await _dialogueBox.Run();
-                await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
+                await Task.Delay(100);
+
+                //await _dialogueBox.Open();
+                //_dialogueBox.QueueText("This is where the keeper cutscene will happen! Zappy horns, big scary flashy, glowy balls, warmth meter!");
+                //await _dialogueBox.Run();
+                //await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
                 _keeperDissolver.Initialize(_keeperSprite.Texture, riseSpeed: 30f);
-                _tweener.InterpolateProperty(_keeperSprite, "modulate", _keeperSprite.Modulate, new Color(_keeperSprite.Modulate, 0), 3f);
+                _tweener.InterpolateProperty(_keeperMask, "position", _keeperMask.Position, Vector2.Zero, 5f, Tween.TransitionType.Linear);
                 _tweener.Start();
 
                 await Task.Delay(5000); // Placeholder, wait for dissolution to finish.
+
+                GetNode<Node2D>("Keeper").Hide(); // Hide all the gunk used for the keeper shenanigans
 
                 PlayerCameraTakeControl(_player, _playerCamera, _cinematicCamera);
 
