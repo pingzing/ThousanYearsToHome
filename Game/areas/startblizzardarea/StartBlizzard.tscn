@@ -353,6 +353,8 @@ position = Vector2( 6123, 327.5 )
 
 [node name="KeeperDissolver" parent="." instance=ExtResource( 22 )]
 position = Vector2( 6414.5, 480 )
+emitting = false
+one_shot = true
 preprocess = 4.0
 
 [node name="Keeper" type="Node2D" parent="."]
@@ -361,13 +363,16 @@ position = Vector2( 6413.5, 480 )
 [node name="BackBufferCopy" type="BackBufferCopy" parent="Keeper"]
 copy_mode = 2
 
-[node name="KeeperSprite" type="Sprite" parent="Keeper/BackBufferCopy"]
+[node name="BlackenedKeeperSprite" type="Sprite" parent="Keeper/BackBufferCopy"]
 texture = ExtResource( 23 )
 
 [node name="Mask" type="Sprite" parent="Keeper/BackBufferCopy"]
 material = SubResource( 29 )
 position = Vector2( 0, -128 )
 texture = ExtResource( 24 )
+
+[node name="NormalKeeperSprite" type="Sprite" parent="Keeper"]
+texture = ExtResource( 23 )
 
 [node name="WarmthBallEmitter1" parent="." instance=ExtResource( 17 )]
 position = Vector2( 7398, -1615 )

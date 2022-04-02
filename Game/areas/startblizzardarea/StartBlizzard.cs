@@ -42,7 +42,8 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         private Area2D _firstCaveChillArea = null!;
         private Area2D _keeperCutsceneTriggerArea = null!;
         private Position2D _keeperCutsceneCameraPosition = null!;
-        private Sprite _keeperSprite = null!;
+        private Sprite _normalKeeperSprite = null!;
+        private Sprite _blackenedKeeperSprite = null!;
         private Sprite _keeperMask = null!;
         private SpriteDissolve _keeperDissolver = null!;
         private Timer _warmthDrainTimer = null!;
@@ -95,7 +96,8 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
             _firstCaveChillArea = GetNode<Area2D>("FirstCaveChillArea");
 
             _keeperCutsceneTriggerArea = GetNode<Area2D>("KeeperCutsceneTriggerArea");
-            _keeperSprite = GetNode<Sprite>("Keeper/BackBufferCopy/KeeperSprite");
+            _blackenedKeeperSprite = GetNode<Sprite>("Keeper/BackBufferCopy/BlackenedKeeperSprite");
+            _normalKeeperSprite = GetNode<Sprite>("Keeper/NormalKeeperSprite");
             _keeperMask = GetNode<Sprite>("Keeper/BackBufferCopy/Mask");
             _keeperDissolver = GetNode<SpriteDissolve>("KeeperDissolver");
 
@@ -377,16 +379,16 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
                 // Stop draining warmth and hide the warmth bar, and disable the cave chill area--everything is cold now
                 _firstCaveChillArea.Monitoring = false;
                 _warmthDrainTimer.Stop();
-                // TODO: fade warmth bar
+                // TODO: fade out and hide warmth bar
 
-                //await _dialogueBox.Open();
-                //_dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
-                //    .QueueText("An exit! But...", 0.01f)
-                //    .QueueBreak()
-                //    .QueueClear()                    
-                //    .QueueText("...what in seasons' name is THAT?", 0.03f);
-                //await _dialogueBox.Run();
-                //await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
+                await _dialogueBox.Open();
+                _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
+                    .QueueText("An exit! But...", 0.01f)
+                    .QueueBreak()
+                    .QueueClear()
+                    .QueueText("...what in seasons' name is THAT?", 0.03f);
+                await _dialogueBox.Run();
+                await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
                 _cinematicCamera.LimitBottom = _playerCamera.LimitBottom;
                 _cinematicCamera.LimitTop = _playerCamera.LimitTop;
@@ -410,13 +412,14 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
                     _player.AnimatePose("Idle");
                 }
 
-                await Task.Delay(100);
+                // TODO: Fade screen, but not sprites to white
 
-                //await _dialogueBox.Open();
-                //_dialogueBox.QueueText("This is where the keeper cutscene will happen! Zappy horns, big scary flashy, glowy balls, warmth meter!");
-                //await _dialogueBox.Run();
-                //await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
-                _keeperDissolver.Initialize(_keeperSprite.Texture, riseSpeed: 30f);
+                // Fade out the normal keeper sprite in favor of the silhouetted one
+                _tweener.InterpolateProperty(_normalKeeperSprite, "modulate", _normalKeeperSprite.Modulate, new Color(_normalKeeperSprite.Modulate, 0), 1f);
+                _tweener.Start();
+                await Task.Delay(1000);
+
+                _keeperDissolver.Initialize(_blackenedKeeperSprite.Texture, riseSpeed: 30f);
                 _tweener.InterpolateProperty(_keeperMask, "position", _keeperMask.Position, Vector2.Zero, 5f, Tween.TransitionType.Linear);
                 _tweener.Start();
 
