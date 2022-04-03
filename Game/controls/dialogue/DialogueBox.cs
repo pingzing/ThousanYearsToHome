@@ -272,20 +272,39 @@ namespace ThousandYearsHome.Controls.Dialogue
             _dialogueBoxFull = false;
         }
 
-        public Task Open()
+        public Task Open(bool animated = true)
         {
             IsOpen = true;
-            _showCompletionSource = new TaskCompletionSource<string>();
-            _animator.Play("Show");
-            return _showCompletionSource.Task;
+            if (animated)
+            {
+                _showCompletionSource = new TaskCompletionSource<string>();
+                _animator.Play("Show");
+                return _showCompletionSource.Task;
+            }
+            else
+            {
+                Modulate = new Color(Modulate, 1f);
+                OnOpen();
+                return Task.CompletedTask;
+            }
         }
 
-        public Task Close()
+        public Task Close(bool animated = true)
         {
             IsOpen = false;
-            _hideCompletionSource = new TaskCompletionSource<string>();
-            _animator.Play("Hide");
-            return _hideCompletionSource.Task;
+            Reset();
+            if (animated)
+            {
+                _hideCompletionSource = new TaskCompletionSource<string>();                
+                _animator.Play("Hide");
+                return _hideCompletionSource.Task;
+            }
+            else
+            {
+                Modulate = new Color(Modulate, 0f);
+                OnClose();                
+                return Task.CompletedTask;
+            }
         }
 
         /// <summary>
@@ -684,16 +703,25 @@ namespace ThousandYearsHome.Controls.Dialogue
             if (name == "Show")
             {
                 _showCompletionSource?.SetResult("Show");
-                _isOpen = true;
-                EmitSignal(nameof(DialogueBoxOpened));
+                OnOpen();
             }
             if (name == "Hide")
             {
                 _hideCompletionSource?.SetResult("Hide");
-                _isOpen = false;
-                EmitSignal(nameof(DialogueBoxClosed));
-                Reset();
+                OnClose();
             }
+        }
+
+        private void OnOpen()
+        {
+            _isOpen = true;
+            EmitSignal(nameof(DialogueBoxOpened));
+        }
+
+        private void OnClose()
+        {
+            _isOpen = false;
+            EmitSignal(nameof(DialogueBoxClosed));
         }
 
         private void HidePortrait()

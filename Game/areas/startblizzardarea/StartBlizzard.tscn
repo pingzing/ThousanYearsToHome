@@ -1,4 +1,4 @@
-[gd_scene load_steps=51 format=2]
+[gd_scene load_steps=52 format=2]
 
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=1]
 [ext_resource path="res://fonts/Equipment-32pt.tres" type="DynamicFont" id=2]
@@ -24,6 +24,7 @@
 [ext_resource path="res://shaders/SpriteDissolve.tscn" type="PackedScene" id=22]
 [ext_resource path="res://art/PlaceholderKeeper.png" type="Texture" id=23]
 [ext_resource path="res://art/Mask256x128.png" type="Texture" id=24]
+[ext_resource path="res://art/PlaceholderKeeperShaded.png" type="Texture" id=25]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 345, 4 )
@@ -338,41 +339,54 @@ modulate = Color( 0.0392157, 0.282353, 0.858824, 1 )
 position = Vector2( 1416.5, 143 )
 shape = SubResource( 24 )
 
-[node name="KeeperCutsceneTriggerArea" type="Area2D" parent="."]
+[node name="KeeperCutscene" type="Node" parent="."]
+
+[node name="KeeperCutsceneTriggerArea" type="Area2D" parent="KeeperCutscene"]
 position = Vector2( 5976, 505 )
 
-[node name="KeeperCutsceneTriggerShape" type="CollisionShape2D" parent="KeeperCutsceneTriggerArea"]
+[node name="KeeperCutsceneTriggerShape" type="CollisionShape2D" parent="KeeperCutscene/KeeperCutsceneTriggerArea"]
 position = Vector2( 8, -43 )
 shape = SubResource( 6 )
 
-[node name="KeeperCutsceneWalkEndPosition" type="Position2D" parent="."]
+[node name="KeeperCutsceneWalkEndPosition" type="Position2D" parent="KeeperCutscene"]
 position = Vector2( 6305, 489 )
 
-[node name="KeeperCutsceneCameraPosition" type="Position2D" parent="."]
+[node name="KeeperCutsceneCameraPosition" type="Position2D" parent="KeeperCutscene"]
 position = Vector2( 6123, 327.5 )
 
-[node name="KeeperDissolver" parent="." instance=ExtResource( 22 )]
+[node name="KeeperCutsceneWhiteoutRect" type="ColorRect" parent="KeeperCutscene"]
+visible = false
+modulate = Color( 1, 1, 1, 0 )
+margin_left = 6043.0
+margin_top = 282.0
+margin_right = 6719.0
+margin_bottom = 647.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="KeeperDissolver" parent="KeeperCutscene" instance=ExtResource( 22 )]
 position = Vector2( 6414.5, 480 )
 emitting = false
 one_shot = true
 preprocess = 4.0
 
-[node name="Keeper" type="Node2D" parent="."]
+[node name="Keeper" type="Node2D" parent="KeeperCutscene"]
 position = Vector2( 6413.5, 480 )
 
-[node name="BackBufferCopy" type="BackBufferCopy" parent="Keeper"]
+[node name="BackBufferCopy" type="BackBufferCopy" parent="KeeperCutscene/Keeper"]
 copy_mode = 2
 
-[node name="BlackenedKeeperSprite" type="Sprite" parent="Keeper/BackBufferCopy"]
+[node name="BlackenedKeeperSprite" type="Sprite" parent="KeeperCutscene/Keeper/BackBufferCopy"]
 texture = ExtResource( 23 )
 
-[node name="Mask" type="Sprite" parent="Keeper/BackBufferCopy"]
+[node name="Mask" type="Sprite" parent="KeeperCutscene/Keeper/BackBufferCopy"]
 material = SubResource( 29 )
 position = Vector2( 0, -128 )
 texture = ExtResource( 24 )
 
-[node name="NormalKeeperSprite" type="Sprite" parent="Keeper"]
-texture = ExtResource( 23 )
+[node name="NormalKeeperSprite" type="Sprite" parent="KeeperCutscene/Keeper"]
+texture = ExtResource( 25 )
 
 [node name="WarmthBallEmitter1" parent="." instance=ExtResource( 17 )]
 position = Vector2( 7398, -1615 )
@@ -388,6 +402,9 @@ position = Vector2( 9788, -1502 )
 
 [node name="Player" parent="." instance=ExtResource( 15 )]
 position = Vector2( -27, 135 )
+
+[node name="Sprite" parent="Player" index="0"]
+position = Vector2( 1, 0 )
 
 [node name="StateWallJumping" parent="Player/PlayerStateMachine" index="5"]
 WallJumpVelY = -275.0
@@ -845,11 +862,12 @@ __meta__ = {
 [connection signal="body_entered" from="CollapseTriggerArea" to="." method="CollapseTriggerAreaEntered"]
 [connection signal="body_exited" from="FallTeleportBottomArea" to="." method="OnFallTeleportBottomAreaEntered"]
 [connection signal="body_entered" from="CollapseLandingTriggerArea" to="." method="CollapseBaseAreaEntered"]
-[connection signal="body_entered" from="KeeperCutsceneTriggerArea" to="." method="KeeperCutsceneAreaEntered"]
+[connection signal="body_entered" from="KeeperCutscene/KeeperCutsceneTriggerArea" to="." method="KeeperCutsceneAreaEntered"]
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="OnAnimationFinished"]
 [connection signal="animation_started" from="AnimationPlayer" to="." method="OnAnimationStarted"]
 [connection signal="timeout" from="WaitStartTimer" to="." method="WaitStartTimerTimeout"]
 [connection signal="animation_finished" from="UICanvas/FadePlayer" to="." method="OnFadePlayerAnimationFinished"]
+[connection signal="TagEncountered" from="UICanvas/DialogueBox" to="." method="OnDialogueTag"]
 
 [editable path="FirstCaveChillArea"]
 [editable path="Player"]

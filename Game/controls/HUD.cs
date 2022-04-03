@@ -55,6 +55,16 @@ namespace ThousandYearsHome.Controls
         {
             _warmthBar.UpdateWarmth(oldWarmth, newWarmth);
         }
+
+        public void HideWarmthBar()
+        {
+            _warmthBar.Hide();
+        }
+
+        public void ShowWarmthBar()
+        {
+            _warmthBar.Show();
+        }
     }
 }
 

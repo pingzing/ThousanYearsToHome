@@ -23,8 +23,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
         private float? _xAxisLock = null;
         private float? _yAxisLock = null; // TODO: Not implemented yet
         private float _currentXOffset = 0;
-        private float _currentYOffset = 0;
-        
+        private float _currentYOffset = 0;       
         
         private Rect2 _currentRect = new Rect2(64, ResolutionHeight * .6f, 40, 16);
 
@@ -252,6 +251,16 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             _xAxisLock = null;
         }
 
+        public void ForceCameraRectUpdate()
+        {
+            _currentXOffset = _viewport.CanvasTransform.origin.x;
+            _currentYOffset = _viewport.CanvasTransform.origin.y;
+
+            float delta = GetPhysicsProcessDeltaTime();
+            UpdateCameraRect(_currentPlayerState, delta);
+            UpdateCameraTransform(delta);
+        }
+
         // ------ Internal state-keeping methods ------
 
         // Signal handler, listens for signals that can be sent by either this, or any Camera2D
@@ -378,7 +387,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
 
             float delta = GetPhysicsProcessDeltaTime();
-            var newTransform = GetCameraTransform(delta);
+            var newTransform = UpdateCameraTransform(delta);
             if (newTransform != _viewport.CanvasTransform)
             {
                 _viewport.CanvasTransform = newTransform;
@@ -387,7 +396,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
         }
 
-        private Transform2D GetCameraTransform(float delta)
+        private Transform2D UpdateCameraTransform(float delta)
         {
             Transform2D transform = _viewport.CanvasTransform;
             Vector2 relativePlayerPos = _player.GetGlobalTransformWithCanvas().origin;

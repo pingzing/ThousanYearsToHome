@@ -468,7 +468,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         public void PowerBallCollected(PowerBall powerBall)
         {
-
+            // Turn off warmth drain. Or maybe this is he level's job?
         }
 
         // Methods primarily meant to allow external callers to manipulate the Player
@@ -496,6 +496,16 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 return;
             }
             _colorAnimator.Play(animationName, animationSpeed);
+        }
+
+        public void SetShader(ShaderMaterial shader)
+        {
+            _sprite.Material = shader;
+        }
+
+        public void ClearShader()
+        {
+            _sprite.Material = null;
         }
 
         public void ResetPoseAnimation()

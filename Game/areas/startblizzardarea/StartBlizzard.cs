@@ -1,8 +1,8 @@
 using Godot;
 using System;
 using System.Threading.Tasks;
-using ThousandYearsHome.Controls;
 using ThousandYearsHome.Controls.Dialogue;
+using ThousandYearsHome.Controls;
 using ThousandYearsHome.Entities;
 using ThousandYearsHome.Entities.BreakableEntity;
 using ThousandYearsHome.Entities.PlayerEntity;
@@ -40,13 +40,16 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         private Area2D _fallTeleportBottomArea = null!;
         private Area2D _collapseLandingTriggerArea = null!;
         private Area2D _firstCaveChillArea = null!;
+        private Node _keeperCutscene = null!;
         private Area2D _keeperCutsceneTriggerArea = null!;
         private Position2D _keeperCutsceneCameraPosition = null!;
         private Sprite _normalKeeperSprite = null!;
         private Sprite _blackenedKeeperSprite = null!;
         private Sprite _keeperMask = null!;
         private SpriteDissolve _keeperDissolver = null!;
+        private ColorRect _keeperCutsceneWhiteoutRect = null!;
         private Timer _warmthDrainTimer = null!;
+        private ShaderMaterial _silhouetteShader = null!;
 
         private bool _playerHasPowerBall = false;
         private const float DefaultWarmthDrainPerTick = .1f;
@@ -75,11 +78,11 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
             _cinematicCamera = GetNode<CinematicCamera>("CinematicCamera");
             _midgroundTiles = GetNode<TileMap>("MidgroundTiles");
             _warmthBallWatcher = GetNode<WarmthBallWatcher>("UICanvas/WarmthBallWatcher");
-            _warmthDrainTimer = GetNode<Timer>("WarmthDrainTimer");
+            _warmthDrainTimer = GetNode<Timer>("WarmthDrainTimer");            
+            _silhouetteShader = new ShaderMaterial { Shader = ResourceLoader.Load<Shader>("res://shaders/Silhouette.gdshader") };
 
             _collectibleSignalBus = GetNode<HornCollectibleSignalBus>("/root/HornCollectibleSignalBus");
             _collectibleSignalBus.Connect(nameof(HornCollectibleSignalBus.PowerBallCollected), this, nameof(PowerBallCollected));
-            _collectibleSignalBus.Connect(nameof(HornCollectibleSignalBus.WarmthBallCollected), this, nameof(WarmthBallCollected));
 
             _firstFallDialogueTrigger = GetNode<Area2D>("FirstFallDialogueTrigger");
             _vistaPointTrigger = GetNode<Area2D>("VistaPointDialogueTrigger");
@@ -95,11 +98,13 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
 
             _firstCaveChillArea = GetNode<Area2D>("FirstCaveChillArea");
 
-            _keeperCutsceneTriggerArea = GetNode<Area2D>("KeeperCutsceneTriggerArea");
-            _blackenedKeeperSprite = GetNode<Sprite>("Keeper/BackBufferCopy/BlackenedKeeperSprite");
-            _normalKeeperSprite = GetNode<Sprite>("Keeper/NormalKeeperSprite");
-            _keeperMask = GetNode<Sprite>("Keeper/BackBufferCopy/Mask");
-            _keeperDissolver = GetNode<SpriteDissolve>("KeeperDissolver");
+            _keeperCutscene = GetNode<Node>("KeeperCutscene");
+            _keeperCutsceneTriggerArea = _keeperCutscene.GetNode<Area2D>("KeeperCutsceneTriggerArea");
+            _blackenedKeeperSprite = _keeperCutscene.GetNode<Sprite>("Keeper/BackBufferCopy/BlackenedKeeperSprite");
+            _normalKeeperSprite = _keeperCutscene.GetNode<Sprite>("Keeper/NormalKeeperSprite");
+            _keeperMask = _keeperCutscene.GetNode<Sprite>("Keeper/BackBufferCopy/Mask");
+            _keeperDissolver = _keeperCutscene.GetNode<SpriteDissolve>("KeeperDissolver");
+            _keeperCutsceneWhiteoutRect = _keeperCutscene.GetNode<ColorRect>("KeeperCutsceneWhiteoutRect");
 
             Vector2 startPos = GetNode<Position2D>("StartPosition").Position;
             _player.Spawn(startPos);
@@ -116,9 +121,6 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
             {
                 _cinematicCamera.Current = false;
                 _playerCamera.Current = true;
-
-                // DEBUG! Continuing forces us into freezing mode
-                //_player.EnterKickOverride = FreezingKickOverride;
             }
         }
 
@@ -131,7 +133,7 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
                 _tweener.Start();
                 await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
 
-                // Blue walks on and talks                
+                // Corina walks on and talks                
                 _player.AnimatePose("Walk");
                 _tweener.InterpolateProperty(_player, "position", null, new Vector2(_player.Position.x + 100, _player.Position.y), 3.3f, Tween.TransitionType.Quad, Tween.EaseType.Out);
                 _tweener.Start();
@@ -379,7 +381,7 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
                 // Stop draining warmth and hide the warmth bar, and disable the cave chill area--everything is cold now
                 _firstCaveChillArea.Monitoring = false;
                 _warmthDrainTimer.Stop();
-                // TODO: fade out and hide warmth bar
+                _hud.HideWarmthBar(); // TODO: Make this a cleaner fade
 
                 await _dialogueBox.Open();
                 _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
@@ -390,44 +392,100 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
-                _cinematicCamera.LimitBottom = _playerCamera.LimitBottom;
-                _cinematicCamera.LimitTop = _playerCamera.LimitTop;
-                _cinematicCamera.LimitRight = _playerCamera.LimitRight;
-                _cinematicCamera.LimitLeft = _playerCamera.LimitLeft;
-                _cinematicCamera.Position = _player.Position + _playerCamera.Position;
-
+                // Pan camera over to keeper body
                 _cinematicCamera.SmoothingEnabled = true;
-                _cinematicCamera.Current = true;
-                _keeperCutsceneCameraPosition = GetNode<Position2D>("KeeperCutsceneCameraPosition");
-                _cinematicCamera.Position = _keeperCutsceneCameraPosition.Position; // let Smoothing do the panning work here
+                CinematicCameraTakeControl(_cinematicCamera, _playerCamera);                
+                _keeperCutsceneCameraPosition = _keeperCutscene.GetNode<Position2D>("KeeperCutsceneCameraPosition");
+                _cinematicCamera.Position = _keeperCutsceneCameraPosition.Position; 
 
-                var walkEnd = GetNode<Position2D>("KeeperCutsceneWalkEndPosition");
+                var walkEnd = _keeperCutscene.GetNode<Position2D>("KeeperCutsceneWalkEndPosition");                
+                _player.AnimatePose("Walk");
+                _tweener.InterpolateProperty(_player, "position", null, new Vector2(walkEnd.Position.x, _player.Position.y), 4.0f, Tween.TransitionType.Quad, Tween.EaseType.Out);
+                _tweener.Start();
+                await this.ToSignalWithArg(_tweener, "tween_completed", 0, _player);
+                _player.AnimatePose("Idle");
 
-                using (_player.DisableStateMachine())
-                {
-                    _player.AnimatePose("Walk");
-                    _tweener.InterpolateProperty(_player, "position", null, new Vector2(walkEnd.Position.x, _player.Position.y), 4.0f, Tween.TransitionType.Quad, Tween.EaseType.Out);
-                    _tweener.Start();
-                    await this.ToSignalWithArg(_tweener, "tween_completed", 0, _player);
-                    _player.AnimatePose("Idle");
-                }
+                await _dialogueBox.Open();
+                _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
+                    .QueueText("It looks like a unicorn...")
+                    .QueueBreak()
+                    .QueueText("\n...but with wings.");
+                await _dialogueBox.Run();
+                await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
-                // TODO: Fade screen, but not sprites to white
+                // Walk forward slightly, crouch
+                _player.AnimatePose("Walk");
+                _tweener.InterpolateProperty(_player, "position", null, new Vector2(_player.Position.x + 10, _player.Position.y), .25f);
+                _tweener.Start();
+                await this.ToSignalWithArg(_tweener, "tween_completed", 0, _player);
+                _player.AnimatePose("Crouch");
 
-                // Fade out the normal keeper sprite in favor of the silhouetted one
+                await _dialogueBox.Open();
+                _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
+                    .QueueText("Hm, what's this it's holding?");
+                await _dialogueBox.Run();
+                await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
+
+                _player.AnimatePose("Idle"); // TODO: Make this some kind of holding animation
+
+                // TODO: Reposition relic atop Corina's hoof
+                // TODO: Relic flaring animation here
+
+                await _dialogueBox.Open(false);
+                _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
+                    .QueueText("W--!")
+                    .QueueSilence(.5f);
+                await _dialogueBox.Run();
+                await _dialogueBox.Close(false);
+
+                // Fade out the normal keeper sprite in favor of the silhouetted one,
+                // White out the screen,
+                // Blacken the player sprite
+                _keeperCutsceneWhiteoutRect.Visible = true;
+                _silhouetteShader.SetShaderParam("percent", 0f);
+                _player.SetShader(_silhouetteShader);
+                _tweener.InterpolateProperty(_keeperCutsceneWhiteoutRect, "modulate", _keeperCutsceneWhiteoutRect.Modulate, new Color(_keeperCutsceneWhiteoutRect.Modulate, 1f), 1f);
                 _tweener.InterpolateProperty(_normalKeeperSprite, "modulate", _normalKeeperSprite.Modulate, new Color(_normalKeeperSprite.Modulate, 0), 1f);
+                _tweener.InterpolateProperty(_silhouetteShader, "shader_param/percent", 0f, 1f, 1f);
                 _tweener.Start();
                 await Task.Delay(1000);
 
+                // Dissolve the keeper
                 _keeperDissolver.Initialize(_blackenedKeeperSprite.Texture, riseSpeed: 30f);
                 _tweener.InterpolateProperty(_keeperMask, "position", _keeperMask.Position, Vector2.Zero, 5f, Tween.TransitionType.Linear);
                 _tweener.Start();
 
-                await Task.Delay(5000); // Placeholder, wait for dissolution to finish.
+                // TODO: Dissolve the relic
 
-                GetNode<Node2D>("Keeper").Hide(); // Hide all the gunk used for the keeper shenanigans
+                // 5 seconds for the dissolution, + 2 second for dramatic effect
+                await Task.Delay(7000);
 
+                _player.AnimatePose("Crouch");
+
+                // Fade back in
+                _silhouetteShader.SetShaderParam("reverse", true);
+                _silhouetteShader.SetShaderParam("percent", 0);
+                _tweener.InterpolateProperty(_keeperCutsceneWhiteoutRect, "modulate", _keeperCutsceneWhiteoutRect.Modulate, new Color(_keeperCutsceneWhiteoutRect.Modulate, 0f), 1f);
+                _tweener.InterpolateProperty(_silhouetteShader, "shader_param/percent", 0f, 1f, 1f);
+                _tweener.Start();
+                await Task.Delay(1000);
+
+                _keeperCutscene.GetNode<Node2D>("Keeper").Hide(); // Hide all the gunk used for the keeper shenanigans
+
+                // Smoothly focus back on the player
+                _playerCamera.ForceCameraRectUpdate();
+                _cinematicCamera.Position = _player.Position - _playerCamera.TargetRect.Position;
+                await Task.Delay(200);
                 PlayerCameraTakeControl(_player, _playerCamera, _cinematicCamera);
+                _player.ClearShader();                
+
+                await _dialogueBox.Open();
+                _dialogueBox.QueuePortrait("res://art/PlaceholderPortrait.png")
+                    .QueueText("What...")
+                    .QueueBreak()
+                    .QueueText("\n...in sweet sun's name was that?", tag: StandardTags.StandUp);
+                await _dialogueBox.Run();
+                await ToSignal(_dialogueBox, nameof(DialogueBox.DialogueBoxClosed));
 
                 // Return control to player, lock down their ability to kick, begin draining warmth at the level's global drain rate
                 _warmthDrainTimer.Start();
@@ -435,6 +493,7 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
                 _playerCamera.Current = true;
                 _player.EnterKickOverride = FreezingKickOverride;
                 _keeperCutsceneTriggerArea.QueueFree();
+                _hud.ShowWarmthBar(); // TODO: Make this a cleaner fade
                 _player.InputLocked = false;
 
                 // TODO: Make more snow happen here!
@@ -460,22 +519,27 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
             // TODO: Freeze the warmth drain
             //      Begin the warmth ball's expiry timer
             //      Trigger the "powered up" animation
-            _playerHasPowerBall = true;
+            //      Maybe this part should be handled by the Player, and not the level
 
+            _playerHasPowerBall = true;
             // Unlock kicking on the player
             _player.EnterKickOverride = null;
         }
 
-        public void WarmthBallCollected(WarmthBall ball)
+        /// <summary>
+        /// Places the cinematic camera at exactly the point the player camera is at,
+        /// then gives it control.
+        /// </summary>
+        private void CinematicCameraTakeControl(CinematicCamera cinematicCamera, PlayerCamera playerCamera)
         {
-            GD.Print("Level sees that player got a WarmthBall");
-            // Increase the current warmth value, and update the warmth bar
+            cinematicCamera.Position = playerCamera.CurrentViewportRect.Position;
+            cinematicCamera.Current = true;
         }
 
         /// <summary>
         /// Reparents the cinematic camera to the Player node, and gives it control.
         /// </summary>
-        private void CinematicCameraFollowPlayer(Player player, Camera2D cinematicCamera)
+        private void CinematicCameraFollowPlayer(Player player, CinematicCamera cinematicCamera)
         {
             RemoveChild(cinematicCamera);
             player.AddChild(cinematicCamera);
@@ -488,11 +552,18 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         /// <summary>
         /// Gives the PlayerCamera control again, and returns the cinematic camera to the main scene tree.
         /// </summary>
-        private void PlayerCameraTakeControl(Player player, PlayerCamera playerCamera, Camera2D cinematicCamera)
+        private void PlayerCameraTakeControl(Player player, PlayerCamera playerCamera, CinematicCamera cinematicCamera)
         {
             playerCamera.Current = true;
-            player.RemoveChild(cinematicCamera);
-            AddChild(cinematicCamera);
+            Node? cinematicParent = cinematicCamera.GetParent();
+            if (cinematicParent == player)
+            {
+                player.RemoveChild(cinematicCamera);                
+            }
+            if (cinematicParent != this)
+            {
+                AddChild(cinematicCamera);
+            }
             cinematicCamera.Owner = this;
         }
 
@@ -624,6 +695,14 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         {
             await Task.Delay(5000);
             breakable.Spawn();
+        }
+
+        public void OnDialogueTag(string tag)
+        {
+            if (tag == StandardTags.StandUp)
+            {
+                _player.AnimatePose("Idle");
+            }
         }
     }
 }
