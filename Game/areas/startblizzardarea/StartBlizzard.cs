@@ -31,6 +31,8 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         private WarmthBallWatcher _warmthBallWatcher = null!;
         private HornCollectibleSignalBus _collectibleSignalBus = null!;
 
+        private TextureRect _backgroundCity = null!;
+        private TextureRect _backgroundCityLarge = null!;
         private Area2D _firstFallDialogueTrigger = null!;
         private Area2D _vistaPointTrigger = null!;
         private Area2D _collapseTrigger = null!;
@@ -74,6 +76,8 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
             _hud = GetNode<HUD>("UICanvas/HUD");
             _playerCamera = GetNode<PlayerCamera>("Player/PlayerCamera");
             _backgroundSnow = GetNode<Particles2D>("ParallaxBackground/BackgroundSnowfallParticles");
+            _backgroundCity = GetNode<TextureRect>("ParallaxBackground/ParallaxLayer/BackgroundCity");
+            _backgroundCityLarge = GetNode<TextureRect>("ParallaxBackground/ParallaxLayer/BackgroundCityLarge");
             _firstAreaSnow = GetNode<Particles2D>("FirstAreaSnowParticles");
             _cinematicCamera = GetNode<CinematicCamera>("CinematicCamera");
             _midgroundTiles = GetNode<TileMap>("MidgroundTiles");
@@ -230,6 +234,38 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
                 //}
 
                 //_player.InputLocked = false;
+            }
+        }
+
+        public void OnHideCityTriggered(Node body)
+        {
+            if (body is Player)
+            {
+                _backgroundCity.Visible = false;
+            }
+        }
+
+        public void OnHideCityLargeTriggered(Node body)
+        {
+            if (body is Player)
+            {
+                _backgroundCityLarge.Visible = false;
+            }
+        }
+
+        public void OnShowCityTriggered(Node body)
+        {
+            if (body is Player)
+            {
+                _backgroundCity.Visible = true;
+            }
+        }
+
+        public void OnShowCityLargeTriggered(Node body)
+        {
+            if (body is Player)
+            {
+                _backgroundCityLarge.Visible = true;
             }
         }
 
@@ -688,13 +724,6 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         private void CollapseSecondSnowDrift()
         {
             // Make this clear the skinny barrier in the ice wall, so players can go back and charge up
-        }
-
-        // DEBUG DELETE ME, TRYING TO FIGURE OUT HOW COLLISION WORKS X.X
-        public async void OnWall3Broken(Breakable breakable)
-        {
-            await Task.Delay(5000);
-            breakable.Spawn();
         }
 
         public void OnDialogueTag(string tag)
