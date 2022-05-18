@@ -54,7 +54,7 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         private ShaderMaterial _silhouetteShader = null!;
 
         private bool _playerHasPowerBall = false;
-        private const float DefaultWarmthDrainPerTick = .1f;
+        private const float DefaultWarmthDrainPerTick = .3f;
         private float _levelWarmthDrainPerTick = DefaultWarmthDrainPerTick;
 
         private Breakable? _doorInRange;
@@ -245,14 +245,6 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
             }
         }
 
-        public void OnHideCityLargeTriggered(Node body)
-        {
-            if (body is Player)
-            {
-                _backgroundCityLarge.Visible = false;
-            }
-        }
-
         public void OnShowCityTriggered(Node body)
         {
             if (body is Player)
@@ -261,6 +253,24 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
             }
         }
 
+        public void SwapBackgroundCityAreaTriggered(Node body)
+        {
+            if (body is Player)
+            {
+                GetNode<Area2D>("ShowCityTriggerArea2").Monitoring = true;
+                _backgroundCity.Visible = false;
+                _backgroundCityLarge.Visible = false;
+            }
+        }
+
+        public void OnHideCityLargeTriggered(Node body)
+        {
+            if (body is Player)
+            {                
+                _backgroundCityLarge.Visible = false;
+            }
+        }
+       
         public void OnShowCityLargeTriggered(Node body)
         {
             if (body is Player)
@@ -537,15 +547,19 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         }
 
         public void WarmthDrainTimerTimeout()
-        {
-            if (_player.Warmth > Player.OverWarmthTheshold)
+        {    
+            if (_player.Warmth <= 0 && _player.ExcessWarmth <= 0)
             {
-                // Overwarmth drains faster.
-                _player.Warmth -= (_player.WarmthDrainPerTick * 4);
+                // TODO: Trigger "death"
+            }
+
+            if (_player.Warmth <= 0 && _player.ExcessWarmth > 0)
+            {
+                _player.ExcessWarmth -= _player.WarmthDrainPerTick * 2;
             }
             else
             {
-                _player.Warmth -= _player.WarmthDrainPerTick;
+                _player.Warmth -= _player.WarmthDrainPerTick;            
             }
         }
 

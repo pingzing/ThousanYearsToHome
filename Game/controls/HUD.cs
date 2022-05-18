@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using ThousandYearsHome.Controls.WarmthBarControl;
 using ThousandYearsHome.Entities;
 using ThousandYearsHome.Entities.PlayerEntity;
@@ -32,6 +33,7 @@ namespace ThousandYearsHome.Controls
             _playerSignals.Connect(nameof(PlayerSignalBus.PositionChanged), this, nameof(Debug_SetPosition));
             _playerSignals.Connect(nameof(PlayerSignalBus.VelocityChanged), this, nameof(Debug_SetVelocity));
             _playerSignals.Connect(nameof(PlayerSignalBus.WarmthChanged), this, nameof(WarmthChanged));
+            _playerSignals.Connect(nameof(PlayerSignalBus.ExcessWarmthChanged), this, nameof(ExcessWarmthChanged));
         }
 
         public void Debug_SetStateLabel(PlayerStateKind oldState, PlayerStateKind newState)
@@ -54,6 +56,11 @@ namespace ThousandYearsHome.Controls
         public void WarmthChanged(float oldWarmth, float newWarmth)
         {
             _warmthBar.UpdateWarmth(oldWarmth, newWarmth);
+        }
+
+        private void ExcessWarmthChanged(float oldExcess, float newExcess)
+        {
+            _warmthBar.UpdateExcessWarmth(oldExcess, newExcess);
         }
 
         public void HideWarmthBar()

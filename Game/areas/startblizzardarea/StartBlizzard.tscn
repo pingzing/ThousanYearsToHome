@@ -34,7 +34,7 @@ extents = Vector2( 345, 4 )
 extents = Vector2( 26.3683, 432.977 )
 
 [sub_resource type="RectangleShape2D" id=31]
-extents = Vector2( 58.0484, 108.31 )
+extents = Vector2( 122.435, 108.31 )
 
 [sub_resource type="RectangleShape2D" id=2]
 extents = Vector2( 169, 21 )
@@ -314,7 +314,7 @@ position = Vector2( 9705.41, -1432.12 )
 HitsToDestroy = 1
 
 [node name="StartPosition" type="Position2D" parent="."]
-position = Vector2( 3464.24, 744.435 )
+position = Vector2( 5899.57, 503.88 )
 
 [node name="JumpTutorialSign" type="Sprite" parent="."]
 position = Vector2( 512, 89 )
@@ -338,10 +338,10 @@ position = Vector2( 47.3683, -19.3858 )
 shape = SubResource( 30 )
 
 [node name="ShowCityTrigger1" type="Area2D" parent="."]
-position = Vector2( 1871.37, -780.706 )
+position = Vector2( 2033.47, -786.003 )
 
 [node name="ShowCity1TriggerShape" type="CollisionShape2D" parent="ShowCityTrigger1"]
-position = Vector2( -62.609, -31.6102 )
+position = Vector2( -147.607, -29.4913 )
 shape = SubResource( 31 )
 
 [node name="VistaPointDialogueTrigger" type="Area2D" parent="."]
@@ -784,15 +784,16 @@ texture = ExtResource( 4 )
 
 [node name="ShowCityTriggerArea2" type="Area2D" parent="."]
 position = Vector2( 9494.01, 287.202 )
+monitoring = false
 
 [node name="ShowCityTriggerShape2" type="CollisionShape2D" parent="ShowCityTriggerArea2"]
 position = Vector2( 73.6064, 7.23242 )
 shape = SubResource( 32 )
 
-[node name="HideCityTriggerArea2" type="Area2D" parent="."]
+[node name="SwapBackgroundCityArea" type="Area2D" parent="."]
 position = Vector2( 9543, 287.202 )
 
-[node name="HideCityTriggerShape2" type="CollisionShape2D" parent="HideCityTriggerArea2"]
+[node name="SwapBackgroundCityTriggerShape" type="CollisionShape2D" parent="SwapBackgroundCityArea"]
 position = Vector2( 233.205, -87.6276 )
 shape = SubResource( 34 )
 
@@ -941,8 +942,7 @@ __meta__ = {
 [connection signal="body_entered" from="CollapseLandingTriggerArea" to="." method="CollapseBaseAreaEntered"]
 [connection signal="body_entered" from="KeeperCutscene/KeeperCutsceneTriggerArea" to="." method="KeeperCutsceneAreaEntered"]
 [connection signal="body_entered" from="ShowCityTriggerArea2" to="." method="OnShowCityTriggered"]
-[connection signal="body_entered" from="HideCityTriggerArea2" to="." method="OnHideCityTriggered"]
-[connection signal="body_entered" from="HideCityTriggerArea2" to="." method="OnHideCityLargeTriggered"]
+[connection signal="body_entered" from="SwapBackgroundCityArea" to="." method="SwapBackgroundCityAreaTriggered"]
 [connection signal="body_entered" from="ShowCityLargeTriggerArea1" to="." method="OnShowCityLargeTriggered"]
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="OnAnimationFinished"]
 [connection signal="animation_started" from="AnimationPlayer" to="." method="OnAnimationStarted"]

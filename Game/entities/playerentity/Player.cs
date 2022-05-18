@@ -60,7 +60,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         private float _warmth = 100f;
         /// <summary>
-        /// The player's current Warmth. Ranges from 0-200, inclusive at both ends.
+        /// The player's current Warmth. Ranges from 0-100, inclusive at both ends.
         /// </summary>
         public float Warmth
         {
@@ -68,7 +68,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             set
             {
                 float oldWarmth = _warmth;
-                float newWarmth = Mathf.Clamp(value, 0, 125);
+                float newWarmth = Mathf.Clamp(value, 0, 100);
                 if (_warmth != newWarmth)
                 {
                     _warmth = newWarmth;                    
@@ -77,9 +77,29 @@ namespace ThousandYearsHome.Entities.PlayerEntity
             }
         }
 
+        private float _excessWarmth;
+        /// <summary>
+        /// The player's warmth gained beyond the <see cref="OverWarmthTheshold"/>.
+        /// Stored, and only consumed if normal Warmth runs out.
+        /// </summary>
+        public float ExcessWarmth
+        {
+            get => _excessWarmth;
+            set
+            {
+                float oldExcess = _excessWarmth;
+                float newExcess = Mathf.Clamp(value, 0, 100); //Hard-coded here and in WarmthBar.cs.
+                if (_excessWarmth != newExcess)
+                {
+                    _excessWarmth = newExcess;
+                    _playerSignalBus.EmitSignal(nameof(PlayerSignalBus.ExcessWarmthChanged), oldExcess, newExcess);
+                }
+            }
+        }
+
         /// <summary>
         /// Determines the value after which any additional warmth is considered "over warmth",
-        /// and is displayed differently, and drains faster.
+        /// and is collected as excess.
         /// </summary>
         public const float OverWarmthTheshold = 100;
 
@@ -463,7 +483,9 @@ namespace ThousandYearsHome.Entities.PlayerEntity
 
         public void WarmthBallCollected(WarmthBall warmthBall)
         {
+            float excess = (Warmth + warmthBall.WarmthRestoration) - OverWarmthTheshold;
             Warmth += warmthBall.WarmthRestoration;
+            ExcessWarmth += Mathf.Max(excess, 0f);
         }
 
         public void PowerBallCollected(PowerBall powerBall)

@@ -9,7 +9,8 @@ namespace ThousandYearsHome.Controls.WarmthBarControl
         private Tween _tween = null!;
         private ProgressBar _fill = null!;
         private ProgressBar _progressBorder = null!;
-        private float _overwarmthThreshold;
+        private float _overwarmthThreshold = Player.OverWarmthTheshold; // Semi-hardcoded for now
+        private StyleBoxFlat? _progressBorderStyleBox = null;
         
         [Export(PropertyHint.ColorNoAlpha)]
         public Color OverchargeColor
@@ -20,22 +21,36 @@ namespace ThousandYearsHome.Controls.WarmthBarControl
 
         public void UpdateWarmth(float oldWarmth, float newWarmth)
         {
-            // Update overwarmth
-            float overWarmth = newWarmth - _overwarmthThreshold;
-            overWarmth = Mathf.Clamp(overWarmth, 0, 25);
-            _progressBorder.Value = overWarmth;
-
-            // Update regular warmth
-            float warmth = newWarmth - overWarmth;
+            float warmth = Mathf.Clamp(newWarmth, 0, _overwarmthThreshold);
             _fill.Value = warmth;
+        }
+
+        public void UpdateExcessWarmth(float oldExcess, float newExcess)
+        {
+            float excess = Mathf.Clamp(newExcess, 0, 100f); // Hard-coded to 100 for now here and in Player.cs
+
+            // Lazy way to handle the edge case where we're near max Excess warmth,
+            // and want to show the right edge drawing overtop the right side of the bar underneath.
+            if (_progressBorderStyleBox != null)
+            {
+                if (excess >= _overwarmthThreshold)
+                {
+                    _progressBorderStyleBox.BorderWidthRight = 2;
+                }
+                else
+                {
+                    _progressBorderStyleBox.BorderWidthRight = 0;
+                }
+            }
+            _progressBorder.Value = excess;
         }
 
         public override void _Ready()
         {
-            _overwarmthThreshold = Player.OverWarmthTheshold;
             _tween = GetNode<Tween>("Tween");
             _fill = GetNode<ProgressBar>("VBoxContainer/BarContainer/ProgressBorder/BarMarginContainer/Fill");
-            _progressBorder = GetNode<ProgressBar>("VBoxContainer/BarContainer/ProgressBorder");            
+            _progressBorder = GetNode<ProgressBar>("VBoxContainer/BarContainer/ProgressBorder");
+            _progressBorderStyleBox = _progressBorder.Get("custom_styles/fg") as StyleBoxFlat;
         }
     }
 }
