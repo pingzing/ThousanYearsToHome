@@ -156,8 +156,7 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
                 await _dialogueBox.Run();
                 await ToSignal(_dialogueBox, "DialogueBoxClosed");
 
-                _cinematicCamera.Current = false;
-                _playerCamera.Current = true;
+                PlayerCameraTakeControl(_player, _playerCamera, _cinematicCamera);            
 
                 // A lot of this can probably be reused for the cutscene after we find the frozen keeper
 
@@ -604,6 +603,7 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         /// </summary>
         private void PlayerCameraTakeControl(Player player, PlayerCamera playerCamera, CinematicCamera cinematicCamera)
         {
+            // TODO: Interpolate over to the player instead of jumping
             playerCamera.Current = true;
             Node? cinematicParent = cinematicCamera.GetParent();
             if (cinematicParent == player)
