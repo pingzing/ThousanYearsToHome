@@ -17,8 +17,6 @@ namespace ThousandYearsHome.Entities.WarmthBallEntity
         public override void _Ready()
         {
             _bulletHolder = GetNode<Node2D>("Bullets");
-
-            // Both readies
             _warmthBalls = _bulletHolder.GetChildren().Cast<WarmthBall>().ToList();
         }
 

@@ -16,7 +16,7 @@ namespace ThousandYearsHome.Controls
         /// Can be positive or negative (i.e., a suitably negative value will result in 
         /// an area that grants a wamrth <em>gain</em> per tick).
         /// </summary>
-        [Export(PropertyHint.None, "The amount that entering this area will adjust the warmth drain per tick. Can be positive or negative (i.e., a suitably negative value will result in an area that grants a wamrth gain per tick)")]
+        [Export]
         public float ChillModifier
         {
             get => _chillModifier;

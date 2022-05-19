@@ -1,5 +1,4 @@
 using Godot;
-using System;
 using System.Collections.Generic;
 using ThousandYearsHome.Entities.PlayerEntity;
 using ThousandYearsHome.Entities.WarmthBallEntity;
@@ -47,9 +46,17 @@ namespace ThousandYearsHome.Entities
 
                 var viewportRect = GetViewportRect();
                 var cameraCenter = -_viewport.CanvasTransform.origin + (viewportRect.Size / 2);
-                var cameraRectLoc = -_viewport.CanvasTransform.origin + (_playerCamera.CurrentRect.End);
                 float angleRad = cameraCenter.AngleToPoint(ballPos.Value) - Mathf.Pi;
-                Vector2? intersection = GetScreenEdgeIntersection(cameraRectLoc, ballPos.Value);
+
+                float viewportTop = -_viewport.CanvasTransform.origin.y;
+                float viewportBottom = -_viewport.CanvasTransform.origin.y + _viewport.GetVisibleRect().Size.y;
+                
+                // Don't just a draw a line from the player directly to the ball--otherwise, if it's too far away,
+                // the player doesn't get an accurate idea of how high up the ball is. Instead, draw a line directly
+                // horizontally that intersects the camera viewport rect.
+                float referenceY = Mathf.Clamp(ballPos.Value.y, viewportTop + 1, viewportBottom - 1);
+
+                Vector2? intersection = GetScreenEdgeIntersection(new Vector2(cameraCenter.x, referenceY), ballPos.Value);
                 if (intersection == null)
                 {
                     arrow.Visible = false;
@@ -85,18 +92,10 @@ namespace ThousandYearsHome.Entities
                 _ballArrows.Remove(ballId);
             }
         }
+        
+        // --- Utilities ---
 
-        public void BallEnteredScreen(ulong ballId)
-        {
-            // Update its entry in the list so we stop drawing its arrow
-        }
-
-        public void BallExitedScreen(ulong ballId)
-        {
-            // Update its entry in the list so we resume drawing its arrow
-        }
-
-        private Vector2? GetScreenEdgeIntersection(Vector2 cameraPos, Vector2 ballPos)
+        private Vector2? GetScreenEdgeIntersection(Vector2 visiblePos, Vector2 offscreenPos)
         {
             var vpRect = _viewport.GetVisibleRect();
             var vpWorldCoords = -_viewport.CanvasTransform.origin;
@@ -108,18 +107,18 @@ namespace ThousandYearsHome.Entities
             Vector2 br = new Vector2(vpWorldCoords + vpRect.Size);
 
             object intersection;
-            intersection = Geometry.SegmentIntersectsSegment2d(cameraPos, ballPos, tr, br);
+            intersection = Geometry.SegmentIntersectsSegment2d(visiblePos, offscreenPos, tr, br);
             if (intersection == null)
             {
-                intersection = Geometry.SegmentIntersectsSegment2d(cameraPos, ballPos, tl, tr);
+                intersection = Geometry.SegmentIntersectsSegment2d(visiblePos, offscreenPos, tl, tr);
             }
             if (intersection == null)
             {
-                intersection = Geometry.SegmentIntersectsSegment2d(cameraPos, ballPos, tl, bl);
+                intersection = Geometry.SegmentIntersectsSegment2d(visiblePos, offscreenPos, tl, bl);
             }
             if (intersection == null)
             {
-                intersection = Geometry.SegmentIntersectsSegment2d(cameraPos, ballPos, bl, br);
+                intersection = Geometry.SegmentIntersectsSegment2d(visiblePos, offscreenPos, bl, br);
             }
 
             if (intersection == null)
@@ -127,9 +126,8 @@ namespace ThousandYearsHome.Entities
                 return null;
             }
 
-            // Convert from world space to screen space
-            var intersectionVec = (Vector2)intersection;
-            var vec = _viewport.CanvasTransform * (intersectionVec);
+            // Convert from world space to screen space            
+            var vec = _viewport.CanvasTransform * (Vector2)intersection;
             return vec;
         }
     }

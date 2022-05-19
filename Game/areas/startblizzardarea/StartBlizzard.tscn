@@ -1,4 +1,4 @@
-[gd_scene load_steps=58 format=2]
+[gd_scene load_steps=62 format=2]
 
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=1]
 [ext_resource path="res://fonts/Equipment-32pt.tres" type="DynamicFont" id=2]
@@ -97,6 +97,18 @@ extents = Vector2( 32, 179 )
 
 [sub_resource type="RectangleShape2D" id=11]
 extents = Vector2( 32, 179 )
+
+[sub_resource type="RectangleShape2D" id=35]
+extents = Vector2( 37.3435, 37.2704 )
+
+[sub_resource type="RectangleShape2D" id=36]
+extents = Vector2( 11.6448, 111.849 )
+
+[sub_resource type="RectangleShape2D" id=37]
+extents = Vector2( 13.1873, 92.9716 )
+
+[sub_resource type="RectangleShape2D" id=38]
+extents = Vector2( 19.1934, 44.8652 )
 
 [sub_resource type="RectangleShape2D" id=12]
 extents = Vector2( 15, 191 )
@@ -314,7 +326,7 @@ position = Vector2( 9705.41, -1432.12 )
 HitsToDestroy = 1
 
 [node name="StartPosition" type="Position2D" parent="."]
-position = Vector2( 5899.57, 503.88 )
+position = Vector2( 6686.82, 507.201 )
 
 [node name="JumpTutorialSign" type="Sprite" parent="."]
 position = Vector2( 512, 89 )
@@ -774,7 +786,23 @@ StartPosition = Vector2( 430, -487 )
 [node name="BallKillArea" type="Area2D" parent="."]
 position = Vector2( 8672, -690 )
 
-[node name="BallKillShape" type="CollisionShape2D" parent="BallKillArea"]
+[node name="FirstSlopeKillShape" type="CollisionShape2D" parent="BallKillArea"]
+position = Vector2( -1788.43, 1255.81 )
+shape = SubResource( 35 )
+
+[node name="FirstPlainsKillShape" type="CollisionShape2D" parent="BallKillArea"]
+position = Vector2( -1451.62, 862.967 )
+shape = SubResource( 36 )
+
+[node name="FirstPlainsMultiJumpKillShape" type="CollisionShape2D" parent="BallKillArea"]
+position = Vector2( -129.012, 868.336 )
+shape = SubResource( 37 )
+
+[node name="PostFirstClimbKillShape" type="CollisionShape2D" parent="BallKillArea"]
+position = Vector2( 1254, 112 )
+shape = SubResource( 38 )
+
+[node name="GauntletKillShape" type="CollisionShape2D" parent="BallKillArea"]
 position = Vector2( 0, -12 )
 shape = SubResource( 12 )
 
@@ -799,7 +827,7 @@ shape = SubResource( 34 )
 
 [node name="FarRightCaveChillArea" parent="." instance=ExtResource( 20 )]
 position = Vector2( 9566, -512 )
-ChillModifier = -0.09
+ChillModifier = -0.2
 
 [node name="ModifyChillShape" parent="FarRightCaveChillArea" index="0"]
 modulate = Color( 0.858824, 0.576471, 0.0392157, 1 )
@@ -827,7 +855,7 @@ shape = SubResource( 33 )
 
 [node name="LastClimbCaveChillArea" parent="." instance=ExtResource( 20 )]
 position = Vector2( 5403, -1672 )
-ChillModifier = -0.09
+ChillModifier = -0.2
 
 [node name="ModifyChillShape" parent="LastClimbCaveChillArea" index="0"]
 modulate = Color( 0.858824, 0.576471, 0.0392157, 1 )

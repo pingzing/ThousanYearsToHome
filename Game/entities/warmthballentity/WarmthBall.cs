@@ -60,7 +60,6 @@ namespace ThousandYearsHome.Entities.WarmthBallEntity
 
         private Node2D _ballSet = null!;
         private Node2D _ballContainer = null!;
-        private VisibilityNotifier2D _visibilityNotifier = null!;
         private HornCollectibleSignalBus _signalBus = null!;
         private Area2D _collisionArea = null!;
         private CollisionShape2D _collisionShape = null!;
@@ -76,7 +75,6 @@ namespace ThousandYearsHome.Entities.WarmthBallEntity
 
             _ballContainer = GetParent<Node2D>();
             _ballSet = _ballContainer.GetParent<Node2D>();
-            _visibilityNotifier = GetNode<VisibilityNotifier2D>("VisibilityNotifier");
             _collisionArea = GetNode<Area2D>("CollisionArea");
             _collisionShape = _collisionArea.GetNode<CollisionShape2D>("CollisionShape2D");
             _signalBus = GetNode<HornCollectibleSignalBus>("/root/HornCollectibleSignalBus");
@@ -140,16 +138,6 @@ namespace ThousandYearsHome.Entities.WarmthBallEntity
         public void OnTouchedTimerTimeout()
         {
             Deactivate();
-        }
-
-        public void ScreenEntered()
-        {
-            GetTree().CallGroup(WarmthBallGroup, nameof(WarmthBallWatcher.BallEnteredScreen), GetInstanceId());
-        }
-
-        public void ScreenExited()
-        {
-            GetTree().CallGroup(WarmthBallGroup, nameof(WarmthBallWatcher.BallExitedScreen), GetInstanceId());
         }
 
         // --- Internal methods ---

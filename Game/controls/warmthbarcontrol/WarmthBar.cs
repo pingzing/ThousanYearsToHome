@@ -28,12 +28,13 @@ namespace ThousandYearsHome.Controls.WarmthBarControl
         public void UpdateExcessWarmth(float oldExcess, float newExcess)
         {
             float excess = Mathf.Clamp(newExcess, 0, 100f); // Hard-coded to 100 for now here and in Player.cs
+            _progressBorder.Value = excess;
 
-            // Lazy way to handle the edge case where we're near max Excess warmth,
+            // Lazy way to handle the edge case where we're at max Excess warmth,
             // and want to show the right edge drawing overtop the right side of the bar underneath.
             if (_progressBorderStyleBox != null)
             {
-                if (excess >= _overwarmthThreshold)
+                if (_progressBorder.Value == _progressBorder.MaxValue)
                 {
                     _progressBorderStyleBox.BorderWidthRight = 2;
                 }
@@ -42,7 +43,6 @@ namespace ThousandYearsHome.Controls.WarmthBarControl
                     _progressBorderStyleBox.BorderWidthRight = 0;
                 }
             }
-            _progressBorder.Value = excess;
         }
 
         public override void _Ready()
