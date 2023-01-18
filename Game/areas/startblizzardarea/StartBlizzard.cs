@@ -669,7 +669,7 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
             Vector2 cinematicStartPos = _cinematicCamera.Position;
 
             _tweener.InterpolateProperty(_cinematicCamera, "zoom", null, new Vector2(.5f, .5f), 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
-            _tweener.InterpolateProperty(_cinematicCamera, "position", cinematicStartPos, _cinematicCamera.Position * .5f, 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
+            _tweener.InterpolateProperty(_cinematicCamera, "position", cinematicStartPos, cinematicStartPos * .5f, 1f, Tween.TransitionType.Cubic, Tween.EaseType.In);
             // TODO: Fade snow out //_tweener.InterpolateProperty(_snowParticles, "modulate", null, new Color(_snowParticles.Modulate, 0), .4f);
             _tweener.Start();
             await this.ToSignalWithArg(_tweener, "tween_completed", 0, _cinematicCamera);
