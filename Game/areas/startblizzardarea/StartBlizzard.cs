@@ -678,15 +678,7 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
 
             await Task.Delay(225); // Wait until juuust after when the hooves fly
             // Screen shake, and special stuff based on which door it was
-            _cinematicCamera.Shake(.3f, 100, 24);
-            if (doorInRange.Name == "BreakableWall3")
-            {
-                CollapseFirstSnowDrift();
-            }
-            if (doorInRange.Name == "BreakableWall7")
-            {
-                CollapseSecondSnowDrift();
-            }    
+            _cinematicCamera.Shake(.3f, 100, 24);  
 
             await ToSignal(player, nameof(Player.KickExited));
 
@@ -707,37 +699,6 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
 
             // TODO: Clear the player's PowerBall status
             
-        }
-
-        private void CollapseFirstSnowDrift()
-        {
-            // TODO: Make this actually animate some sprite that falls and spreads out on the ground
-            // For now, just fiddle around with tiles
-
-            // Remove the hanging snow tiles
-            var topLeft = GetNode<Position2D>("DoorKnockdownCorners/TopLeft");
-            var bottomRight = GetNode<Position2D>("DoorKnockdownCorners/BottomRight");
-
-            var topLeftCell = _midgroundTiles.WorldToMap(topLeft.Position);
-            var bottomRightCell = _midgroundTiles.WorldToMap(bottomRight.Position);
-            for (int x = (int)topLeftCell.x; x <= bottomRightCell.x; x++)
-            {
-                for (int y = (int)topLeftCell.y; y <= bottomRightCell.y; y++)
-                {
-                    if (_midgroundTiles.GetCell(x, y) == 10) // Only remove cell index 10, the snowy ones
-                    {
-                        _midgroundTiles.SetCellv(new Vector2(x, y), TileMap.InvalidCell);
-                    }
-                }
-            }
-
-            _midgroundTiles.UpdateDirtyQuadrants();
-
-        }
-
-        private void CollapseSecondSnowDrift()
-        {
-            // Make this clear the skinny barrier in the ice wall, so players can go back and charge up
         }
 
         public void OnDialogueTag(string tag)
