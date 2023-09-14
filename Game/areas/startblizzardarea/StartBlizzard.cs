@@ -9,6 +9,7 @@ using ThousandYearsHome.Entities.PlayerEntity;
 using ThousandYearsHome.Entities.PowerBallEntity;
 using ThousandYearsHome.Entities.WarmthBallEntity;
 using ThousandYearsHome.Extensions;
+using ThousandYearsHome.Entities.GlowingBatteryEntity;
 
 namespace ThousandYearsHome.Areas.StartBlizzardArea
 {
@@ -52,6 +53,7 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
         private ColorRect _keeperCutsceneWhiteoutRect = null!;
         private Timer _warmthDrainTimer = null!;
         private ShaderMaterial _silhouetteShader = null!;
+        private GlowingBattery _glowingBattery = null!;
 
         private bool _playerHasPowerBall = false;
         private const float DefaultWarmthDrainPerTick = .3f;
@@ -109,6 +111,9 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
             _keeperMask = _keeperCutscene.GetNode<Sprite>("Keeper/BackBufferCopy/Mask");
             _keeperDissolver = _keeperCutscene.GetNode<SpriteDissolve>("KeeperDissolver");
             _keeperCutsceneWhiteoutRect = _keeperCutscene.GetNode<ColorRect>("KeeperCutsceneWhiteoutRect");
+
+            _glowingBattery = GetNode<GlowingBattery>("GlowingBattery");
+            _glowingBattery.StartGlow();
 
             Vector2 startPos = GetNode<Position2D>("StartPosition").Position;
             _player.Spawn(startPos);
@@ -541,7 +546,7 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
                 _hud.ShowWarmthBar(); // TODO: Make this a cleaner fade
                 _player.InputLocked = false;
 
-                // TODO: Make more snow happen here!
+                // TODO: Make more snow happen here!                
             }
         }
 
