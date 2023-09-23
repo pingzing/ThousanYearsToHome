@@ -133,7 +133,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                     {
                         _sprite.Scale = new Vector2(_sprite.Scale.x * -1, 1);
                         // We can't flip the entire player object, as collision doesn't function properly with negative scales.
-                        // So instead, just negate the collision boxes' x-values
+                        // So instead, just negate the collision boxes' x-values                        
                         _bodyCollisionBox.Position = new Vector2(_bodyCollisionBox.Position.x * -1, _bodyCollisionBox.Position.y);
                         _leftRaycast.Position = new Vector2(_leftRaycast.Position.x * -1, _leftRaycast.Position.y);
                         _rightRaycast.Position = new Vector2(_rightRaycast.Position.x * -1, _rightRaycast.Position.y);
@@ -344,7 +344,7 @@ namespace ThousandYearsHome.Entities.PlayerEntity
                 // Snap position to whole pixel coordinates to avoid jitter
                 // but only when on the floor--it's only noticeable when moving slowly,
                 // which doesn't really happen in the air.
-                Position = new Vector2(Mathf.Round(Position.x), Mathf.Round(Position.y));
+                Position = new Vector2(Mathf.Round(Position.x), Mathf.Round(Position.y));                
             }
         }
 

@@ -291,7 +291,6 @@ __meta__ = {
 [node name="OneWayPlatformTileMap" type="TileMap" parent="."]
 tile_set = ExtResource( 18 )
 cell_size = Vector2( 16, 16 )
-show_collision = true
 collision_layer = 2
 collision_mask = 2
 format = 1
@@ -446,7 +445,7 @@ texture = ExtResource( 25 )
 position = Vector2( 7071, -1470 )
 
 [node name="Player" parent="." instance=ExtResource( 15 )]
-position = Vector2( -27, 135 )
+position = Vector2( -27, 134 )
 
 [node name="Sprite" parent="Player" index="0"]
 position = Vector2( 1, 0 )

@@ -251,7 +251,7 @@ tracks/5/keys = {
 "times": PoolRealArray( 0 ),
 "transitions": PoolRealArray( 1 ),
 "update": 0,
-"values": [ Vector2( 12, 23 ) ]
+"values": [ Vector2( 12, 22 ) ]
 }
 tracks/6/type = "value"
 tracks/6/path = NodePath(".:offset")
@@ -499,6 +499,7 @@ tracks/8/keys = {
 
 [sub_resource type="Animation" id=10]
 resource_name = "RESET"
+length = 0.001
 tracks/0/type = "value"
 tracks/0/path = NodePath(".:frame")
 tracks/0/interp = 1
@@ -518,10 +519,10 @@ tracks/1/loop_wrap = true
 tracks/1/imported = false
 tracks/1/enabled = true
 tracks/1/keys = {
-"times": PoolRealArray( 0, 1 ),
-"transitions": PoolRealArray( 1, 1 ),
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
 "update": 0,
-"values": [ Vector2( 17.8838, -23.3535 ), Vector2( 15.218, -24.757 ) ]
+"values": [ Vector2( 17.8838, -23.3535 ) ]
 }
 tracks/2/type = "value"
 tracks/2/path = NodePath("HornBox/HornBoxCollisionShape:rotation_degrees")
@@ -542,10 +543,10 @@ tracks/3/loop_wrap = true
 tracks/3/imported = false
 tracks/3/enabled = true
 tracks/3/keys = {
-"times": PoolRealArray( 0, 1 ),
-"transitions": PoolRealArray( 1, 1 ),
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
 "update": 0,
-"values": [ Vector2( 7, 0 ), Vector2( 0, 0 ) ]
+"values": [ Vector2( 7, 0 ) ]
 }
 tracks/4/type = "value"
 tracks/4/path = NodePath("HornBox/HornBoxCollisionShape:shape:extents")
@@ -581,7 +582,7 @@ tracks/6/keys = {
 "times": PoolRealArray( 0 ),
 "transitions": PoolRealArray( 1 ),
 "update": 0,
-"values": [ Vector2( 12, 23 ) ]
+"values": [ Vector2( 12, 22 ) ]
 }
 tracks/7/type = "value"
 tracks/7/path = NodePath("KickHurtBox/KickHurtBoxShape:disabled")
@@ -681,7 +682,7 @@ tracks/4/keys = {
 "times": PoolRealArray( 0 ),
 "transitions": PoolRealArray( 1 ),
 "update": 0,
-"values": [ Vector2( 12, 23 ) ]
+"values": [ Vector2( 12, 22 ) ]
 }
 tracks/5/type = "value"
 tracks/5/path = NodePath(".:offset")
@@ -745,7 +746,7 @@ tracks/0/keys = {
 extents = Vector2( 2.19067, 4.51285 )
 
 [sub_resource type="RectangleShape2D" id=9]
-extents = Vector2( 12, 23 )
+extents = Vector2( 12, 22 )
 
 [node name="Player" type="KinematicBody2D"]
 position = Vector2( 0, 1 )
@@ -806,6 +807,9 @@ shape = ExtResource( 13 )
 [node name="BodyCollisionBox" type="CollisionShape2D" parent="."]
 position = Vector2( 4, 4 )
 shape = SubResource( 9 )
+__meta__ = {
+"_editor_description_": "Note: If editing this thing's shape, remember to edit it in all the animations, too."
+}
 
 [node name="PlayerInputService" type="Node2D" parent="."]
 process_priority = -1
