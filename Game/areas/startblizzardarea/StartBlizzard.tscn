@@ -1,4 +1,4 @@
-[gd_scene load_steps=63 format=2]
+[gd_scene load_steps=64 format=2]
 
 [ext_resource path="res://art/BaseTheme.tres" type="Theme" id=1]
 [ext_resource path="res://fonts/Equipment-32pt.tres" type="DynamicFont" id=2]
@@ -27,6 +27,7 @@
 [ext_resource path="res://art/PlaceholderKeeperShaded.png" type="Texture" id=25]
 [ext_resource path="res://art/WarmthBall.png" type="Texture" id=26]
 [ext_resource path="res://entities/glowingbatteryentity/GlowingBattery.tscn" type="PackedScene" id=27]
+[ext_resource path="res://entities/blowingrockemitterentity/BlowingRockEmitter.tscn" type="PackedScene" id=28]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 345, 4 )
@@ -871,6 +872,10 @@ shape = SubResource( 23 )
 [node name="GlowingBattery" parent="." instance=ExtResource( 27 )]
 position = Vector2( 7216, -1603 )
 rotation = 4.71239
+
+[node name="BlowingRockEmitter" parent="." instance=ExtResource( 28 )]
+position = Vector2( 9424.65, -1421.93 )
+SpawnAngle = 180.0
 
 [node name="CinematicCamera" parent="." instance=ExtResource( 6 )]
 pause_mode = 2
