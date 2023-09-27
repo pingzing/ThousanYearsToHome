@@ -1,4 +1,5 @@
 using Godot;
+using ThousandYearsHome.Entities.BlowingRockEntity;
 
 namespace ThousandYearsHome.Entities.BlowingRockEmitterEntity
 {
@@ -6,6 +7,24 @@ namespace ThousandYearsHome.Entities.BlowingRockEmitterEntity
     [Tool]
     public class BlowingRockEmitter : Node2D
     {
+        private bool _isActive = false;
+        [Export] public bool IsActive
+        {
+            get => _isActive;
+            set
+            {
+                _isActive = value;
+                if (_isActive)
+                {
+                    _spawnTimer.Start();
+                }
+                else
+                {
+                    _spawnTimer.Stop();
+                }
+            }
+        }
+
         // In seconds.
         private float _rockSpawnTime = 5f;
         [Export] public float RockSpawnTime
@@ -25,12 +44,20 @@ namespace ThousandYearsHome.Entities.BlowingRockEmitterEntity
 
         private Timer _spawnTimer = null!;
         private DynamicFont _debugFont = null!;
+        private PackedScene _blowingRockScene = null!;
 
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
         {
             _spawnTimer = GetNode<Timer>("SpawnTimer");
             _spawnTimer.WaitTime = RockSpawnTime;
+            _blowingRockScene = ResourceLoader.Load<PackedScene>("res://entities/blowingrockentity/BlowingRock.tscn");
+        }
+
+        public void OnSpawnTimerTimeout()
+        {
+            BlowingRock blowingRock = _blowingRockScene.Instance<BlowingRock>();
+            AddChild(blowingRock);
         }
 
         public override void _Draw()

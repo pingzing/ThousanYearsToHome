@@ -454,7 +454,7 @@ position = Vector2( 1, 0 )
 [node name="StateWallJumping" parent="Player/PlayerStateMachine" index="5"]
 WallJumpVelY = -275.0
 
-[node name="PlayerCamera" parent="Player" index="12"]
+[node name="PlayerCamera" parent="Player" index="13"]
 LimitRight = 14000
 LimitTop = -3528
 LimitBottom = 1200

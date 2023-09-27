@@ -103,7 +103,7 @@ namespace ThousandYearsHome.Entities.WarmthBallEntity
                 return;
             }
 
-            var directionRadians = Numerology.DegToRad(DirectionAngle);
+            var directionRadians = Mathf.Deg2Rad(DirectionAngle);
             Vector2 direction = new Vector2(Mathf.Cos(directionRadians), Mathf.Sin(directionRadians));
             Position += direction * Speed * delta;
             GetTree().CallGroup(WarmthBallGroup, nameof(WarmthBallWatcher.BallPositionUpdated), GetInstanceId(), Position + _ballContainer.Position + _ballSet.Position);
@@ -167,7 +167,7 @@ namespace ThousandYearsHome.Entities.WarmthBallEntity
                 return;
             }
 
-            var directionRadians = Numerology.DegToRad(DirectionAngle);
+            var directionRadians = Mathf.Deg2Rad(DirectionAngle);
             Vector2 direction = new Vector2(Mathf.Cos(directionRadians), Mathf.Sin(directionRadians));
             Vector2 secondPont = -direction * Speed;
             DrawLine(Vector2.Zero, secondPont, new Color(1f, 1f, 0f), 2f, true);

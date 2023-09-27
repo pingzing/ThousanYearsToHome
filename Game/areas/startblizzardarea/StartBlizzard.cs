@@ -10,6 +10,8 @@ using ThousandYearsHome.Entities.PowerBallEntity;
 using ThousandYearsHome.Entities.WarmthBallEntity;
 using ThousandYearsHome.Extensions;
 using ThousandYearsHome.Entities.GlowingBatteryEntity;
+using ThousandYearsHome.Entities.BlowingRockEmitterEntity;
+using System.Xml.Serialization;
 
 namespace ThousandYearsHome.Areas.StartBlizzardArea
 {
@@ -57,9 +59,7 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
 
         private bool _playerHasPowerBall = false;
         private const float DefaultWarmthDrainPerTick = .3f;
-        private float _levelWarmthDrainPerTick = DefaultWarmthDrainPerTick;
-
-        private Breakable? _doorInRange;
+        private float _levelWarmthDrainPerTick = DefaultWarmthDrainPerTick;        
 
         public bool SkipIntro { get; set; }
 
@@ -684,6 +684,16 @@ namespace ThousandYearsHome.Areas.StartBlizzardArea
             await Task.Delay(225); // Wait until juuust after when the hooves fly
             // Screen shake, and special stuff based on which door it was
             _cinematicCamera.Shake(.3f, 100, 24);  
+
+            if (doorInRange.Name == "BreakableWall3")
+            {
+                // TODO:some dialogue that explains the blowing rocks and wind
+                // TODO: unjankify this
+                var rockEmitter = GetNode<BlowingRockEmitter>("BlowingRockEmitter");
+                
+                // TODO: turn on all the rock emitters
+                rockEmitter.IsActive = true;
+            }
 
             await ToSignal(player, nameof(Player.KickExited));
 

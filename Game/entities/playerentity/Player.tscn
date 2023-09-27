@@ -13,6 +13,7 @@
 [ext_resource path="res://entities/playerentity/PlayerCamera.tscn" type="PackedScene" id=11]
 [ext_resource path="res://entities/playerentity/StateKicking.cs" type="Script" id=12]
 [ext_resource path="res://entities/playerentity/KickHurtBoxShape.tres" type="Shape2D" id=13]
+[ext_resource path="res://entities/playerentity/PlayerCollisionBox.tres" type="Shape2D" id=14]
 
 [sub_resource type="Animation" id=1]
 resource_name = "Crouch"
@@ -522,7 +523,7 @@ tracks/1/keys = {
 "times": PoolRealArray( 0 ),
 "transitions": PoolRealArray( 1 ),
 "update": 0,
-"values": [ Vector2( 17.8838, -23.3535 ) ]
+"values": [ Vector2( 15.218, -24.757 ) ]
 }
 tracks/2/type = "value"
 tracks/2/path = NodePath("HornBox/HornBoxCollisionShape:rotation_degrees")
@@ -546,7 +547,7 @@ tracks/3/keys = {
 "times": PoolRealArray( 0 ),
 "transitions": PoolRealArray( 1 ),
 "update": 0,
-"values": [ Vector2( 7, 0 ) ]
+"values": [ Vector2( 0, 0 ) ]
 }
 tracks/4/type = "value"
 tracks/4/path = NodePath("HornBox/HornBoxCollisionShape:shape:extents")
@@ -661,36 +662,12 @@ tracks/2/keys = {
 "values": [ 56.4993, 56.4993, 56.4993 ]
 }
 tracks/3/type = "value"
-tracks/3/path = NodePath("../BodyCollisionBox:position")
+tracks/3/path = NodePath(".:offset")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/imported = false
 tracks/3/enabled = true
 tracks/3/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"update": 0,
-"values": [ Vector2( 4, 4 ) ]
-}
-tracks/4/type = "value"
-tracks/4/path = NodePath("../BodyCollisionBox:shape:extents")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"update": 0,
-"values": [ Vector2( 12, 22 ) ]
-}
-tracks/5/type = "value"
-tracks/5/path = NodePath(".:offset")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/keys = {
 "times": PoolRealArray( 0 ),
 "transitions": PoolRealArray( 1 ),
 "update": 0,
@@ -745,9 +722,6 @@ tracks/0/keys = {
 [sub_resource type="RectangleShape2D" id=8]
 extents = Vector2( 2.19067, 4.51285 )
 
-[sub_resource type="RectangleShape2D" id=9]
-extents = Vector2( 12, 22 )
-
 [node name="Player" type="KinematicBody2D"]
 position = Vector2( 0, 1 )
 collision_layer = 3
@@ -756,7 +730,6 @@ script = ExtResource( 1 )
 
 [node name="Sprite" type="Sprite" parent="."]
 texture = ExtResource( 2 )
-offset = Vector2( 7, 0 )
 hframes = 4
 vframes = 4
 region_rect = Rect2( 189, 12, 140, 40 )
@@ -780,7 +753,7 @@ anims/RESET = SubResource( 11 )
 position = Vector2( 0, 2 )
 
 [node name="HornBoxCollisionShape" type="CollisionShape2D" parent="Sprite/HornBox"]
-position = Vector2( 17.8838, -23.3535 )
+position = Vector2( 15.218, -24.757 )
 rotation = 0.934655
 shape = SubResource( 8 )
 
@@ -806,9 +779,10 @@ shape = ExtResource( 13 )
 
 [node name="BodyCollisionBox" type="CollisionShape2D" parent="."]
 position = Vector2( 4, 4 )
-shape = SubResource( 9 )
+shape = ExtResource( 14 )
 __meta__ = {
-"_editor_description_": "Note: If editing this thing's shape, remember to edit it in all the animations, too."
+"_editor_description_": "Used for colliding for physics entities and the world.
+Note: If editing this thing's shape, remember to edit it in all the animations, too."
 }
 
 [node name="PlayerInputService" type="Node2D" parent="."]
